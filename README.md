@@ -14,13 +14,14 @@ Please note that this project is in its very early stages. At this stage, the pr
 
 ## Installation
 
-1. Ensure you are running a server with PHP version 8.2 or higher and MySQL version 5.7 or higher.
+1. Ensure you are running a server with PHP version 8.2 or higher and the latest MySQL version.
 2. Copy the Alpi CMS files to the root directory of your PHP MySQL server.
-3. Create an empty MySQL database for Alpi CMS.
-4. Navigate to `/install.php` in your browser to run the installation script. This will set up the initial database with simple default credentials.
-5. (Coming Soon) Initial setup for customizing username and password during installation.
-6. After installation, access the admin dashboard by navigating to `public/admin/index.php` on your server.
-7. Log in and start creating, modifying, and deleting posts. Note: At this stage, user management functionalities (adding, removing, or editing users) are not available.
+3. Navigate to `/install.php` in your browser.
+4. Fill in the database details (hostname, database name, user, password) and desired admin credentials.
+5. Run the installation script by clicking on the "Install" button. This will create the necessary tables in the database, a sample post, and set up the initial admin user based on the credentials you provided.
+6. After installation, for security reasons, please delete or rename the `install.php` file.
+7. Access the admin dashboard by navigating to `public/admin/index.php` on your server.
+8. Log in using the admin credentials you set during the installation process. Start creating, modifying, and deleting posts. Note: At this stage, user management functionalities (adding, removing, or editing users) are not available.
 
 ## Contributing
 
@@ -28,7 +29,7 @@ Any contributions, from code to suggestions, are welcome! Please open an issue o
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the MIT License. See the LICENSE file for more information.
 
 ## Future Plans
 

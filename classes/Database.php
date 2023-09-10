@@ -1,25 +1,35 @@
 <?php
 
-class Database {
+class Database
+{
 
-    private $host = DB_HOST;
-    private $db_name = DB_NAME;
-    private $username = DB_USER;
-    private $password = DB_PASS;
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
 
+    // Constructor to initialize connection details
+    public function __construct($host = DB_HOST, $db_name = DB_NAME, $username = DB_USER, $password = DB_PASS)
+    {
+        $this->host = $host;
+        $this->db_name = $db_name;
+        $this->username = $username;
+        $this->password = $password;
+    }
+
     // Connect to the database and return the connection
-    public function connect() {
+    public function connect()
+    {
         $this->conn = null;
 
         try {
             $this->conn = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
+        } catch (PDOException $e) {
             echo 'Connection Error: ' . $e->getMessage();
         }
 
         return $this->conn;
     }
-
 }
