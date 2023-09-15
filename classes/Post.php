@@ -28,20 +28,49 @@ class Post
     // Add a new post
     public function addPost($title, $content)
     {
-        $sql = "INSERT INTO posts (title, content) VALUES (:title, :content)";
+        $slug = $this->generateSlug($title);
+        $sql = "INSERT INTO posts (title, content, slug) VALUES (:title, :content, :slug)";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $stmt->bindParam(':content', $content, PDO::PARAM_STR);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();
     }
 
-    // Update an existing post by ID
-    public function updatePost($id, $title, $content)
+    public function generateSlug($title)
     {
-        $sql = "UPDATE posts SET title = :title, content = :content WHERE id = :id";
+        $title = trim($title);
+
+        $slug = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $title));
+
+        $originalSlug = $slug;
+        $i = 1;
+        while ($this->slugExists($slug)) {
+            $slug = $originalSlug . '-' . $i;
+            $i++;
+        }
+
+        return $slug;
+    }
+
+    private function slugExists($slug)
+    {
+        $sql = "SELECT COUNT(*) FROM posts WHERE slug = :slug";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
+
+    // Update an existing post by ID
+    public function updatePost($id, $title, $content, $slug)
+    {
+        $sql = "UPDATE posts SET title = :title, content = :content, slug = :slug WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $stmt->bindParam(':content', $content, PDO::PARAM_STR);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -49,9 +78,19 @@ class Post
     // Fetch a post by its ID
     public function getPostById($id)
     {
-        $sql = "SELECT * FROM posts WHERE id = :id LIMIT 1";
+        $sql = "SELECT * FROM posts WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Fetch a post by its slug
+    public function getPostBySlug($slug)
+    {
+        $sql = "SELECT * FROM posts WHERE slug = :slug";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -62,6 +101,6 @@ class Post
         $sql = "DELETE FROM posts WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute(); // This will return a boolean indicating success or failure.
+        return $stmt->execute();
     }
 }

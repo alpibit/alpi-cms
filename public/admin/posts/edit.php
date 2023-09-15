@@ -24,8 +24,9 @@ $postData = $post->getPostById($_GET['id']);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
     $content = $_POST['content'];
+    $slug = $post->generateSlug($title);
 
-    $post->updatePost($_GET['id'], $title, $content);
+    $post->updatePost($_GET['id'], $title, $content, $slug);
     header("Location: " . BASE_URL . "/public/admin/index.php");
 }
 ?>

@@ -2,11 +2,12 @@
 
 function setupTables($conn)
 {
-    // SQL statement for creating a `posts` table
+    // SQL statement for creating a `posts` table with the slug column
     $postsTableSQL = "
         CREATE TABLE posts (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) UNIQUE NOT NULL,
             content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -31,17 +32,28 @@ function setupTables($conn)
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 ";
+
     // Execute the SQL statements
     $conn->exec($postsTableSQL);
     $conn->exec($settingsTableSQL);
     $conn->exec($usersTableSQL);
 }
 
+function generateSlug($string)
+{
+    $string = trim($string);
+    $slug = strtolower($string);
+    $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+    $slug = trim($slug, '-');
+    return $slug;
+}
 function insertSamplePost($conn, $post)
 {
-    $sql = "INSERT INTO posts (title, content) VALUES (:title, :content)";
+    $slug = generateSlug($post['title']);
+    $sql = "INSERT INTO posts (title, slug, content) VALUES (:title, :slug, :content)";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':title', $post['title']);
+    $stmt->bindParam(':slug', $slug);
     $stmt->bindParam(':content', $post['content']);
     $stmt->execute();
 }

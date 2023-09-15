@@ -32,7 +32,7 @@ include __DIR__ . '/../templates/header.php';
 <?php endif; ?>
 
 <?php foreach ($latestPosts as $post) : ?>
-    <h2><a href="/public/single-post.php?id=<?php echo $post['id']; ?>"><?php echo $post['title']; ?></a></h2>
+    <h2><a href="/public/single-post.php?slug=<?php echo $post['slug']; ?>"><?php echo $post['title']; ?></a></h2>
     <p><?php echo $post['content']; ?></p>
     <hr>
 <?php endforeach; ?>

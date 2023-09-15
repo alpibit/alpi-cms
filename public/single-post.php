@@ -3,10 +3,11 @@ require '../config/autoload.php';
 require '../config/config.php';  
 require '../config/database.php';
 
-$postId = $_GET['id'] ?? null;
-if (!$postId) {
-    die('Post ID is missing.');
+$postSlug = $_GET['slug'] ?? null;
+if (!$postSlug) {
+    die('Post slug is missing.');
 }
+
 
 $dbInstance = new Database();
 $dbConnection = $dbInstance->connect();
@@ -16,7 +17,7 @@ if (!($dbConnection instanceof PDO)) {
 }
 
 $post = new Post($dbConnection);
-$singlePost = $post->getPostById($postId);
+$singlePost = $post->getPostBySlug($postSlug);
 
 if (!$singlePost) {
     die('Post not found.');
