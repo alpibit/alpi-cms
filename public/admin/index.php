@@ -36,7 +36,7 @@ $allPosts = $post->getAllPosts();
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($allPosts as $singlePost): ?>
+        <?php foreach ($allPosts as $singlePost) : ?>
             <tr>
                 <td><?= $singlePost['title'] ?></td>
                 <td>
