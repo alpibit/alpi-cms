@@ -26,24 +26,108 @@ $post = new Post($conn);
 $allPosts = $post->getAllPosts();
 ?>
 
-<h1>Admin Dashboard</h1>
-<a href="<?= BASE_URL ?>/public/admin/posts/add.php">Add New Post</a>
-<table>
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($allPosts as $singlePost) : ?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- !!! Need to move CSS -->
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f4f4f4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #cccccc;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+        }
+
+        .btn-group button {
+            margin-right: 10px;
+        }
+    </style>
+    <script>
+        // !!! Need to move JS
+        function confirmDeletion(postId) {
+            if (confirm("Are you sure you want to delete this post?")) {
+                window.location.href = 'posts/delete.php?id=' + postId;
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <h1>Admin Dashboard</h1>
+
+    <div class="btn-group">
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/posts/add.php'">Add New Post</button>
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/logout.php'">Logout</button>
+    </div>
+
+    <table>
+        <thead>
             <tr>
-                <td><?= $singlePost['title'] ?></td>
-                <td>
-                    <a href="posts/edit.php?id=<?= $singlePost['id'] ?>">Edit</a> |
-                    <a href="posts/delete.php?id=<?= $singlePost['id'] ?>">Delete</a>
-                </td>
+                <th>Title</th>
+                <th>Action</th>
             </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <?php foreach ($allPosts as $singlePost) : ?>
+                <tr>
+                    <td><?= $singlePost['title'] ?></td>
+                    <td>
+                        <button onclick="window.location.href='posts/edit.php?id=<?= $singlePost['id'] ?>'">Edit</button>
+                        <button class="btn-danger" onclick="confirmDeletion('<?= $singlePost['id'] ?>')">Delete</button>
+
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</body>
+
+</html>

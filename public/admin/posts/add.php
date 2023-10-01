@@ -15,16 +15,16 @@ require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
 
-
 $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $title = $_POST['title'];
     $content = $_POST['content'];
+    $userId = $_SESSION['user_id'];
 
-    $post->addPost($title, $content);
+    $post->addPost($title, $content, $userId);
     header("Location: " . BASE_URL . "/public/admin/index.php");
 }
 ?>

@@ -15,9 +15,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     if ($user->authenticate($username, $password)) {
+        $userData = $user->getUserData($username);  // Get user data
         $_SESSION['loggedIn'] = true;
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $user->getRole($username);
+        $_SESSION['user_id'] = $userData['id'];  // Store user_id in session
         header("Location: /public/admin/index.php");
     } else {
         $error = 'Invalid credentials';
@@ -27,21 +29,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
 </head>
+
 <body>
 
-<h1>Login to Admin Panel</h1>
-<?php if ($error): ?>
-    <p style="color: red;"><?= $error ?></p>
-<?php endif; ?>
-<form action="" method="POST">
-    Username: <input type="text" name="username"><br>
-    Password: <input type="password" name="password"><br>
-    <input type="submit" value="Login">
-</form>
+    <h1>Login to Admin Panel</h1>
+    <?php if ($error) : ?>
+        <p style="color: red;"><?= $error ?></p>
+    <?php endif; ?>
+    <form action="" method="POST">
+        Username: <input type="text" name="username"><br>
+        Password: <input type="password" name="password"><br>
+        <input type="submit" value="Login">
+    </form>
 
 </body>
+
 </html>

@@ -1,8 +1,10 @@
 <?php
+ob_start();
+
 session_start();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: path_to_your_login_page/login.php');
+    header('Location: /public/admin/login.php');
     exit;
 }
 
@@ -26,8 +28,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $content = $_POST['content'];
     $slug = $post->generateSlug($title);
 
-    $post->updatePost($_GET['id'], $title, $content, $slug);
+    if(!isset($_SESSION['user_id'])){
+        die("User ID not set in session. Ensure you're setting this on login.");
+    }
+    $userId = $_SESSION['user_id'];
+
+    $post->updatePost($_GET['id'], $title, $content, $slug, $userId);
     header("Location: " . BASE_URL . "/public/admin/index.php");
+    exit;
 }
 ?>
 
@@ -37,3 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     Content: <textarea name="content"><?= $postData['content'] ?></textarea><br>
     <input type="submit" value="Update Post">
 </form>
+
+<?php
+ob_end_flush();
+?>

@@ -1,11 +1,24 @@
 <?php
 
-function setupTables($conn)
-{
-    // SQL statement for creating a `posts` table with the slug column
+function setupTables($conn) {
+    // SQL statement for creating a `posts` table
     $postsTableSQL = "
         CREATE TABLE posts (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            user_id INT(11),
+            title VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        );
+    ";
+
+    // SQL statement for creating a `pages` table
+    $pagesTableSQL = "
+        CREATE TABLE pages (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            user_id INT(11),
             title VARCHAR(255) NOT NULL,
             slug VARCHAR(255) UNIQUE NOT NULL,
             content TEXT NOT NULL,
@@ -18,37 +31,39 @@ function setupTables($conn)
     $settingsTableSQL = "
         CREATE TABLE settings (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            setting_key VARCHAR(255) NOT NULL,
+            setting_key VARCHAR(255) NOT NULL UNIQUE,
             setting_value TEXT NOT NULL
         );
     ";
 
+    // SQL statement for creating a `users` table
     $usersTableSQL = "
-    CREATE TABLE users (
-        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        role ENUM('admin', 'editor') DEFAULT 'admin',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-";
+        CREATE TABLE users (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            email VARCHAR(255),
+            role ENUM('admin', 'editor') DEFAULT 'editor',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    ";
 
     // Execute the SQL statements
     $conn->exec($postsTableSQL);
+    $conn->exec($pagesTableSQL);
     $conn->exec($settingsTableSQL);
     $conn->exec($usersTableSQL);
 }
 
-function generateSlug($string)
-{
+function generateSlug($string) {
     $string = trim($string);
     $slug = strtolower($string);
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
     $slug = trim($slug, '-');
     return $slug;
 }
-function insertSamplePost($conn, $post)
-{
+
+function insertSamplePost($conn, $post) {
     $slug = generateSlug($post['title']);
     $sql = "INSERT INTO posts (title, slug, content) VALUES (:title, :slug, :content)";
     $stmt = $conn->prepare($sql);
@@ -58,14 +73,30 @@ function insertSamplePost($conn, $post)
     $stmt->execute();
 }
 
-function flagAsInstalled($conn)
-{
+function insertSamplePage($conn, $page) {
+    $slug = generateSlug($page['title']);
+    $sql = "INSERT INTO pages (title, slug, content) VALUES (:title, :slug, :content)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':title', $page['title']);
+    $stmt->bindParam(':slug', $slug);
+    $stmt->bindParam(':content', $page['content']);
+    $stmt->execute();
+}
+
+function setDefaultSettings($conn) {
+    $sql = "INSERT INTO settings (setting_key, setting_value) VALUES 
+    ('site_name', 'My New CMS'),
+    ('footer_text', 'My CMS powered by AlpiCMS'),
+    ('header_logo', 'path_to_logo_image.jpg')"; // !!! Need to change this
+    $conn->exec($sql);
+}
+
+function flagAsInstalled($conn) {
     $sql = "INSERT INTO settings (setting_key, setting_value) VALUES ('installed', 'true')";
     $conn->exec($sql);
 }
 
-function createAdminUser($conn, $username, $password)
-{
+function createAdminUser($conn, $username, $password) {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $sql = "INSERT INTO users (username, password, role) VALUES (:username, :hashedPassword, 'admin')";
     $stmt = $conn->prepare($sql);
@@ -81,7 +112,6 @@ if (file_exists('config/database.php')) {
 
 // If the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
     $host = $_POST['db_host'];
     $name = $_POST['db_name'];
     $user = $_POST['db_user'];
@@ -120,9 +150,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'title' => 'Welcome to Your New CMS!',
             'content' => 'Congratulations on successfully installing your new CMS. This is a sample post. You can edit or delete it to start creating your own content!'
         ];
+        $samplePage = [
+            'title' => 'About Us',
+            'content' => 'This is an about page for our new CMS. Edit or delete it to start creating your own content!'
+        ];
 
         setupTables($conn);
         insertSamplePost($conn, $samplePost);
+        insertSamplePage($conn, $samplePage);
+        setDefaultSettings($conn);
         flagAsInstalled($conn);
         createAdminUser($conn, $admin_user, $admin_pass);
 
