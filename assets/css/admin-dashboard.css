@@ -1,0 +1,54 @@
+body.admin-dashboard-wrap {
+    font-family: Arial, sans-serif;
+    padding: 2rem;
+    background-color: #f4f4f4;
+}
+
+.admin-dashboard-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-dashboard-wrap table,
+.admin-dashboard-wrap th,
+.admin-dashboard-wrap td {
+    border: 1px solid #cccccc;
+}
+
+.admin-dashboard-wrap th,
+.admin-dashboard-wrap td {
+    padding: 10px;
+    text-align: left;
+}
+
+.admin-dashboard-wrap th {
+    background-color: #f2f2f2;
+}
+
+.admin-dashboard-wrap button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.admin-dashboard-wrap button:hover {
+    background-color: #0056b3;
+}
+
+.admin-dashboard-wrap .btn-danger {
+    background-color: #dc3545;
+}
+
+.admin-dashboard-wrap .btn-danger:hover {
+    background-color: #c82333;
+}
+
+.admin-dashboard-wrap .btn-group {
+    margin-top: 20px;
+}
+
+.admin-dashboard-wrap .btn-group button {
+    margin-right: 10px;
+}

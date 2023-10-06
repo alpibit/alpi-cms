@@ -32,74 +32,10 @@ $allPosts = $post->getAllPosts();
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <!-- !!! Need to move CSS -->
-    <style> 
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-            background-color: #f4f4f4;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #cccccc;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-        .btn-group {
-            margin-top: 20px;
-        }
-
-        .btn-group button {
-            margin-right: 10px;
-        }
-    </style>
-    <script>
-        // !!! Need to move JS
-        function confirmDeletion(postId) {
-            if (confirm("Are you sure you want to delete this post?")) {
-                window.location.href = 'posts/delete.php?id=' + postId;
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
 </head>
 
-<body>
+<body class="admin-dashboard-wrap">
 
     <h1>Admin Dashboard</h1>
 
@@ -129,5 +65,7 @@ $allPosts = $post->getAllPosts();
         </tbody>
     </table>
 </body>
+
+<script src="/assets/js/main.js"></script>
 
 </html>
