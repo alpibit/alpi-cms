@@ -3,20 +3,26 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/autoload.php';
 
+// Start session
 session_start();
 
 // Load utility functions
 require_once __DIR__ . '/../utils/helpers.php';
 
-$dbInstance = new Database();
-$dbConnection = $dbInstance->connect();
+try {
+    $dbInstance = new Database();
+    $dbConnection = $dbInstance->connect();
 
-if (!($dbConnection instanceof PDO)) {
-    die("Error establishing a database connection.");
+    // Ensure the connection is a PDO instance
+    if (!($dbConnection instanceof PDO)) {
+        throw new Exception("Error establishing a database connection.");
+    }
+
+    $postObj = new Post($dbConnection);
+    $latestPosts = $postObj->getLatestPosts();
+} catch (Exception $e) {
+    die($e->getMessage());
 }
-
-$postObj = new Post($dbConnection);
-$latestPosts = $postObj->getLatestPosts();
 
 include __DIR__ . '/../templates/header.php';
 ?>
@@ -39,9 +45,11 @@ include __DIR__ . '/../templates/header.php';
                     <?php echo htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8'); ?>
                 </a>
             </h2>
-            <div class="post-content">
-                <?php echo nl2br(htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8')); ?>
-            </div>
+            <?php foreach ($post['blocks'] as $block) : ?>
+                <div class="post-content">
+                    <?php echo nl2br(htmlspecialchars($block['content'], ENT_QUOTES, 'UTF-8')); ?>
+                </div>
+            <?php endforeach; ?>
         </article>
         <hr class="post-divider">
     <?php endforeach; ?>

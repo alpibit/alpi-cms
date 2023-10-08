@@ -1,29 +1,26 @@
 <?php
 
-function setupTables($conn) {
-    // SQL statement for creating a `posts` table
-    $postsTableSQL = "
-        CREATE TABLE posts (
+function setupTables($conn)
+{
+    // SQL statement for creating a `content_types` table
+    $contentTypesSQL = "
+        CREATE TABLE content_types (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            user_id INT(11),
-            title VARCHAR(255) NOT NULL,
-            slug VARCHAR(255) UNIQUE NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            name VARCHAR(50) NOT NULL UNIQUE
         );
     ";
 
-    // SQL statement for creating a `pages` table
-    $pagesTableSQL = "
-        CREATE TABLE pages (
+    // SQL statement for creating a `contents` table
+    $contentsTableSQL = "
+        CREATE TABLE contents (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            content_type_id INT(11) NOT NULL,
             user_id INT(11),
             title VARCHAR(255) NOT NULL,
             slug VARCHAR(255) UNIQUE NOT NULL,
-            content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (content_type_id) REFERENCES content_types(id)
         );
     ";
 
@@ -48,14 +45,35 @@ function setupTables($conn) {
         );
     ";
 
+    $blocksTableSQL = "
+        CREATE TABLE blocks (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            content_id INT(11) NOT NULL,
+            type ENUM('text', 'image_text', 'image', 'cta') NOT NULL,
+            content TEXT NOT NULL,
+            image_path VARCHAR(255),
+            order_num INT(11) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (content_id) REFERENCES contents(id)
+        );
+    ";
+
+    $contentTypesInsertSQL = "
+    INSERT INTO content_types (name) VALUES ('post'), ('page');
+";
+
     // Execute the SQL statements
-    $conn->exec($postsTableSQL);
-    $conn->exec($pagesTableSQL);
+    $conn->exec($contentTypesSQL);
+    $conn->exec($contentsTableSQL);
     $conn->exec($settingsTableSQL);
     $conn->exec($usersTableSQL);
+    $conn->exec($blocksTableSQL);
+    $conn->exec($contentTypesInsertSQL);
 }
 
-function generateSlug($string) {
+function generateSlug($string)
+{
     $string = trim($string);
     $slug = strtolower($string);
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
@@ -63,27 +81,39 @@ function generateSlug($string) {
     return $slug;
 }
 
-function insertSamplePost($conn, $post) {
-    $slug = generateSlug($post['title']);
-    $sql = "INSERT INTO posts (title, slug, content) VALUES (:title, :slug, :content)";
+function insertSampleBlock($conn, $contentId, $block)
+{
+    $sql = "INSERT INTO blocks (content_id, type, content, image_path, order_num) VALUES (:contentId, :type, :content, :image_path, :order_num)";
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':title', $post['title']);
-    $stmt->bindParam(':slug', $slug);
-    $stmt->bindParam(':content', $post['content']);
+    $stmt->bindParam(':contentId', $contentId);
+    $stmt->bindParam(':type', $block['type']);
+    $stmt->bindParam(':content', $block['content']);
+    $stmt->bindParam(':image_path', $block['image_path']);
+    $stmt->bindParam(':order_num', $block['order_num']);
     $stmt->execute();
 }
 
-function insertSamplePage($conn, $page) {
-    $slug = generateSlug($page['title']);
-    $sql = "INSERT INTO pages (title, slug, content) VALUES (:title, :slug, :content)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':title', $page['title']);
-    $stmt->bindParam(':slug', $slug);
-    $stmt->bindParam(':content', $page['content']);
+function insertSampleContent($conn, $contentType, $content)
+{
+    // Get the ID of the content type
+    $sqlContentType = "SELECT id FROM content_types WHERE name = :contentType";
+    $stmt = $conn->prepare($sqlContentType);
+    $stmt->bindParam(':contentType', $contentType);
     $stmt->execute();
+    $contentTypeId = $stmt->fetchColumn();
+
+    $slug = generateSlug($content['title']);
+    $sql = "INSERT INTO contents (content_type_id, title, slug) VALUES (:contentTypeId, :title, :slug)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':contentTypeId', $contentTypeId);
+    $stmt->bindParam(':title', $content['title']);
+    $stmt->bindParam(':slug', $slug);
+    $stmt->execute();
+    return $conn->lastInsertId();
 }
 
-function setDefaultSettings($conn) {
+function setDefaultSettings($conn)
+{
     $sql = "INSERT INTO settings (setting_key, setting_value) VALUES 
     ('site_name', 'My New CMS'),
     ('footer_text', 'My CMS powered by AlpiCMS'),
@@ -91,12 +121,14 @@ function setDefaultSettings($conn) {
     $conn->exec($sql);
 }
 
-function flagAsInstalled($conn) {
+function flagAsInstalled($conn)
+{
     $sql = "INSERT INTO settings (setting_key, setting_value) VALUES ('installed', 'true')";
     $conn->exec($sql);
 }
 
-function createAdminUser($conn, $username, $password) {
+function createAdminUser($conn, $username, $password)
+{
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $sql = "INSERT INTO users (username, password, role) VALUES (:username, :hashedPassword, 'admin')";
     $stmt = $conn->prepare($sql);
@@ -150,22 +182,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'title' => 'Welcome to Your New CMS!',
             'content' => 'Congratulations on successfully installing your new CMS. This is a sample post. You can edit or delete it to start creating your own content!'
         ];
+
         $samplePage = [
             'title' => 'About Us',
             'content' => 'This is an about page for our new CMS. Edit or delete it to start creating your own content!'
         ];
 
         setupTables($conn);
-        insertSamplePost($conn, $samplePost);
-        insertSamplePage($conn, $samplePage);
+
+        $samplePostId = insertSampleContent($conn, 'post', $samplePost);
+
+        $sampleBlocks = [
+            [
+                'type' => 'text',
+                'content' => 'This is a text block content.',
+                'image_path' => '',
+                'order_num' => 1
+            ],
+            [
+                'type' => 'image_text',
+                'content' => 'This is the text content for the image-text block.',
+                'image_path' => 'path_to_sample_image.jpg',
+                'order_num' => 2
+            ]
+        ];
+
+        foreach ($sampleBlocks as $block) {
+            insertSampleBlock($conn, $samplePostId, $block);
+        }
+
+        insertSampleContent($conn, 'page', $samplePage);
         setDefaultSettings($conn);
         flagAsInstalled($conn);
         createAdminUser($conn, $admin_user, $admin_pass);
 
         echo "Installation successful! For security reasons, please delete or rename the install.php file.";
         exit;
-    } else {
-        echo "Failed to connect to the database. Please check your credentials and try again.";
     }
 }
 
