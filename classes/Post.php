@@ -142,6 +142,15 @@ class Post
         }
     }
 
+    public function getBlocksByPostId($postId)
+    {
+        $sql = "SELECT * FROM blocks WHERE content_id = :postId ORDER BY order_num ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':postId', $postId);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Fetch a post by its ID
     public function getPostById($id)
     {
@@ -175,31 +184,11 @@ class Post
     // Fetch a post by its slug
     public function getPostBySlug($slug)
     {
-        $sql = "SELECT contents.*, blocks.type, blocks.content FROM contents 
-                LEFT JOIN blocks ON contents.id = blocks.content_id 
-                WHERE contents.slug = :slug";
+        $sql = "SELECT * FROM contents WHERE slug = :slug";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();
-
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $posts = [];
-        foreach ($results as $result) {
-            $postId = $result['id'];
-            if (!isset($posts[$postId])) {
-                $posts[$postId] = [
-                    'title' => $result['title'],
-                    'slug' => $result['slug'],
-                    'blocks' => [],
-                ];
-            }
-            $posts[$postId]['blocks'][] = [
-                'type' => $result['type'],
-                'content' => $result['content'],
-            ];
-        }
-        return array_values($posts);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // Delete a post by its ID
