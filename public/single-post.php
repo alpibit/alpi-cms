@@ -21,9 +21,12 @@ $singlePost = $post->getPostBySlug($postSlug);
 
 $blocks = $post->getBlocksByPostId($singlePost['id']);
 
-if (!$singlePost) {
-    die('Post not found.');
-}
+
+
+usort($blocks, function ($a, $b) {
+    return $a['id'] <=> $b['id'];
+});
+
 
 ?>
 

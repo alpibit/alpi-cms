@@ -24,7 +24,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $contentBlocks = [];
     $userId = $_SESSION['user_id'];
 
-    // Assuming you're using 'blockType' and 'blockContent' as names for your input fields
     if (isset($_POST['blockType']) && isset($_POST['blockContent'])) {
         for ($i = 0; $i < count($_POST['blockType']); $i++) {
             $contentBlocks[] = [

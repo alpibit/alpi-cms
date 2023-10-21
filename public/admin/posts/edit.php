@@ -59,6 +59,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label><?= ucfirst($block['type']) ?> Block:</label>
                 <textarea name="blocks[<?= $index ?>][content]"><?= $block['content'] ?></textarea>
                 <input type="hidden" name="blocks[<?= $index ?>][type]" value="<?= $block['type'] ?>">
+                <!-- !!! Have to make buttons work -->
+                <?php if ($index > 0) : ?>
+                    <button type="button" onclick="moveUp(this)">Move Up</button>
+                <?php endif; ?>
+                <?php if ($index < count($postData['blocks']) - 1) : ?>
+                    <button type="button" onclick="moveDown(this)">Move Down</button>
+                <?php endif; ?>
                 <br>
     <?php endif;
         endforeach;
