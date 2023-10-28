@@ -132,12 +132,17 @@ class Post
         $stmtDelete->execute();
 
         // Inserting updated blocks for this post
-        foreach ($contentBlocks as $block) {
-            $sqlBlock = "INSERT INTO blocks (content_id, type, content) VALUES (:id, :type, :content)";
+        foreach ($contentBlocks as $index => $block) {
+            if ($block['type'] === null) {
+                continue;
+            }
+            $orderNum = $index + 1;  // Calculate order number based on index
+            $sqlBlock = "INSERT INTO blocks (content_id, type, content, order_num) VALUES (:id, :type, :content, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':id', $id, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':content', $block['content'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':orderNum', $orderNum, PDO::PARAM_INT);
             $stmtBlock->execute();
         }
     }

@@ -24,7 +24,7 @@ $blocks = $post->getBlocksByPostId($singlePost['id']);
 
 
 usort($blocks, function ($a, $b) {
-    return $a['id'] <=> $b['id'];
+    return $a['order_num'] <=> $b['order_num'];
 });
 
 
