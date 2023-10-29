@@ -45,11 +45,20 @@ include __DIR__ . '/../templates/header.php';
                     <?php echo htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8'); ?>
                 </a>
             </h2>
-            <?php foreach ($post['blocks'] as $block) : ?>
+            <?php
+            $previewText = '';
+            foreach ($post['blocks'] as $block) {
+                if ($block['type'] === 'text' || $block['type'] === 'image_text') {
+                    $previewText = substr($block['content'], 0, 50);
+                    break;  // Exit the loop once a text block is found
+                }
+            }
+            ?>
+            <?php if (!empty($previewText)) : ?>
                 <div class="post-content">
-                    <?php echo nl2br(htmlspecialchars($block['content'], ENT_QUOTES, 'UTF-8')); ?>
+                    <?php echo nl2br(htmlspecialchars($previewText, ENT_QUOTES, 'UTF-8')); ?>...
                 </div>
-            <?php endforeach; ?>
+            <?php endif; ?>
         </article>
         <hr class="post-divider">
     <?php endforeach; ?>
