@@ -1,6 +1,9 @@
+<?php
+$footer_text = $settings->getSetting('footer_text');
+?>
+
 <footer class="footer-wrap">
-    <a href="https://github.com/alpibit" target="_blank" class="footer-link">GitHub</a>
-    <p class="footer-text"><?php echo date('Y'); ?> AlpiCMS</p>
+    <p><?= htmlspecialchars($footer_text, ENT_QUOTES, 'UTF-8') ?></p>
 </footer>
 
 <script src="<?= BASE_URL ?>/assets/js/main.js"></script>

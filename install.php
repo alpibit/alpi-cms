@@ -115,8 +115,8 @@ function insertSampleContent($conn, $contentType, $content)
 function setDefaultSettings($conn)
 {
     $sql = "INSERT INTO settings (setting_key, setting_value) VALUES 
-    ('site_name', 'My New CMS'),
-    ('footer_text', 'My CMS powered by AlpiCMS'),
+    ('site_name', 'My New Site'),
+    ('footer_text', 'My Site powered by AlpiCMS'),
     ('header_logo', 'path_to_logo_image.jpg')"; // !!! Need to change this
     $conn->exec($sql);
 }
