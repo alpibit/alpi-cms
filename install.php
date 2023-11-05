@@ -45,19 +45,33 @@ function setupTables($conn)
         );
     ";
 
+    // SQL statement for creating a `blocks` table
     $blocksTableSQL = "
         CREATE TABLE blocks (
             id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
             content_id INT(11) NOT NULL,
             type ENUM('text', 'image_text', 'image', 'cta') NOT NULL,
-            content TEXT NOT NULL,
+            title VARCHAR(255),
+            content MEDIUMTEXT,
             image_path VARCHAR(255),
+            alt_text VARCHAR(255),
+            caption VARCHAR(255),
+            url VARCHAR(255),
+            class VARCHAR(255),
+            metafield1 TEXT,
+            metafield2 TEXT,
+            metafield3 TEXT,
+            cta_text VARCHAR(255),
             order_num INT(11) NOT NULL,
+            status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+            start_date DATETIME,
+            end_date DATETIME,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (content_id) REFERENCES contents(id)
         );
     ";
+
 
     $contentTypesInsertSQL = "
     INSERT INTO content_types (name) VALUES ('post'), ('page');
@@ -83,13 +97,36 @@ function generateSlug($string)
 
 function insertSampleBlock($conn, $contentId, $block)
 {
-    $sql = "INSERT INTO blocks (content_id, type, content, image_path, order_num) VALUES (:contentId, :type, :content, :image_path, :order_num)";
+    $sql = "INSERT INTO blocks (
+        content_id, type, title, content,
+        image_path, alt_text, caption, url,
+        class, metafield1, metafield2, metafield3, cta_text,
+        order_num, status, start_date, end_date
+    ) VALUES (
+        :contentId, :type, :title, :content,
+        :image_path, :alt_text, :caption, :url,
+        :class, :metafield1, :metafield2, :metafield3, :cta_text,
+        :order_num, :status, :start_date, :end_date
+    )";
+
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':contentId', $contentId);
     $stmt->bindParam(':type', $block['type']);
+    $stmt->bindParam(':title', $block['title']);
     $stmt->bindParam(':content', $block['content']);
     $stmt->bindParam(':image_path', $block['image_path']);
+    $stmt->bindParam(':alt_text', $block['alt_text']);
+    $stmt->bindParam(':caption', $block['caption']);
+    $stmt->bindParam(':url', $block['url']);
+    $stmt->bindParam(':class', $block['class']);
+    $stmt->bindParam(':metafield1', $block['metafield1']);
+    $stmt->bindParam(':metafield2', $block['metafield2']);
+    $stmt->bindParam(':metafield3', $block['metafield3']);
+    $stmt->bindParam(':cta_text', $block['cta_text']);
     $stmt->bindParam(':order_num', $block['order_num']);
+    $stmt->bindParam(':status', $block['status']);
+    $stmt->bindParam(':start_date', $block['start_date']);
+    $stmt->bindParam(':end_date', $block['end_date']);
     $stmt->execute();
 }
 
@@ -195,15 +232,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $sampleBlocks = [
             [
                 'type' => 'text',
+                'title' => 'Sample Text Block',
                 'content' => 'This is a text block content.',
                 'image_path' => '',
-                'order_num' => 1
+                'alt_text' => '',
+                'caption' => '',
+                'url' => '',
+                'class' => '',
+                'metafield1' => null,
+                'metafield2' => null,
+                'metafield3' => null,
+                'cta_text' => '',
+                'order_num' => 1,
+                'status' => 'active',
+                'start_date' => null,
+                'end_date' => null,
             ],
             [
                 'type' => 'image_text',
+                'title' => 'Sample Image Text Block',
                 'content' => 'This is the text content for the image-text block.',
                 'image_path' => 'path_to_sample_image.jpg',
-                'order_num' => 2
+                'alt_text' => 'Sample Image',
+                'caption' => 'This is a caption.',
+                'url' => '',
+                'class' => '',
+                'metafield1' => null,
+                'metafield2' => null,
+                'metafield3' => null,
+                'cta_text' => 'Click here',
+                'order_num' => 2,
+                'status' => 'active',
+                'start_date' => null,
+                'end_date' => null,
             ]
         ];
 

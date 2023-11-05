@@ -76,7 +76,7 @@ class Post
 
         // Inserting blocks related to this post
         foreach ($contentBlocks as $index => $block) {
-            $orderNum = $index + 1;  // This will set order_num starting from 1, 2, 3,...
+            $orderNum = $index + 1;
             $sqlBlock = "INSERT INTO blocks (content_id, type, content, order_num) VALUES (:contentId, :type, :content, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $contentId, PDO::PARAM_INT);

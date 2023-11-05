@@ -24,11 +24,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $contentBlocks = [];
     $userId = $_SESSION['user_id'];
 
-    if (isset($_POST['blockType']) && isset($_POST['blockContent'])) {
-        for ($i = 0; $i < count($_POST['blockType']); $i++) {
+    foreach ($_POST['blocks'] as $block) {
+        if ($block['type'] !== null && $block['content'] !== null) {
             $contentBlocks[] = [
-                'type' => $_POST['blockType'][$i],
-                'content' => $_POST['blockContent'][$i]
+                'type' => $block['type'],
+                'content' => $block['content']
             ];
         }
     }
@@ -47,13 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     <div id="contentBlocks">
         <div class="block">
             <label>Type:</label>
-            <select name="blockType[]">
+            <select name="blocks[0][type]">
                 <option value="text">Text</option>
                 <option value="image_text">Image Text</option>
                 <option value="image">Image</option>
                 <option value="cta">CTA</option>
             </select><br>
-            <textarea name="blockContent[]"></textarea><br>
+            <textarea name="blocks[0][content]"></textarea><br>
             <div class="buttons">
                 <button type="button" onclick="moveUp(this)">Move Up</button>
                 <button type="button" onclick="moveDown(this)">Move Down</button>
@@ -66,6 +66,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
 
     <input type="submit" value="Add Post">
 </form>
-
 
 <script src="/assets/js/posts-blocks.js"></script>
