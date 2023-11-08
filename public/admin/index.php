@@ -43,6 +43,7 @@ $allPosts = $post->getAllPosts();
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/posts/add.php'">Add New Post</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/logout.php'">Logout</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/settings/index.php'">Settings</button>
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/uploads/index.php'">Uploads</button>
     </div>
 
     <table>

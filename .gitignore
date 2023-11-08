@@ -1,3 +1,4 @@
 /config/*
+/uploads/*
 !/config/config.php
 !/config/autoload.php
