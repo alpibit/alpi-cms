@@ -3,31 +3,41 @@
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
+require '../../../classes/Upload.php';
 
-function getUploads()
-{
-    $uploads = [];
-    $uploadDir = '../../../uploads';
-    $uploadFiles = scandir($uploadDir);
-    foreach ($uploadFiles as $uploadFile) {
-        if ($uploadFile !== '.' && $uploadFile !== '..') {
-            $uploadPath = '/uploads/' . $uploadFile;
-            $uploadUrl = BASE_URL . $uploadPath;
-            $uploadSize = filesize($uploadDir . '/' . $uploadFile);
-            $uploadDate = date("F d Y H:i:s.", filemtime($uploadDir . '/' . $uploadFile));
-            $uploads[] = [
-                'path' => $uploadPath,
-                'url' => $uploadUrl,
-                'size' => $uploadSize,
-                'date' => $uploadDate,
-            ];
-        }
+$db = new Database();
+$pdo = $db->connect();
+$upload = new Upload($pdo);
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete'])) {
+    $fileName = basename($_POST['delete']);
+    try {
+        $upload->deleteFile($fileName);
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
     }
-    return $uploads;
 }
 
+$uploads = $upload->listFiles();
 
-$uploads = getUploads();
+
+
+$displayUploads = [];
+foreach ($uploads as $filePath) {
+    $fileName = basename($filePath);
+    $uploadPath = '/uploads/' . $fileName;
+    $uploadUrl = BASE_URL . $uploadPath;
+    $uploadSize = filesize($filePath);
+    $uploadDate = date("F d Y H:i:s.", filemtime($filePath));
+
+    $displayUploads[] = [
+        'path' => $uploadPath,
+        'url' => $uploadUrl,
+        'size' => $uploadSize,
+        'date' => $uploadDate,
+    ];
+}
 
 ?>
 
@@ -59,14 +69,14 @@ $uploads = getUploads();
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($uploads as $upload) : ?>
+            <?php foreach ($displayUploads as $fileInfo) : ?>
                 <tr>
-                    <td><a href="<?= $upload['url'] ?>" target="_blank"><?= $upload['path'] ?></a></td>
-                    <td><?= $upload['size'] ?></td>
-                    <td><?= $upload['date'] ?></td>
+                    <td><a href="<?= $fileInfo['url'] ?>" target="_blank"><?= $fileInfo['path'] ?></a></td>
+                    <td><?= $fileInfo['size'] ?></td>
+                    <td><?= $fileInfo['date'] ?></td>
                     <td>
                         <form method="post">
-                            <input type="hidden" name="delete" value="<?= $upload['path'] ?>">
+                            <input type="hidden" name="delete" value="<?= basename($fileInfo['path']) ?>">
                             <input type="submit" value="Delete">
                         </form>
                     </td>
