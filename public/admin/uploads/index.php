@@ -19,6 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete'])) {
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['fileToUpload'])) {
+    try {
+        $upload->uploadFile($_FILES['fileToUpload']);
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
 $uploads = $upload->listFiles();
 
 
@@ -58,6 +66,12 @@ foreach ($uploads as $filePath) {
     <div class="btn-group">
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/index.php'">Admin Dashboard</button>
     </div>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        Select file to upload:
+        <input type="file" name="fileToUpload" id="fileToUpload">
+        <input type="submit" value="Upload File" name="submit">
+    </form>
 
     <table>
         <thead>
