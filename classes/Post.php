@@ -211,4 +211,24 @@ class Post
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public function getBlockHtml($type, $index)
+    {
+        ob_start();
+        switch ($type) {
+            case 'text':
+                include('/blocks/types/text.php');
+                break;
+            case 'image_text':
+                include('/blocks/types/image_text.php');
+                break;
+            case 'image':
+                include('/blocks/types/image.php');
+                break;
+            case 'cta':
+                include('/blocks/types/cta.php');
+                break;
+        }
+        return ob_get_clean();
+    }
 }

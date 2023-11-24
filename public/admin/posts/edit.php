@@ -47,6 +47,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
+function renderBlockContent($block, $index)
+{
+    switch ($block['type']) {
+        case 'text':
+            echo "<textarea name='blocks[$index][content]'>{$block['content']}</textarea>";
+            break;
+        case 'image_text':
+            // !!!
+            break;
+        case 'image':
+            // !!!
+            break;
+        case 'cta':
+            // !!!
+            break;
+    }
+}
+
 ?>
 
 <h1>Edit Post</h1>
@@ -65,7 +83,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <option value="image" <?= $block['type'] == 'image' ? 'selected' : '' ?>>Image</option>
                             <option value="cta" <?= $block['type'] == 'cta' ? 'selected' : '' ?>>CTA</option>
                         </select><br>
-                        <textarea name="blocks[<?= $index ?>][content]"><?= $block['content'] ?></textarea>
+                        <?php
+                        renderBlockContent($block, $index);
+                        ?>
                         <div class="buttons">
                         </div>
                         <br>
