@@ -20,6 +20,8 @@ require '../../../config/autoload.php';
 $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
+$upload = new Upload($conn);
+
 
 $postData = $post->getPostById($_GET['id']);
 $postData = $postData[0];
@@ -47,21 +49,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-function renderBlockContent($block, $index)
+function renderBlockContent($block, $index, $uploads = [])
 {
+    global $upload;
+
+    $uploads = $upload->listFiles();
+
     switch ($block['type']) {
         case 'text':
             echo "<textarea name='blocks[$index][content]'>{$block['content']}</textarea>";
             break;
         case 'image_text':
-            // !!!
+            echo "<textarea name='blocks[$index][content]'>{$block['content']}</textarea><br>";
+            echo "<input type='file' name='blocks[$index][image]' /><br>";
+            // !!! Any other fields
             break;
         case 'image':
-            // !!!
+            echo "<select name='blocks[$index][image_path]'>";
+            foreach ($uploads as $upload) {
+                $selected = ($upload['path'] == $block['image_path']) ? 'selected' : '';
+                echo "<option value='{$upload['url']}' $selected>{$upload['url']}</option>";
+            }
+            echo "</select>";
             break;
         case 'cta':
-            // !!!
+            echo "<input type='text' name='blocks[$index][cta_text]' value='{$block['cta_text']}' /><br>";
+            echo "<input type='url' name='blocks[$index][cta_link]' value='{$block['url']}' />";
             break;
+        default:
+            echo "Unknown block type";
     }
 }
 

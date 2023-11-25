@@ -29,16 +29,20 @@ class Upload
     public function listFiles()
     {
         $files = [];
-
         $fileList = scandir($this->uploadDir);
+
         foreach ($fileList as $file) {
             if ($file !== '.' && $file !== '..') {
-                $files[] = $this->uploadDir . '/' . $file;
+                $filePath = $this->uploadDir . '/' . $file;
+                $fileUrl = BASE_URL . '/uploads/' . $file;
+                $files[] = [
+                    'path' => $filePath,
+                    'url' => $fileUrl
+                ];
             }
         }
         return $files;
     }
-
     public function deleteFile($fileName)
     {
         $filePath = $this->uploadDir . '/' . $fileName;
