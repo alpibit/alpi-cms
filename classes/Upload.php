@@ -4,7 +4,7 @@ class Upload
     protected $db;
     protected $uploadDir;
 
-    public function __construct(PDO $db, $uploadDir = '../../../uploads')
+    public function __construct(PDO $db, $uploadDir = '../uploads')
     {
         $this->db = $db;
         $this->uploadDir = $uploadDir;
@@ -30,6 +30,7 @@ class Upload
     {
         $files = [];
         $fileList = scandir($this->uploadDir);
+
 
         foreach ($fileList as $file) {
             if ($file !== '.' && $file !== '..') {

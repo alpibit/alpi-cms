@@ -1,15 +1,15 @@
 function addBlock() {
-    var index = document.getElementById('contentBlocks').childElementCount;
-    var blockHTML = `
+    const index = document.getElementById('contentBlocks').childElementCount;
+    const blockHTML = `
         <div class="block">
             <label>Type:</label>
-            <select name="blocks[${index}][type]">
+            <select name="blocks[${index}][type]" onchange="loadBlockContent(this, ${index})">
                 <option value="text">Text</option>
                 <option value="image_text">Image Text</option>
                 <option value="image">Image</option>
                 <option value="cta">CTA</option>
             </select><br>
-            <textarea name="blocks[${index}][content]"></textarea><br>
+            <div class="block-content"></div>
             <div class="buttons">
                 <button type="button" onclick="moveUp(this)">Move Up</button>
                 <button type="button" onclick="moveDown(this)">Move Down</button>
@@ -23,14 +23,14 @@ function addBlock() {
 }
 
 function deleteBlock(button) {
-    var block = button.closest('div.block');
+    const block = button.closest('div.block');
     block.remove();
     updateButtons();
 }
 
 function moveUp(button) {
-    var block = button.closest('div.block');
-    var prevBlock = block.previousElementSibling;
+    const block = button.closest('div.block');
+    const prevBlock = block.previousElementSibling;
     if (prevBlock) {
         block.parentNode.insertBefore(block, prevBlock);
         updateButtons();
@@ -38,8 +38,8 @@ function moveUp(button) {
 }
 
 function moveDown(button) {
-    var block = button.closest('div.block');
-    var nextBlock = block.nextElementSibling;
+    const block = button.closest('div.block');
+    const nextBlock = block.nextElementSibling;
     if (nextBlock) {
         block.parentNode.insertBefore(nextBlock, block);
         updateButtons();
@@ -47,39 +47,48 @@ function moveDown(button) {
 }
 
 function updateButtons() {
-    var blocks = document.querySelectorAll('#contentBlocks .block');
-    blocks.forEach(function (block, index) {
-        var buttonsDiv = block.querySelector('.buttons');
-        buttonsDiv.innerHTML = ''; // Clear the current buttons
+    const blocks = document.querySelectorAll('#contentBlocks .block');
+    blocks.forEach((block, index) => {
+        const buttonsDiv = block.querySelector('.buttons');
+        buttonsDiv.innerHTML = '';
 
         if (index > 0) {
-            var moveUpButton = document.createElement('button');
-            moveUpButton.type = 'button';
-            moveUpButton.textContent = 'Move Up';
-            moveUpButton.onclick = function () {
-                moveUp(this);
-            };
+            const moveUpButton = createButton('Move Up', () => moveUp(block));
             buttonsDiv.appendChild(moveUpButton);
         }
 
         if (index < blocks.length - 1) {
-            var moveDownButton = document.createElement('button');
-            moveDownButton.type = 'button';
-            moveDownButton.textContent = 'Move Down';
-            moveDownButton.onclick = function () {
-                moveDown(this);
-            };
+            const moveDownButton = createButton('Move Down', () => moveDown(block));
             buttonsDiv.appendChild(moveDownButton);
         }
 
-        var deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.textContent = 'Delete';
-        deleteButton.onclick = function () {
-            deleteBlock(this);
-        };
+        const deleteButton = createButton('Delete', () => deleteBlock(block));
         buttonsDiv.appendChild(deleteButton);
     });
 }
 
-window.onload = updateButtons;
+function loadBlockContent(selectElement, index) {
+    const type = selectElement.value;
+    const contentDiv = selectElement.closest('.block').querySelector('.block-content');
+
+    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}`)
+        .then(response => response.text())
+        .then(html => contentDiv.innerHTML = html)
+        .catch(error => console.error('Error:', error));
+}
+
+function createButton(text, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    button.onclick = onClick;
+    return button;
+}
+
+// Initialize blocks on page load
+window.onload = function () {
+    updateButtons();
+    document.querySelectorAll('#contentBlocks .block select').forEach(select => {
+        loadBlockContent(select, parseInt(select.name.match(/\d+/)[0], 10));
+    });
+};

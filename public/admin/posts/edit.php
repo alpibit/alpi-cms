@@ -1,6 +1,5 @@
 <?php
 ob_start();
-
 session_start();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
@@ -20,8 +19,6 @@ require '../../../config/autoload.php';
 $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
-$upload = new Upload($conn);
-
 
 $postData = $post->getPostById($_GET['id']);
 $postData = $postData[0];
@@ -30,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
-
 
     foreach ($_POST['blocks'] as $block) {
         $contentBlocks[] = [
@@ -49,73 +45,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-function renderBlockContent($block, $index, $uploads = [])
-{
-    global $upload;
+?>
 
-    $uploads = $upload->listFiles();
+<!DOCTYPE html>
+<html lang="en">
 
-    switch ($block['type']) {
-        case 'text':
-            echo "<textarea name='blocks[$index][content]'>{$block['content']}</textarea>";
-            break;
-        case 'image_text':
-            echo "<textarea name='blocks[$index][content]'>{$block['content']}</textarea><br>";
-            echo "<input type='file' name='blocks[$index][image]' /><br>";
-            // !!! Any other fields
-            break;
-        case 'image':
-            echo "<select name='blocks[$index][image_path]'>";
-            foreach ($uploads as $upload) {
-                $selected = ($upload['path'] == $block['image_path']) ? 'selected' : '';
-                echo "<option value='{$upload['url']}' $selected>{$upload['url']}</option>";
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Post</title>
+    <link rel="stylesheet" href="/assets/css/uploads.css">
+</head>
+
+<body class="uploads-wrap">
+    <h1>Edit Post</h1>
+    <form action="" method="POST">
+        Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
+        <div id="contentBlocks">
+            <?php
+            if (isset($postData['blocks']) && is_array($postData['blocks'])) {
+                foreach ($postData['blocks'] as $index => $block) {
+                    echo "<div class='block'>";
+                    echo "<label>Type:</label>";
+                    echo "<select name='blocks[$index][type]' onchange='loadBlockContent(this, $index)'>";
+                    // Populate the select options here
+                    echo "</select><br>";
+                    echo "<div class='block-content'></div>"; // Placeholder for block content
+                    echo "<div class='buttons'>...</div>";
+                    echo "</div>";
+                }
             }
-            echo "</select>";
-            break;
-        case 'cta':
-            echo "<input type='text' name='blocks[$index][cta_text]' value='{$block['cta_text']}' /><br>";
-            echo "<input type='url' name='blocks[$index][cta_link]' value='{$block['url']}' />";
-            break;
-        default:
-            echo "Unknown block type";
-    }
-}
+            ?>
+        </div>
+        <input type="submit" value="Update Post">
+        <button type="button" onclick="addBlock()">Add Another Block</button>
+    </form>
+    <script src="/assets/js/posts-blocks.js"></script>
+</body>
 
-?>
-
-<h1>Edit Post</h1>
-<form action="" method="POST">
-    Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
-    <div id="contentBlocks">
-        <?php
-        if (isset($postData['blocks']) && is_array($postData['blocks'])) {
-            foreach ($postData['blocks'] as $index => $block) :
-                if (isset($block['type']) && isset($block['content'])) : ?>
-                    <div class="block">
-                        <label>Type:</label>
-                        <select name="blocks[<?= $index ?>][type]">
-                            <option value="text" <?= $block['type'] == 'text' ? 'selected' : '' ?>>Text</option>
-                            <option value="image_text" <?= $block['type'] == 'image_text' ? 'selected' : '' ?>>Image Text</option>
-                            <option value="image" <?= $block['type'] == 'image' ? 'selected' : '' ?>>Image</option>
-                            <option value="cta" <?= $block['type'] == 'cta' ? 'selected' : '' ?>>CTA</option>
-                        </select><br>
-                        <?php
-                        renderBlockContent($block, $index);
-                        ?>
-                        <div class="buttons">
-                        </div>
-                        <br>
-                    </div>
-        <?php endif;
-            endforeach;
-        } ?>
-    </div>
-    <input type="submit" value="Update Post">
-    <button type="button" onclick="addBlock()">Add Another Block</button>
-</form>
-
-<?php
-ob_end_flush();
-?>
-
-<script src="/assets/js/posts-blocks.js"></script>
+</html>
+<?php ob_end_flush(); ?>
