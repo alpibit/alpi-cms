@@ -22,8 +22,11 @@ switch ($blockType) {
         break;
     case 'image_text':
         echo "<textarea name='blocks[$index][content]'></textarea><br>";
-        echo "<input type='file' name='blocks[$index][image]' /><br>";
-        // !!!
+        echo "<select name='blocks[$index][image_path]'>";
+        foreach ($uploads as $uploadFile) {
+            echo "<option value='{$uploadFile['url']}'>{$uploadFile['url']}</option>";
+        }
+        echo "</select>";
         break;
     case 'image':
         echo "<select name='blocks[$index][image_path]'>";

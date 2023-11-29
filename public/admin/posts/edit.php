@@ -28,19 +28,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
 
-    foreach ($_POST['blocks'] as $block) {
-        $contentBlocks[] = [
+    foreach ($_POST['blocks'] as $index => $block) {
+        $blockData = [
             'type' => $block['type'],
-            'content' => $block['content'],
+            'content' => $block['content'] ?? '',
+            'image_path' => $block['image_path'] ?? '',
         ];
+
+        if ($block['type'] == 'image' && isset($_FILES['blocks']['name'][$index]['image_file'])) {
+            $imageFile = $_FILES['blocks']['name'][$index]['image_file'];
+            $blockData['image_path'] = $imagePath;
+        }
+
+        $contentBlocks[] = $blockData;
     }
 
-    if (!isset($_SESSION['user_id'])) {
-        die("User ID not set in session. Ensure you're setting this on login.");
-    }
-    $userId = $_SESSION['user_id'];
-
+    $userId = $_SESSION['user_id'] ?? 0;
     $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId);
+
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
@@ -67,7 +72,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<div class='block'>";
                     echo "<label>Type:</label>";
                     echo "<select name='blocks[$index][type]' onchange='loadBlockContent(this, $index)'>";
-                    // Populate the select options here
+                    echo "<option value='text' " . ($block['type'] == 'text' ? 'selected' : '') . ">Text</option>";
+                    echo "<option value='image_text' " . ($block['type'] == 'image_text' ? 'selected' : '') . ">Image + Text</option>";
+                    echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";
+                    echo "<option value='cta' " . ($block['type'] == 'cta' ? 'selected' : '') . ">Call to Action</option>";
+                    // !!!
                     echo "</select><br>";
                     echo "<div class='block-content'></div>"; // Placeholder for block content
                     echo "<div class='buttons'>...</div>";

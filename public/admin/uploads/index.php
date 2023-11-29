@@ -32,6 +32,8 @@ $uploads = $upload->listFiles();
 
 
 $displayUploads = [];
+var_dump($uploads);
+die();
 foreach ($uploads as $filePath) {
     $fileName = basename($filePath);
     $uploadPath = '/uploads/' . $fileName;

@@ -4,11 +4,12 @@ class Upload
     protected $db;
     protected $uploadDir;
 
-    public function __construct(PDO $db, $uploadDir = '../uploads')
+    public function __construct(PDO $db, $uploadDir = BASE_URL . '/uploads/')
     {
         $this->db = $db;
         $this->uploadDir = $uploadDir;
     }
+  
 
     public function uploadFile($file)
     {

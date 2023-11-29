@@ -133,15 +133,18 @@ class Post
 
         // Inserting updated blocks for this post
         foreach ($contentBlocks as $index => $block) {
-            if ($block['type'] === null) {
-                continue;
-            }
-            $orderNum = $index + 1;  // Calculate order number based on index
-            $sqlBlock = "INSERT INTO blocks (content_id, type, content, order_num) VALUES (:id, :type, :content, :orderNum)";
+            $orderNum = $index + 1;
+            $sqlBlock = "INSERT INTO blocks (content_id, type, content, image_path, alt_text, caption, url, cta_text, order_num) 
+                         VALUES (:contentId, :type, :content, :imagePath, :altText, :caption, :url, :ctaText, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
-            $stmtBlock->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtBlock->bindParam(':contentId', $id, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':content', $block['content'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':imagePath', $block['image_path'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':altText', $block['alt_text'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':caption', $block['caption'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':url', $block['url'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':ctaText', $block['cta_text'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':orderNum', $orderNum, PDO::PARAM_INT);
             $stmtBlock->execute();
         }
