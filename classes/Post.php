@@ -116,11 +116,13 @@ class Post
     // Update an existing post by ID
     public function updatePost($id, $title, $contentBlocks, $slug, $userId)
     {
+
         // Updating contents table
-        $sql = "UPDATE contents SET title = :title, slug = :slug, user_id = :userId WHERE id = :id";
+        $sql = "UPDATE contents SET title = :title, user_id = :userId WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-        $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+        // !!! Figure out if we need to update the slug
+        // $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -162,9 +164,9 @@ class Post
     // Fetch a post by its ID
     public function getPostById($id)
     {
-        $sql = "SELECT contents.*, blocks.type, blocks.content FROM contents 
-                LEFT JOIN blocks ON contents.id = blocks.content_id 
-                WHERE contents.id = :id";
+        $sql = "SELECT contents.title AS content_title, blocks.title AS block_title, contents.*, blocks.* FROM contents 
+            LEFT JOIN blocks ON contents.id = blocks.content_id 
+            WHERE contents.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -172,22 +174,26 @@ class Post
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $posts = [];
+        $postId = $results[0]['id'];
+        if (!isset($posts[$postId])) {
+            $posts[$postId] = [
+                'post_title' => $results[0]['content_title'],
+                'slug' => $results[0]['slug'],
+                'blocks' => [],
+            ];
+        }
         foreach ($results as $result) {
-            $postId = $result['id'];
-            if (!isset($posts[$postId])) {
-                $posts[$postId] = [
-                    'title' => $result['title'],
-                    'slug' => $result['slug'],
-                    'blocks' => [],
-                ];
-            }
+
             $posts[$postId]['blocks'][] = [
                 'type' => $result['type'],
                 'content' => $result['content'],
+                'block_data' => $result
             ];
         }
+
         return array_values($posts);
     }
+
 
     // Fetch a post by its slug
     public function getPostBySlug($slug)

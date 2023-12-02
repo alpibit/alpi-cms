@@ -70,8 +70,11 @@ function updateButtons() {
 function loadBlockContent(selectElement, index) {
     const type = selectElement.value;
     const contentDiv = selectElement.closest('.block').querySelector('.block-content');
+    const blockData = JSON.parse(contentDiv.getAttribute('data-value') || '{}');
+    const blockDataString = JSON.stringify(blockData);
+    console.log(blockDataString);
 
-    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}`)
+    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}&blockData=${blockDataString}`)
         .then(response => response.text())
         .then(html => contentDiv.innerHTML = html)
         .catch(error => console.error('Error:', error));

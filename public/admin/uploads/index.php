@@ -32,14 +32,13 @@ $uploads = $upload->listFiles();
 
 
 $displayUploads = [];
-var_dump($uploads);
-die();
-foreach ($uploads as $filePath) {
-    $fileName = basename($filePath);
+
+foreach ($uploads as $fileInfo) {
+    $fileName = basename($fileInfo['path']);
     $uploadPath = '/uploads/' . $fileName;
     $uploadUrl = BASE_URL . $uploadPath;
-    $uploadSize = filesize($filePath);
-    $uploadDate = date("F d Y H:i:s.", filemtime($filePath));
+    $uploadSize = filesize($fileInfo['path']);
+    $uploadDate = date("F d Y H:i:s.", filemtime($fileInfo['path']));
 
     $displayUploads[] = [
         'path' => $uploadPath,

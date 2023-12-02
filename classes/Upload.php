@@ -3,13 +3,15 @@ class Upload
 {
     protected $db;
     protected $uploadDir;
+    protected $uploadUrl;
 
-    public function __construct(PDO $db, $uploadDir = BASE_URL . '/uploads/')
+    public function __construct(PDO $db, $uploadDir = null, $uploadUrl = BASE_URL . '/uploads/')
     {
         $this->db = $db;
-        $this->uploadDir = $uploadDir;
+        $this->uploadDir = $uploadDir ?? realpath(__DIR__ . '/../uploads');
+        $this->uploadUrl = $uploadUrl;
     }
-  
+
 
     public function uploadFile($file)
     {
@@ -32,11 +34,10 @@ class Upload
         $files = [];
         $fileList = scandir($this->uploadDir);
 
-
         foreach ($fileList as $file) {
             if ($file !== '.' && $file !== '..') {
                 $filePath = $this->uploadDir . '/' . $file;
-                $fileUrl = BASE_URL . '/uploads/' . $file;
+                $fileUrl = $this->uploadUrl . $file;
                 $files[] = [
                     'path' => $filePath,
                     'url' => $fileUrl
@@ -45,6 +46,7 @@ class Upload
         }
         return $files;
     }
+
     public function deleteFile($fileName)
     {
         $filePath = $this->uploadDir . '/' . $fileName;

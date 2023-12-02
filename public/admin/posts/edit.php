@@ -30,14 +30,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     foreach ($_POST['blocks'] as $index => $block) {
         $blockData = [
-            'type' => $block['type'],
-            'content' => $block['content'] ?? '',
-            'image_path' => $block['image_path'] ?? '',
+            'type' => $block['type']
         ];
 
-        if ($block['type'] == 'image' && isset($_FILES['blocks']['name'][$index]['image_file'])) {
-            $imageFile = $_FILES['blocks']['name'][$index]['image_file'];
-            $blockData['image_path'] = $imagePath;
+        if ($block['type'] == 'text') {
+            $blockData['content'] = $block['content'] ?? '';
+        }
+
+        if ($block['type'] == 'image' || $block['type'] == 'image_text') {
+            if (isset($_POST['blocks'][$index]['image_path'])) {
+                $blockData['image_path'] = $_POST['blocks'][$index]['image_path'];
+            }
+
+            if ($block['type'] == 'image_text' && isset($block['content'])) {
+                $blockData['content'] = $block['content'] ?? '';
+            }
+        }
+
+        if ($block['type'] == 'cta') {
+            $blockData['url'] = $block['url'] ?? '';
+            $blockData['cta_text'] = $block['cta_text'] ?? '';
         }
 
         $contentBlocks[] = $blockData;
@@ -64,7 +76,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body class="uploads-wrap">
     <h1>Edit Post</h1>
     <form action="" method="POST">
-        Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
+        <?php
+        ?>
+        </br>
+        </br>
+        Title: <input type="text" name="title" value="<?= isset($postData['post_title']) ? $postData['post_title'] : '' ?>"><br>
         <div id="contentBlocks">
             <?php
             if (isset($postData['blocks']) && is_array($postData['blocks'])) {
@@ -78,7 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<option value='cta' " . ($block['type'] == 'cta' ? 'selected' : '') . ">Call to Action</option>";
                     // !!!
                     echo "</select><br>";
-                    echo "<div class='block-content'></div>"; // Placeholder for block content
+                    $blockDataJson = htmlspecialchars(json_encode($block['block_data']), ENT_QUOTES, 'UTF-8');
+                    echo "<div class='block-content' data-value='{$blockDataJson}'></div>";
                     echo "<div class='buttons'>...</div>";
                     echo "</div>";
                 }
