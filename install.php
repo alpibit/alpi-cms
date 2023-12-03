@@ -47,30 +47,59 @@ function setupTables($conn)
 
     // SQL statement for creating a `blocks` table
     $blocksTableSQL = "
-        CREATE TABLE blocks (
-            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            content_id INT(11) NOT NULL,
-            type ENUM('text', 'image_text', 'image', 'cta') NOT NULL,
-            title VARCHAR(255),
-            content MEDIUMTEXT,
-            image_path VARCHAR(255),
-            alt_text VARCHAR(255),
-            caption VARCHAR(255),
-            url VARCHAR(255),
-            class VARCHAR(255),
-            metafield1 TEXT,
-            metafield2 TEXT,
-            metafield3 TEXT,
-            cta_text VARCHAR(255),
-            order_num INT(11) NOT NULL,
-            status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
-            start_date DATETIME,
-            end_date DATETIME,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (content_id) REFERENCES contents(id)
-        );
-    ";
+    CREATE TABLE blocks (
+        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        content_id INT(11) NOT NULL,
+        type ENUM('text', 'image_text', 'image', 'cta') NOT NULL,
+        title VARCHAR(255),
+        content MEDIUMTEXT,
+        image_path VARCHAR(255),
+        alt_text VARCHAR(255),
+        caption VARCHAR(255),
+        url1 VARCHAR(255),
+        cta_text1 VARCHAR(255),
+        url2 VARCHAR(255),
+        cta_text2 VARCHAR(255),
+        layout1 VARCHAR(255),
+        layout2 VARCHAR(255),
+        layout3 VARCHAR(255),
+        layout4 VARCHAR(255),
+        layout5 VARCHAR(255),
+        style1 VARCHAR(255),
+        style2 VARCHAR(255),
+        style3 VARCHAR(255),
+        style4 VARCHAR(255),
+        style5 VARCHAR(255),
+        style6 VARCHAR(255),
+        style7 VARCHAR(255),
+        style8 VARCHAR(255),
+        style9 VARCHAR(255),
+        style10 VARCHAR(255),
+        responsive_class VARCHAR(255),
+        responsive_style VARCHAR(255),
+        background_color VARCHAR(255),
+        border_style VARCHAR(255),
+        border_color VARCHAR(255),
+        border_width VARCHAR(255),
+        animation_type VARCHAR(255),
+        animation_duration VARCHAR(255),
+        custom_css TEXT,
+        custom_js TEXT,
+        aria_label VARCHAR(255),
+        text_size VARCHAR(255),
+        class VARCHAR(255),
+        metafield1 TEXT,
+        metafield2 TEXT,
+        metafield3 TEXT,
+        order_num INT(11) NOT NULL,
+        status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+        start_date DATETIME,
+        end_date DATETIME,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (content_id) REFERENCES contents(id)
+    );
+";
 
 
     $contentTypesInsertSQL = "
@@ -99,13 +128,13 @@ function insertSampleBlock($conn, $contentId, $block)
 {
     $sql = "INSERT INTO blocks (
         content_id, type, title, content,
-        image_path, alt_text, caption, url,
-        class, metafield1, metafield2, metafield3, cta_text,
+        image_path, alt_text, caption, url1,
+        class, metafield1, metafield2, metafield3, cta_text1,
         order_num, status, start_date, end_date
     ) VALUES (
         :contentId, :type, :title, :content,
-        :image_path, :alt_text, :caption, :url,
-        :class, :metafield1, :metafield2, :metafield3, :cta_text,
+        :image_path, :alt_text, :caption, :url1,
+        :class, :metafield1, :metafield2, :metafield3, :cta_text1,
         :order_num, :status, :start_date, :end_date
     )";
 
@@ -117,12 +146,12 @@ function insertSampleBlock($conn, $contentId, $block)
     $stmt->bindParam(':image_path', $block['image_path']);
     $stmt->bindParam(':alt_text', $block['alt_text']);
     $stmt->bindParam(':caption', $block['caption']);
-    $stmt->bindParam(':url', $block['url']);
+    $stmt->bindParam(':url1', $block['url1']);
     $stmt->bindParam(':class', $block['class']);
     $stmt->bindParam(':metafield1', $block['metafield1']);
     $stmt->bindParam(':metafield2', $block['metafield2']);
     $stmt->bindParam(':metafield3', $block['metafield3']);
-    $stmt->bindParam(':cta_text', $block['cta_text']);
+    $stmt->bindParam(':cta_text1', $block['cta_text1']);
     $stmt->bindParam(':order_num', $block['order_num']);
     $stmt->bindParam(':status', $block['status']);
     $stmt->bindParam(':start_date', $block['start_date']);

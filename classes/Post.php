@@ -116,13 +116,10 @@ class Post
     // Update an existing post by ID
     public function updatePost($id, $title, $contentBlocks, $slug, $userId)
     {
-
         // Updating contents table
         $sql = "UPDATE contents SET title = :title, user_id = :userId WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-        // !!! Figure out if we need to update the slug
-        // $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -136,21 +133,34 @@ class Post
         // Inserting updated blocks for this post
         foreach ($contentBlocks as $index => $block) {
             $orderNum = $index + 1;
-            $sqlBlock = "INSERT INTO blocks (content_id, type, content, image_path, alt_text, caption, url, cta_text, order_num) 
-                         VALUES (:contentId, :type, :content, :imagePath, :altText, :caption, :url, :ctaText, :orderNum)";
+            $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
+                         VALUES (:contentId, :type, :title, :content, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $id, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':title', $block['title'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':content', $block['content'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':imagePath', $block['image_path'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':altText', $block['alt_text'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':caption', $block['caption'], PDO::PARAM_STR);
-            $stmtBlock->bindParam(':url', $block['url'], PDO::PARAM_STR);
-            $stmtBlock->bindParam(':ctaText', $block['cta_text'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':url1', $block['url1'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':ctaText1', $block['cta_text1'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':url2', $block['url2'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':ctaText2', $block['cta_text2'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style1', $block['style1'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style2', $block['style2'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style3', $block['style3'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style4', $block['style4'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style5', $block['style5'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style6', $block['style6'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style7', $block['style7'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':style8', $block['style8'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':backgroundColor', $block['background_color'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':orderNum', $orderNum, PDO::PARAM_INT);
             $stmtBlock->execute();
         }
     }
+
 
     public function getBlocksByPostId($postId)
     {

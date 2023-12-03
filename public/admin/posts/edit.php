@@ -30,26 +30,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     foreach ($_POST['blocks'] as $index => $block) {
         $blockData = [
-            'type' => $block['type']
+            'type' => $block['type'],
+            'title' => $block['title'] ?? '',
+            'style1' => $block['style1'] ?? '',
+            'style2' => $block['style2'] ?? '',
+            'style3' => $block['style3'] ?? '',
+            'style4' => $block['style4'] ?? '',
+            'style5' => $block['style5'] ?? '',
+            'style6' => $block['style6'] ?? '',
+            'style7' => $block['style7'] ?? '',
+            'style8' => $block['style8'] ?? '',
+            'background_color' => $block['background_color'] ?? '',
+            'content' => $block['content'] ?? ''
         ];
 
-        if ($block['type'] == 'text') {
-            $blockData['content'] = $block['content'] ?? '';
-        }
-
         if ($block['type'] == 'image' || $block['type'] == 'image_text') {
-            if (isset($_POST['blocks'][$index]['image_path'])) {
-                $blockData['image_path'] = $_POST['blocks'][$index]['image_path'];
-            }
-
-            if ($block['type'] == 'image_text' && isset($block['content'])) {
-                $blockData['content'] = $block['content'] ?? '';
-            }
+            $blockData['image_path'] = $_POST['blocks'][$index]['image_path'] ?? '';
         }
 
         if ($block['type'] == 'cta') {
-            $blockData['url'] = $block['url'] ?? '';
-            $blockData['cta_text'] = $block['cta_text'] ?? '';
+            $blockData['url1'] = $block['url1'] ?? '';
+            $blockData['cta_text1'] = $block['cta_text1'] ?? '';
+            $blockData['url2'] = $block['url2'] ?? '';
+            $blockData['cta_text2'] = $block['cta_text2'] ?? '';
         }
 
         $contentBlocks[] = $blockData;
@@ -61,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
-
 ?>
 
 <!DOCTYPE html>
