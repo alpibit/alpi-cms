@@ -38,7 +38,7 @@ switch ($blockType) {
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
-            <title>Text Alignment: </title><br>
+            <title>Text Alignment: </title>
             <select name='blocks[<?php echo $index; ?>][style8]'>
                 <option value='left' <?php echo ($titleAlignment == 'left' ? 'selected' : ''); ?>>Left</option>
                 <option value='center' <?php echo ($titleAlignment == 'center' ? 'selected' : ''); ?>>Center</option>
@@ -69,11 +69,6 @@ switch ($blockType) {
 
         ?>
         <div class="block-wrapper">
-            <select name='blocks[<?php echo $index; ?>][layout_toggle]' onchange='updateLayout(this, <?php echo $index; ?>)'>
-                <option value='image-text' <?php echo ($layoutToggle == 'image-text' ? 'selected' : ''); ?>>Image-Text</option>
-                <option value='text-image' <?php echo ($layoutToggle == 'text-image' ? 'selected' : ''); ?>>Text-Image</option>
-            </select><br>
-
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
@@ -86,7 +81,7 @@ switch ($blockType) {
             <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="CTA Text Area"><?php echo $content; ?></textarea><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style3]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
             <select name='blocks[<?php echo $index; ?>][image_path]'>
@@ -128,8 +123,8 @@ switch ($blockType) {
                     echo "<option value='{$uploadFile['url']}' {$selected}>{$uploadFile['url']}</option>";
                 }
                 ?>
-            </select>
-            <input type='text' name='blocks[<?php echo $index; ?>][style3]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
+            </select><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
@@ -170,7 +165,7 @@ switch ($blockType) {
             <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="CTA Text Area"><?php echo $content; ?></textarea><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style3]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
