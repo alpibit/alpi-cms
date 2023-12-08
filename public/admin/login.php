@@ -14,15 +14,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if ($user->authenticate($username, $password)) {
-        $userData = $user->getUserData($username);  // Get user data
-        $_SESSION['loggedIn'] = true;
-        $_SESSION['username'] = $username;
-        $_SESSION['role'] = $user->getRole($username);
-        $_SESSION['user_id'] = $userData['id'];  // Store user_id in session
-        header("Location: /public/admin/index.php");
+    // Sanitize user input
+    $username = htmlspecialchars($username);
+    $password = htmlspecialchars($password);
+
+    // Validate user input
+    if (empty($username) || empty($password)) {
+        $error = 'Please enter both username and password';
     } else {
-        $error = 'Invalid credentials';
+        if ($user->authenticate($username, $password)) {
+            $userData = $user->getUserData($username);
+            $_SESSION['loggedIn'] = true;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $user->getRole($username);
+            $_SESSION['user_id'] = $userData['id'];
+            header("Location: /public/admin/index.php");
+            exit();
+        } else {
+            $error = 'Invalid credentials';
+        }
     }
 }
 ?>
@@ -33,19 +43,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="/assets/css/admin/login.css">
 </head>
 
-<body>
+<body class="login-page">
 
-    <h1>Login to Admin Panel</h1>
-    <?php if ($error) : ?>
-        <p style="color: red;"><?= $error ?></p>
-    <?php endif; ?>
-    <form action="" method="POST">
-        Username: <input type="text" name="username"><br>
-        Password: <input type="password" name="password"><br>
-        <input type="submit" value="Login">
-    </form>
+    <div class="container">
+        <h1 class="login-title">Login to Admin Panel</h1>
+        <?php if ($error) : ?>
+            <p class="error-message"><?= $error ?></p>
+        <?php endif; ?>
+        <form class="login-form" action="" method="POST">
+            <div class="login-input-wrap">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <input type="submit" value="Login" class="login-button">
+            </div>
+        </form>
+    </div>
 
 </body>
 
