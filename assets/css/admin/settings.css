@@ -1,0 +1,77 @@
+body.settings-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 2rem;
+}
+
+.settings-page .settings-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.settings-page .settings-title {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.settings-page .settings-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-page .form-group {
+    margin-bottom: 1rem;
+}
+
+.settings-page .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.settings-page .form-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.settings-page .form-submit {
+    padding: 0.6rem 1rem;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.settings-page .form-submit:hover {
+    background-color: #4cae4c;
+}
+
+.settings-page .form-input:focus,
+.settings-page .form-submit:active {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+@media (max-width: 768px) {
+    .settings-page .settings-container {
+        padding: 1rem;
+    }
+
+    .settings-page {
+        padding: 1rem;
+    }
+}
