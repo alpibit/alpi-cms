@@ -101,18 +101,15 @@ function setupTables($conn)
     );
 ";
 
-
-    $contentTypesInsertSQL = "
-    INSERT INTO content_types (name) VALUES ('post'), ('page');
-";
-
     // Execute the SQL statements
     $conn->exec($contentTypesSQL);
     $conn->exec($contentsTableSQL);
     $conn->exec($settingsTableSQL);
     $conn->exec($usersTableSQL);
     $conn->exec($blocksTableSQL);
-    $conn->exec($contentTypesInsertSQL);
+
+    // Insert default content types
+    $conn->exec("INSERT INTO content_types (name) VALUES ('post'), ('page');");
 }
 
 function generateSlug($string)
@@ -122,6 +119,25 @@ function generateSlug($string)
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
     $slug = trim($slug, '-');
     return $slug;
+}
+
+function insertSampleContent($conn, $contentType, $content)
+{
+    // Get the ID of the content type
+    $sqlContentType = "SELECT id FROM content_types WHERE name = :contentType";
+    $stmt = $conn->prepare($sqlContentType);
+    $stmt->bindParam(':contentType', $contentType);
+    $stmt->execute();
+    $contentTypeId = $stmt->fetchColumn();
+
+    $slug = generateSlug($content['title']);
+    $sql = "INSERT INTO contents (content_type_id, title, slug) VALUES (:contentTypeId, :title, :slug)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':contentTypeId', $contentTypeId);
+    $stmt->bindParam(':title', $content['title']);
+    $stmt->bindParam(':slug', $slug);
+    $stmt->execute();
+    return $conn->lastInsertId();
 }
 
 function insertSampleBlock($conn, $contentId, $block)
@@ -159,23 +175,23 @@ function insertSampleBlock($conn, $contentId, $block)
     $stmt->execute();
 }
 
-function insertSampleContent($conn, $contentType, $content)
+function insertDefaultPages($conn)
 {
-    // Get the ID of the content type
-    $sqlContentType = "SELECT id FROM content_types WHERE name = :contentType";
-    $stmt = $conn->prepare($sqlContentType);
-    $stmt->bindParam(':contentType', $contentType);
-    $stmt->execute();
-    $contentTypeId = $stmt->fetchColumn();
+    $defaultPages = [
+        ['title' => 'Home', 'content' => 'Welcome to the Home page'],
+        ['title' => 'About', 'content' => 'Information about us'],
+        ['title' => 'Contact', 'content' => 'Contact us here'],
+        ['title' => 'Blog', 'content' => 'Latest news and updates'],
+        ['title' => 'FAQ', 'content' => 'Frequently Asked Questions'],
+        ['title' => 'Privacy Policy', 'content' => 'Our Privacy Policy'],
+        ['title' => 'Terms of Service', 'content' => 'Terms and Conditions'],
+        ['title' => 'Portfolio', 'content' => 'Showcase of our work'],
+        ['title' => 'Services', 'content' => 'Our Services']
+    ];
 
-    $slug = generateSlug($content['title']);
-    $sql = "INSERT INTO contents (content_type_id, title, slug) VALUES (:contentTypeId, :title, :slug)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':contentTypeId', $contentTypeId);
-    $stmt->bindParam(':title', $content['title']);
-    $stmt->bindParam(':slug', $slug);
-    $stmt->execute();
-    return $conn->lastInsertId();
+    foreach ($defaultPages as $page) {
+        insertSampleContent($conn, 'page', $page);
+    }
 }
 
 function setDefaultSettings($conn)
@@ -249,12 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'content' => 'Congratulations on successfully installing your new CMS. This is a sample post. You can edit or delete it to start creating your own content!'
         ];
 
-        $samplePage = [
-            'title' => 'About Us',
-            'content' => 'This is an about page for our new CMS. Edit or delete it to start creating your own content!'
-        ];
-
         setupTables($conn);
+
+        insertDefaultPages($conn);
 
         $samplePostId = insertSampleContent($conn, 'post', $samplePost);
 
@@ -301,7 +314,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             insertSampleBlock($conn, $samplePostId, $block);
         }
 
-        insertSampleContent($conn, 'page', $samplePage);
         setDefaultSettings($conn);
         flagAsInstalled($conn);
         createAdminUser($conn, $admin_user, $admin_pass);
