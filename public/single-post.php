@@ -24,10 +24,12 @@ usort($blocks, function ($a, $b) {
     return $a['order_num'] <=> $b['order_num'];
 });
 
-function renderBlock($block) {
+function renderBlock($block, $post)
+{
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
     $blockContent = $block['content'] ?? null;
+    $blockSelectedPostIds = $block['selected_post_ids'] ?? null;
     $blockImagePath = $block['image_path'] ?? null;
     $blockAltText = $block['alt_text'] ?? null;
     $blockCaption = $block['caption'] ?? null;
@@ -62,7 +64,7 @@ function renderBlock($block) {
 
     <!-- Display blocks -->
     <?php foreach ($blocks as $block) {
-        renderBlock($block);
+        renderBlock($block, $post);
     } ?>
 
     <a href="/public/index.php">Back</a>

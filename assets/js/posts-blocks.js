@@ -8,6 +8,7 @@ function addBlock() {
                 <option value="image_text">Image Text</option>
                 <option value="image">Image</option>
                 <option value="cta">CTA</option>
+                <option value="post_picker">Post Picker</option>
             </select><br>
             <div class="block-content"></div>
             <div class="buttons">

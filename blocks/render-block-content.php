@@ -33,7 +33,7 @@ switch ($blockType) {
         $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
         $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
 
-        ?>
+?>
         <div class="block-wrapper">
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
@@ -51,7 +51,7 @@ switch ($blockType) {
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
-        <?php
+    <?php
         break;
 
     case 'image_text':
@@ -67,7 +67,7 @@ switch ($blockType) {
         $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
         $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
 
-        ?>
+    ?>
         <div class="block-wrapper">
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
@@ -93,7 +93,7 @@ switch ($blockType) {
                 ?>
             </select>
         </div>
-        <?php
+    <?php
         break;
 
     case 'image':
@@ -105,7 +105,7 @@ switch ($blockType) {
         $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
         $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
 
-        ?>
+    ?>
         <div class="block-wrapper">
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
@@ -128,7 +128,7 @@ switch ($blockType) {
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
-        <?php
+    <?php
         break;
 
     case 'cta':
@@ -147,7 +147,7 @@ switch ($blockType) {
         $ctaText2 = isset($block['cta_text2']) ? htmlspecialchars($block['cta_text2']) : '';
         $url2 = isset($block['url2']) ? htmlspecialchars($block['url2']) : '';
 
-        ?>
+    ?>
         <div class="block-wrapper">
             <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
@@ -169,8 +169,38 @@ switch ($blockType) {
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
-        <?php
+    <?php
         break;
+
+    case 'post_picker':
+        $postObj = new Post($conn);
+        $availablePosts = $postObj->getAllPosts();
+        $selectedPostIds = isset($block['selected_post_ids']) ? explode(',', htmlspecialchars($block['selected_post_ids'])) : [];
+        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
+        $content = isset($block['content']) ? htmlspecialchars($block['content']) : ''; // Used as subtitle/description
+        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
+        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
+        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
+
+    ?>
+        <div class="block-wrapper">
+            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
+            <textarea name='blocks[<?php echo $index; ?>][content]' placeholder='Description (Subtitle)'><?php echo $content; ?></textarea><br>
+            <label>Select Posts:</label>
+            <select name='blocks[<?php echo $index; ?>][selected_post_ids][]' multiple size="5">
+                <?php foreach ($availablePosts as $post) {
+                    $selected = in_array($post['id'], $selectedPostIds) ? 'selected' : '';
+                    echo "<option value='{$post['id']}' {$selected}>{$post['title']}</option>";
+                } ?>
+            </select><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
+        </div>
+<?php
+        break;
+
+
 
     default:
         echo "Unknown block type";

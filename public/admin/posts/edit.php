@@ -55,6 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $blockData['cta_text2'] = $block['cta_text2'] ?? '';
         }
 
+        if ($block['type'] == 'post_picker') {
+            $blockData['selected_post_ids'] = implode(',', $block['selected_post_ids'] ?? []);
+        }
+
         $contentBlocks[] = $blockData;
     }
 
@@ -94,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<option value='image_text' " . ($block['type'] == 'image_text' ? 'selected' : '') . ">Image + Text</option>";
                     echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";
                     echo "<option value='cta' " . ($block['type'] == 'cta' ? 'selected' : '') . ">Call to Action</option>";
-                    // !!!
+                    echo "<option value='post_picker' " . ($block['type'] == 'post_picker' ? 'selected' : '') . ">Post Picker</option>";
                     echo "</select><br>";
                     $blockDataJson = htmlspecialchars(json_encode($block['block_data']), ENT_QUOTES, 'UTF-8');
                     echo "<div class='block-content' data-value='{$blockDataJson}'></div>";

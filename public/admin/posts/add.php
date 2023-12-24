@@ -53,6 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
             $blockData['cta_text2'] = $block['cta_text2'] ?? '';
         }
 
+        if ($block['type'] == 'post_picker') {
+            $blockData['selected_post_ids'] = implode(',', $block['selected_post_ids'] ?? []);
+        }
+
         $contentBlocks[] = $blockData;
     }
 
@@ -84,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
                     <option value='image_text'>Image + Text</option>
                     <option value='image'>Image</option>
                     <option value='cta'>Call to Action</option>
+                    <option value='post_picker'>Post Picker</option>
                 </select><br>
                 <div class='block-content'></div>
                 <div class='buttons'>...</div>

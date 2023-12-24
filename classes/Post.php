@@ -57,6 +57,15 @@ class Post
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getPostDetailsById($id)
+    {
+        $sql = "SELECT * FROM contents WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Add a new post
     public function addPost($title, $contentBlocks, $userId)
     {
@@ -78,13 +87,14 @@ class Post
         foreach ($contentBlocks as $index => $block) {
             // !!! Wrap it in a function so both addPost and updatePost can use it
             $orderNum = $index + 1;
-            $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
-                     VALUES (:contentId, :type, :title, :content, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
+            $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
+            VALUES (:contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $contentId, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':title', $block['title'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':content', $block['content'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':selectedPostIds', $block['selected_post_ids'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':imagePath', $block['image_path'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':altText', $block['alt_text'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':caption', $block['caption'], PDO::PARAM_STR);
@@ -153,13 +163,14 @@ class Post
         foreach ($contentBlocks as $index => $block) {
             // !!! Wrap it in a function so both addPost and updatePost can use it
             $orderNum = $index + 1;
-            $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
-                         VALUES (:contentId, :type, :title, :content, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
+            $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
+                         VALUES (:contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $id, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':title', $block['title'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':content', $block['content'], PDO::PARAM_STR);
+            $stmtBlock->bindParam(':selectedPostIds', $block['selected_post_ids'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':imagePath', $block['image_path'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':altText', $block['alt_text'], PDO::PARAM_STR);
             $stmtBlock->bindParam(':caption', $block['caption'], PDO::PARAM_STR);
