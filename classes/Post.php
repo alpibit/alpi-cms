@@ -67,16 +67,22 @@ class Post
     }
 
     // Add a new post
-    public function addPost($title, $contentBlocks, $userId)
+    public function addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId)
     {
         $slug = $this->generateSlug($title);
         $postTypeId = $this->getPostContentTypeId();
 
-        // Inserting into contents table
-        $sql = "INSERT INTO contents (content_type_id, title, slug, user_id) VALUES (:postTypeId, :title, :slug, :userId)";
+        // Inserting into contents table with new fields
+        $sql = "INSERT INTO contents (content_type_id, title, subtitle, main_image_path, show_main_image, is_active, slug, user_id) 
+            VALUES (:postTypeId, :title, :subtitle, :mainImagePath, :showMainImage, :isActive, :slug, :userId)";
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':postTypeId', $postTypeId, PDO::PARAM_INT);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+        $stmt->bindParam(':subtitle', $subtitle, PDO::PARAM_STR);
+        $stmt->bindParam(':mainImagePath', $mainImagePath, PDO::PARAM_STR);
+        $stmt->bindParam(':showMainImage', $showMainImage, PDO::PARAM_BOOL);
+        $stmt->bindParam(':isActive', $isActive, PDO::PARAM_BOOL);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -85,10 +91,10 @@ class Post
 
         // Inserting blocks related to this post
         foreach ($contentBlocks as $index => $block) {
-            // !!! Wrap it in a function so both addPost and updatePost can use it
             $orderNum = $index + 1;
             $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
-            VALUES (:contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
+                     VALUES (:contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
+
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $contentId, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
@@ -115,6 +121,7 @@ class Post
             $stmtBlock->execute();
         }
     }
+
 
     public function generateSlug($title)
     {
@@ -143,14 +150,27 @@ class Post
     }
 
     // Update an existing post by ID
-    public function updatePost($id, $title, $contentBlocks, $slug, $userId)
+    public function updatePost($id, $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive)
     {
-        // Updating contents table
-        $sql = "UPDATE contents SET title = :title, user_id = :userId WHERE id = :id";
+        // Updating contents table with new fields
+        $sql = "UPDATE contents SET 
+                    title = :title, 
+                    subtitle = :subtitle, 
+                    main_image_path = :mainImagePath, 
+                    show_main_image = :showMainImage, 
+                    is_active = :isActive, 
+                    user_id = :userId 
+                WHERE id = :id";
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':subtitle', $subtitle, PDO::PARAM_STR);
+        $stmt->bindParam(':mainImagePath', $mainImagePath, PDO::PARAM_STR);
+        $stmt->bindParam(':showMainImage', $showMainImage, PDO::PARAM_BOOL);
+        $stmt->bindParam(':isActive', $isActive, PDO::PARAM_BOOL);
+        // $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
         // Delete existing blocks for this post
@@ -161,10 +181,10 @@ class Post
 
         // Inserting updated blocks for this post
         foreach ($contentBlocks as $index => $block) {
-            // !!! Wrap it in a function so both addPost and updatePost can use it
             $orderNum = $index + 1;
             $sqlBlock = "INSERT INTO blocks (content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, url1, cta_text1, url2, cta_text2, style1, style2, style3, style4, style5, style6, style7, style8, background_color, order_num) 
                          VALUES (:contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, :url1, :ctaText1, :url2, :ctaText2, :style1, :style2, :style3, :style4, :style5, :style6, :style7, :style8, :backgroundColor, :orderNum)";
+
             $stmtBlock = $this->db->prepare($sqlBlock);
             $stmtBlock->bindParam(':contentId', $id, PDO::PARAM_INT);
             $stmtBlock->bindParam(':type', $block['type'], PDO::PARAM_STR);
@@ -193,6 +213,7 @@ class Post
     }
 
 
+
     public function getBlocksByPostId($postId)
     {
         $sql = "SELECT * FROM blocks WHERE content_id = :postId ORDER BY order_num ASC";
@@ -205,9 +226,9 @@ class Post
     // Fetch a post by its ID
     public function getPostById($id)
     {
-        $sql = "SELECT contents.title AS content_title, blocks.title AS block_title, contents.*, blocks.* FROM contents 
-            LEFT JOIN blocks ON contents.id = blocks.content_id 
-            WHERE contents.id = :id";
+        $sql = "SELECT contents.title AS content_title, contents.subtitle, contents.main_image_path, contents.show_main_image, contents.is_active, contents.slug, blocks.* FROM contents 
+                LEFT JOIN blocks ON contents.id = blocks.content_id 
+                WHERE contents.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -218,13 +239,16 @@ class Post
         $postId = $results[0]['id'];
         if (!isset($posts[$postId])) {
             $posts[$postId] = [
-                'post_title' => $results[0]['content_title'],
+                'title' => $results[0]['content_title'],
+                'subtitle' => $results[0]['subtitle'],
+                'main_image_path' => $results[0]['main_image_path'],
+                'show_main_image' => $results[0]['show_main_image'],
+                'is_active' => $results[0]['is_active'],
                 'slug' => $results[0]['slug'],
                 'blocks' => [],
             ];
         }
         foreach ($results as $result) {
-
             $posts[$postId]['blocks'][] = [
                 'type' => $result['type'],
                 'content' => $result['content'],

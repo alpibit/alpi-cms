@@ -25,6 +25,10 @@ $postData = $postData[0];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
+    $subtitle = $_POST['subtitle'];
+    $mainImagePath = $_POST['main_image_path'];
+    $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
+    $isActive = isset($_POST['is_active']) ? 1 : 0;
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
 
@@ -63,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $userId = $_SESSION['user_id'] ?? 0;
-    $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId);
+    $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive);
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
@@ -82,11 +86,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body class="uploads-wrap">
     <h1>Edit Post</h1>
     <form action="" method="POST">
-        <?php
-        ?>
-        </br>
-        </br>
-        Title: <input type="text" name="title" value="<?= isset($postData['post_title']) ? $postData['post_title'] : '' ?>"><br>
+        Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
+        Subtitle: <input type="text" name="subtitle" value="<?= isset($postData['subtitle']) ? $postData['subtitle'] : '' ?>"><br>
+        Featured Image:
+        <select name="main_image_path">
+            <?php
+            $uploads = (new Upload($conn))->listFiles();
+            foreach ($uploads as $upload) {
+                $selected = $postData['main_image_path'] == $upload['url'] ? 'selected' : '';
+                echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
+            }
+            ?>
+        </select><br>
+        Show Main Image: <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>><br>
+        Is Active: <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>><br>
+
         <div id="contentBlocks">
             <?php
             if (isset($postData['blocks']) && is_array($postData['blocks'])) {

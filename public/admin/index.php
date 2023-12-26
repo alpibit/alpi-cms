@@ -44,6 +44,8 @@ $allPosts = $post->getAllPosts();
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/logout.php'">Logout</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/settings/index.php'">Settings</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/uploads/index.php'">Uploads</button>
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/pages/index.php'">Manage Pages</button>
+
     </div>
 
     <table>

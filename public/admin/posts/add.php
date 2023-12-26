@@ -22,6 +22,10 @@ $post = new Post($conn);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $title = $_POST['title'];
+    $subtitle = $_POST['subtitle'];
+    $mainImagePath = $_POST['main_image_path'];
+    $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
+    $isActive = isset($_POST['is_active']) ? 1 : 0;
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
     $userId = $_SESSION['user_id'];
@@ -60,7 +64,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
         $contentBlocks[] = $blockData;
     }
 
-    $post->addPost($title, $contentBlocks, $slug, $userId);
+    // Call the new addPost function
+    $post->addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
@@ -80,6 +85,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     <h1>Add New Post</h1>
     <form action="" method="POST">
         Title: <input type="text" name="title"><br>
+        Subtitle: <input type="text" name="subtitle"><br>
+        Featured Image:
+        <select name="main_image_path">
+            <?php
+            $uploads = (new Upload($conn))->listFiles();
+            foreach ($uploads as $upload) {
+                echo "<option value='{$upload['url']}'>{$upload['url']}</option>";
+            }
+            ?>
+        </select><br>
+        Show Main Image: <input type="checkbox" name="show_main_image"><br>
+        Is Active: <input type="checkbox" name="is_active"><br>
         <div id="contentBlocks">
             <div class='block'>
                 <label>Type:</label>
