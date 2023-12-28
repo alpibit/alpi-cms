@@ -1,71 +1,48 @@
 <?php
+// Include necessary files and classes
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/autoload.php';
+require_once __DIR__ . '/../utils/helpers.php';
 
 // Start session
 session_start();
-
-// Load utility functions
-require_once __DIR__ . '/../utils/helpers.php';
 
 try {
     $dbInstance = new Database();
     $dbConnection = $dbInstance->connect();
 
-    // Ensure the connection is a PDO instance
     if (!($dbConnection instanceof PDO)) {
         throw new Exception("Error establishing a database connection.");
     }
 
-    $postObj = new Post($dbConnection);
-    $latestPosts = $postObj->getLatestPosts();
+    // Parse the Request URI
+    $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $requestUri = trim($requestUri, '/');
+
+    // Routing logic
+    if ($requestUri === '') {
+        // Home page
+        require __DIR__ . '/home.php';
+    } else {
+        $pageObj = new Page($dbConnection);
+        $postObj = new Post($dbConnection);
+
+        $pageContent = $pageObj->getPageBySlug($requestUri);
+        $postContent = $postObj->getPostBySlug($requestUri);
+
+        if ($pageContent) {
+            // Render the page
+            require __DIR__ . '/single-page.php';
+        } elseif ($postContent) {
+            // Render the post
+            require __DIR__ . '/single-post.php';
+        } else {
+            // 404 Not Found
+            header("HTTP/1.0 404 Not Found");
+            require __DIR__ . '/404.php';
+        }
+    }
 } catch (Exception $e) {
     die($e->getMessage());
 }
-
-include __DIR__ . '/../templates/header.php';
-?>
-
-<!-- Start the HTML section -->
-
-<div class="navbar">
-    <?php if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn']) : ?>
-        <a class="navbar-link" href="/public/admin/">Admin Dashboard</a>
-    <?php else : ?>
-        <a class="navbar-link" href="/public/admin/login.php">Log in</a>
-    <?php endif; ?>
-</div>
-
-<main class="content">
-    <?php foreach ($latestPosts as $post) : ?>
-        <article class="post">
-            <h2 class="post-title">
-                <a href="/public/single-post.php?slug=<?php echo htmlspecialchars($post['slug'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <?php echo htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8'); ?>
-                </a>
-            </h2>
-            <?php
-            $previewText = '';
-            foreach ($post['blocks'] as $block) {
-                if ($block['type'] === 'text' || $block['type'] === 'image_text') {
-                    $previewText = substr($block['content'], 0, 50);
-                    break;  // Exit the loop once a text block is found
-                }
-            }
-            ?>
-            <?php if (!empty($previewText)) : ?>
-                <div class="post-content">
-                    <?php echo nl2br(htmlspecialchars($previewText, ENT_QUOTES, 'UTF-8')); ?>...
-                </div>
-            <?php endif; ?>
-        </article>
-        <hr class="post-divider">
-    <?php endforeach; ?>
-</main>
-
-<!-- End the HTML section -->
-
-<?php
-include __DIR__ . '/../templates/footer.php';
-?>
