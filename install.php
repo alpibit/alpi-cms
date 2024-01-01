@@ -10,6 +10,15 @@ function setupTables($conn)
         );
     ";
 
+    // SQL statement for creating a `categories` table
+    $categoriesTableSQL = "
+    CREATE TABLE categories (
+        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE
+    );
+";
+
     // SQL statement for creating a `contents` table
     $contentsTableSQL = "
     CREATE TABLE contents (
@@ -22,9 +31,11 @@ function setupTables($conn)
         show_main_image BOOLEAN DEFAULT true,
         is_active BOOLEAN DEFAULT true,
         slug VARCHAR(255) UNIQUE NOT NULL,
+        category_id INT(11) DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (content_type_id) REFERENCES content_types(id)
+        FOREIGN KEY (content_type_id) REFERENCES content_types(id),
+        FOREIGN KEY (category_id) REFERENCES categories(id)
     );
 ";
 
@@ -51,7 +62,7 @@ function setupTables($conn)
 
     // SQL statement for creating a `blocks` table
     $blocksTableSQL = "
-CREATE TABLE blocks (
+    CREATE TABLE blocks (
     id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     content_id INT(11) NOT NULL,
     type ENUM('text', 'image_text', 'image', 'cta', 'post_picker') NOT NULL,
@@ -108,6 +119,7 @@ CREATE TABLE blocks (
 
     // Execute the SQL statements
     $conn->exec($contentTypesSQL);
+    $conn->exec($categoriesTableSQL);
     $conn->exec($contentsTableSQL);
     $conn->exec($settingsTableSQL);
     $conn->exec($usersTableSQL);
@@ -115,6 +127,9 @@ CREATE TABLE blocks (
 
     // Insert default content types
     $conn->exec("INSERT INTO content_types (name) VALUES ('post'), ('page');");
+
+    // Insert a sample category
+    $conn->exec("INSERT INTO categories (name, slug) VALUES ('General', 'general');");
 }
 
 function generateSlug($string)
@@ -126,7 +141,7 @@ function generateSlug($string)
     return $slug;
 }
 
-function insertSampleContent($conn, $contentType, $content)
+function insertSampleContent($conn, $contentType, $content, $categoryId = null)
 {
     // Get the ID of the content type
     $sqlContentType = "SELECT id FROM content_types WHERE name = :contentType";
@@ -136,11 +151,12 @@ function insertSampleContent($conn, $contentType, $content)
     $contentTypeId = $stmt->fetchColumn();
 
     $slug = generateSlug($content['title']);
-    $sql = "INSERT INTO contents (content_type_id, title, slug) VALUES (:contentTypeId, :title, :slug)";
+    $sql = "INSERT INTO contents (content_type_id, title, slug, category_id) VALUES (:contentTypeId, :title, :slug, :categoryId)";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':contentTypeId', $contentTypeId);
     $stmt->bindParam(':title', $content['title']);
     $stmt->bindParam(':slug', $slug);
+    $stmt->bindParam(':categoryId', $categoryId);
     $stmt->execute();
     return $conn->lastInsertId();
 }
@@ -274,7 +290,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         insertDefaultPages($conn);
 
-        $samplePostId = insertSampleContent($conn, 'post', $samplePost);
+        $categoryId = $conn->query("SELECT id FROM categories WHERE slug = 'general'")->fetchColumn();
+        $samplePostId = insertSampleContent($conn, 'post', $samplePost, $categoryId);
 
         $sampleBlocks = [
             [
