@@ -1,9 +1,13 @@
 <?php
-require '../config/autoload.php';
-require '../config/config.php';
-require '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/autoload.php';
 
-$postSlug = $_GET['slug'] ?? null;
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = trim($path, '/');
+$segments = explode('/', $path);
+$postSlug = $segments[1] ?? null;
+
 if (!$postSlug) {
     die('Post slug is missing.');
 }
@@ -15,38 +19,44 @@ if (!($dbConnection instanceof PDO)) {
     die("Error establishing a database connection.");
 }
 
-$post = new Post($dbConnection);
-$singlePost = $post->getPostBySlug($postSlug);
+$postObj = new Post($dbConnection);
 
-$blocks = $post->getBlocksByPostId($singlePost['id']);
+$singlePost = $postObj->getPostBySlug($postSlug);
 
-usort($blocks, function ($a, $b) {
-    return $a['order_num'] <=> $b['order_num'];
-});
+if (!$singlePost) {
+    header("HTTP/1.0 404 Not Found");
+    echo "Post not found.";
+    exit;
+}
 
-function renderBlock($block, $post)
+$blocks = $postObj->getBlocksByPostId($singlePost['id']) ?? [];
+
+function renderBlock($block, $page)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
     $blockContent = $block['content'] ?? null;
-    $blockSelectedPostIds = $block['selected_post_ids'] ?? null;
-    $blockImagePath = $block['image_path'] ?? null;
-    $blockAltText = $block['alt_text'] ?? null;
-    $blockCaption = $block['caption'] ?? null;
-    $blockUrl = $block['url'] ?? null;
-    $blockClass = $block['class'] ?? null;
-    $blockMetafield1 = $block['metafield_1'] ?? null;
-    $blockMetafield2 = $block['metafield_2'] ?? null;
-    $blockMetafield3 = $block['metafield_3'] ?? null;
-    $blockCtaText = $block['cta_text'] ?? null;
-    $blockStatus = $block['status'] ?? null;
+    $blockSelectedPostIds = $block['block_data']['selected_post_ids'] ?? null;
+    $blockImagePath = $block['block_data']['image_path'] ?? null;
+    $blockAltText = $block['block_data']['alt_text'] ?? null;
+    $blockCaption = $block['block_data']['caption'] ?? null;
+    $blockUrl = $block['block_data']['url'] ?? null;
+    $blockClass = $block['block_data']['class'] ?? null;
+    $blockMetafield1 = $block['block_data']['metafield_1'] ?? null;
+    $blockMetafield2 = $block['block_data']['metafield_2'] ?? null;
+    $blockMetafield3 = $block['block_data']['metafield_3'] ?? null;
+    $blockCtaText = $block['block_data']['cta_text'] ?? null;
+    $blockStatus = $block['block_data']['status'] ?? null;
     $blockPath = __DIR__ . '/../blocks/types/' . $blockType . '.php';
+
     if (file_exists($blockPath)) {
         include($blockPath);
     } else {
         echo 'Block type not found.';
     }
 }
+
+include __DIR__ . '/../templates/header.php';
 
 ?>
 
@@ -56,18 +66,27 @@ function renderBlock($block, $post)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($singlePost['title']) ? htmlspecialchars($singlePost['title'], ENT_QUOTES, 'UTF-8') : ''; ?></title>
+    <title><?= htmlspecialchars($singlePost['title'], ENT_QUOTES, 'UTF-8') ?: 'Post'; ?></title>
 </head>
 
 <body>
-    <h2><?= isset($singlePost['title']) ? htmlspecialchars($singlePost['title'], ENT_QUOTES, 'UTF-8') : ''; ?></h2>
+    <header>
+        <h1><?= htmlspecialchars($singlePost['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+    </header>
 
-    <!-- Display blocks -->
-    <?php foreach ($blocks as $block) {
-        renderBlock($block, $post);
-    } ?>
+    <main class="content">
+        <?php foreach ($blocks as $block) {
+            renderBlock($block, $singlePost);
+        } ?>
+    </main>
 
-    <a href="/public/index.php">Back</a>
+    <footer>
+        <a href="/">Back to Home</a>
+    </footer>
 </body>
 
 </html>
+
+<?php
+include __DIR__ . '/../templates/footer.php';
+?>

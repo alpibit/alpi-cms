@@ -3,7 +3,7 @@ ob_start();
 session_start();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: path_to_your_login_page/login.php');
+    header('Location: /public/admin/login.php');
     exit;
 }
 
@@ -19,6 +19,8 @@ require '../../../config/autoload.php';
 $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
+$category = new Category($conn);
+$categories = $category->getAllCategories();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $title = $_POST['title'];
@@ -26,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $mainImagePath = $_POST['main_image_path'];
     $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
     $isActive = isset($_POST['is_active']) ? 1 : 0;
+    $categoryId = $_POST['category_id'];
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
     $userId = $_SESSION['user_id'];
@@ -65,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     }
 
     // Call the new addPost function
-    $post->addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
+    $post->addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId, $categoryId);
+
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
@@ -81,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="/assets/css/uploads.css">
 </head>
 
-<body class="uploads-wrap">
+<body class="add-post-wrap">
     <h1>Add New Post</h1>
     <form action="" method="POST">
         Title: <input type="text" name="title"><br>
@@ -97,6 +101,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
         </select><br>
         Show Main Image: <input type="checkbox" name="show_main_image"><br>
         Is Active: <input type="checkbox" name="is_active"><br>
+        Category:
+        <select name="category_id">
+            <?php foreach ($categories as $category) : ?>
+                <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
         <div id="contentBlocks">
             <div class='block'>
                 <label>Type:</label>

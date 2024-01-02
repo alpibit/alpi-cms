@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: path_to_your_login_page/login.php');
+    header('Location: /public/admin/login.php');
     exit;
 }
 
@@ -16,16 +16,16 @@ require '../../../config/config.php';
 require '../../../config/autoload.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: " . BASE_URL . "/public/admin/index.php");
+    header("Location: " . BASE_URL . "/public/admin/categories/index.php");
     exit;
 }
 
 $db = new Database();
 $conn = $db->connect();
-$post = new Post($conn);
+$category = new Category($conn);
 
-$postId = intval($_GET['id']);
-$post->deletePost($postId);
+$categoryId = intval($_GET['id']);
+$category->deleteCategory($categoryId);
 
-header("Location: " . BASE_URL . "/public/admin/index.php");
+header("Location: " . BASE_URL . "/public/admin/categories/index.php");
 exit;

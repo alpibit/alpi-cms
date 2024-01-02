@@ -16,16 +16,16 @@ require '../../../config/config.php';
 require '../../../config/autoload.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: " . BASE_URL . "/public/admin/pages/index.php");
+    header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
 
 $db = new Database();
 $conn = $db->connect();
-$page = new Page($conn);
+$post = new Post($conn);
 
-$pageId = intval($_GET['id']);
-$page->deletePage($pageId);
+$postId = intval($_GET['id']);
+$post->deletePost($postId);
 
-header("Location: " . BASE_URL . "/public/admin/pages/index.php");
+header("Location: " . BASE_URL . "/public/admin/index.php");
 exit;

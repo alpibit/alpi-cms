@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="/assets/css/uploads.css">
 </head>
 
-<body class="uploads-wrap">
+<body class="add-page-wrap">
     <h1>Add New Page</h1>
     <form action="" method="POST">
         Title: <input type="text" name="title"><br>

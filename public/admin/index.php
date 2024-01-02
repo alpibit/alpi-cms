@@ -40,11 +40,12 @@ $allPosts = $post->getAllPosts();
     <h1>Admin Dashboard</h1>
 
     <div class="btn-group">
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/posts/add.php'">Add New Post</button>
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/posts/add_post.php'">Add New Post</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/logout.php'">Logout</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/settings/index.php'">Settings</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/uploads/index.php'">Uploads</button>
         <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/pages/index.php'">Manage Pages</button>
+        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/categories/index.php'">Manage Page Categories</button>
 
     </div>
 
@@ -60,7 +61,7 @@ $allPosts = $post->getAllPosts();
                 <tr>
                     <td><?= $singlePost['title'] ?></td>
                     <td>
-                        <button onclick="window.location.href='posts/edit.php?id=<?= $singlePost['id'] ?>'">Edit</button>
+                        <button onclick="window.location.href='posts/edit_post.php?id=<?= $singlePost['id'] ?>'">Edit</button>
                         <button class="btn-danger" onclick="confirmDeletion('<?= $singlePost['id'] ?>')">Delete</button>
 
                     </td>

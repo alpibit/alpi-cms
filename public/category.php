@@ -1,0 +1,51 @@
+<?php
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/autoload.php';
+require_once __DIR__ . '/../utils/helpers.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+try {
+    $dbInstance = new Database();
+    $dbConnection = $dbInstance->connect();
+
+    if (!($dbConnection instanceof PDO)) {
+        throw new Exception("Error establishing a database connection.");
+    }
+
+    // Get the category slug from the URL
+    $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $categorySlug = trim($requestUri, '/');
+
+    $categoryObj = new Category($dbConnection);
+    $postObj = new Post($dbConnection);
+
+    // Fetch the category details
+    $category = $categoryObj->getCategoryBySlug($categorySlug);
+    if (!$category) {
+        header("HTTP/1.0 404 Not Found");
+        require __DIR__ . '/404.php';
+        exit;
+    }
+
+    // Fetch posts in this category
+    $posts = $postObj->getPostsByCategoryId($category['id']);
+
+    $router = new Router($dbConnection);
+
+    echo "<h1>Posts in Category: " . htmlspecialchars($category['name'] ?? "") . "</h1>";
+    foreach ($posts as $post) {
+        // Generate URL for the post
+        $postUrl = $router->generateUrl('post', $post['slug'], $categorySlug);
+
+        echo "<div>";
+        echo "<h2><a href='" . $postUrl . "'>" . htmlspecialchars($post['title'] ?? "") . "</a></h2>";
+        echo "<p>" . htmlspecialchars($post['content'] ?? "") . "</p>";
+        echo "</div>";
+    }
+} catch (Exception $e) {
+    die($e->getMessage());
+}

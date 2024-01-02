@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="/assets/css/uploads.css">
 </head>
 
-<body class="uploads-wrap">
+<body class="edit-page-wrap">
     <h1>Edit Page</h1>
     <form action="" method="POST">
         Title: <input type="text" name="title" value="<?= isset($pageData['title']) ? $pageData['title'] : '' ?>"><br>

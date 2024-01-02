@@ -1,11 +1,9 @@
 <?php
-// Include necessary files and classes
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/autoload.php';
 require_once __DIR__ . '/../utils/helpers.php';
 
-// Start session
 session_start();
 
 try {
@@ -16,32 +14,32 @@ try {
         throw new Exception("Error establishing a database connection.");
     }
 
-    // Parse the Request URI
+    $router = new Router($dbConnection);
     $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $requestUri = trim($requestUri, '/');
+    $route = $router->getRoute($requestUri);
 
-    // Routing logic
-    if ($requestUri === '') {
-        // Home page
-        require __DIR__ . '/home.php';
-    } else {
-        $pageObj = new Page($dbConnection);
-        $postObj = new Post($dbConnection);
+    switch ($route['type']) {
+        case 'home':
+            require __DIR__ . '/home.php';
+            break;
 
-        $pageContent = $pageObj->getPageBySlug($requestUri);
-        $postContent = $postObj->getPostBySlug($requestUri);
-
-        if ($pageContent) {
-            // Render the page
+        case 'page':
             require __DIR__ . '/single-page.php';
-        } elseif ($postContent) {
-            // Render the post
+            break;
+
+        case 'post':
             require __DIR__ . '/single-post.php';
-        } else {
-            // 404 Not Found
+            break;
+
+        case 'category':
+            require __DIR__ . '/category.php';
+            break;
+
+        case '404':
+        default:
             header("HTTP/1.0 404 Not Found");
             require __DIR__ . '/404.php';
-        }
+            break;
     }
 } catch (Exception $e) {
     die($e->getMessage());

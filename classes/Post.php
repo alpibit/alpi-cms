@@ -67,14 +67,14 @@ class Post
     }
 
     // Add a new post
-    public function addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId)
+    public function addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId, $categoryId)
     {
         $slug = $this->generateSlug($title);
         $postTypeId = $this->getPostContentTypeId();
+        $categoryId = (int) $categoryId;
 
-        // Inserting into contents table with new fields
-        $sql = "INSERT INTO contents (content_type_id, title, subtitle, main_image_path, show_main_image, is_active, slug, user_id) 
-            VALUES (:postTypeId, :title, :subtitle, :mainImagePath, :showMainImage, :isActive, :slug, :userId)";
+        $sql = "INSERT INTO contents (content_type_id, title, subtitle, main_image_path, show_main_image, is_active, slug, user_id, category_id) 
+        VALUES (:postTypeId, :title, :subtitle, :mainImagePath, :showMainImage, :isActive, :slug, :userId, :categoryId)";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':postTypeId', $postTypeId, PDO::PARAM_INT);
@@ -85,6 +85,7 @@ class Post
         $stmt->bindParam(':isActive', $isActive, PDO::PARAM_BOOL);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->execute();
 
         $contentId = $this->db->lastInsertId();
@@ -150,29 +151,36 @@ class Post
     }
 
     // Update an existing post by ID
-    public function updatePost($id, $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive)
+    public function updatePost($id, $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId)
     {
-        // Updating contents table with new fields
         $sql = "UPDATE contents SET 
-                    title = :title, 
-                    subtitle = :subtitle, 
-                    main_image_path = :mainImagePath, 
-                    show_main_image = :showMainImage, 
-                    is_active = :isActive, 
-                    user_id = :userId 
-                WHERE id = :id";
+                title = :title, 
+                subtitle = :subtitle, 
+                main_image_path = :mainImagePath, 
+                show_main_image = :showMainImage, 
+                is_active = :isActive, 
+                user_id = :userId,
+                category_id = :categoryId
+            WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-        $stmt->bindParam(':subtitle', $subtitle, PDO::PARAM_STR);
+        $stmt->bindParam(
+            ':subtitle',
+            $subtitle,
+            PDO::PARAM_STR
+        );
         $stmt->bindParam(':mainImagePath', $mainImagePath, PDO::PARAM_STR);
         $stmt->bindParam(':showMainImage', $showMainImage, PDO::PARAM_BOOL);
-        $stmt->bindParam(':isActive', $isActive, PDO::PARAM_BOOL);
-        // $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+        $stmt->bindParam(
+            ':isActive',
+            $isActive,
+            PDO::PARAM_BOOL
+        );
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-
         // Delete existing blocks for this post
         $sqlDelete = "DELETE FROM blocks WHERE content_id = :id";
         $stmtDelete = $this->db->prepare($sqlDelete);
@@ -228,9 +236,16 @@ class Post
     // Fetch a post by its ID
     public function getPostById($id)
     {
-        $sql = "SELECT contents.title AS content_title, contents.subtitle, contents.main_image_path, contents.show_main_image, contents.is_active, contents.slug, blocks.* FROM contents 
-                LEFT JOIN blocks ON contents.id = blocks.content_id 
-                WHERE contents.id = :id";
+        $sql = "SELECT contents.title AS content_title, contents.subtitle, 
+            contents.main_image_path, contents.show_main_image, 
+            contents.is_active, contents.slug, contents.category_id,
+            categories.name AS category_name, categories.slug AS category_slug,
+            blocks.* 
+            FROM contents 
+            LEFT JOIN blocks ON contents.id = blocks.content_id
+            LEFT JOIN categories ON contents.category_id = categories.id
+            WHERE contents.id = :id";
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -238,8 +253,8 @@ class Post
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $posts = [];
-        $postId = $results[0]['id'];
-        if (!isset($posts[$postId])) {
+        if (!empty($results)) {
+            $postId = $results[0]['id'];
             $posts[$postId] = [
                 'title' => $results[0]['content_title'],
                 'subtitle' => $results[0]['subtitle'],
@@ -247,15 +262,19 @@ class Post
                 'show_main_image' => $results[0]['show_main_image'],
                 'is_active' => $results[0]['is_active'],
                 'slug' => $results[0]['slug'],
+                'category_id' => $results[0]['category_id'],
+                'category_name' => $results[0]['category_name'],
+                'category_slug' => $results[0]['category_slug'],
                 'blocks' => [],
             ];
-        }
-        foreach ($results as $result) {
-            $posts[$postId]['blocks'][] = [
-                'type' => $result['type'],
-                'content' => $result['content'],
-                'block_data' => $result
-            ];
+
+            foreach ($results as $result) {
+                $posts[$postId]['blocks'][] = [
+                    'type' => $result['type'],
+                    'content' => $result['content'],
+                    'block_data' => $result
+                ];
+            }
         }
 
         return array_values($posts);
@@ -268,6 +287,21 @@ class Post
         $sql = "SELECT * FROM contents WHERE slug = :slug";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Fetch a post by its category slug and post slug
+    public function getPostByCategoryAndSlug($categorySlug, $postSlug)
+    {
+        $sql = "SELECT contents.*, categories.name AS category_name, categories.slug AS category_slug 
+            FROM contents 
+            INNER JOIN categories ON contents.category_id = categories.id 
+            WHERE categories.slug = :categorySlug AND contents.slug = :postSlug";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':categorySlug', $categorySlug, PDO::PARAM_STR);
+        $stmt->bindParam(':postSlug', $postSlug, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -286,5 +320,16 @@ class Post
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+
+    public function getPostsByCategoryId($categoryId)
+    {
+        $sql = "SELECT * FROM contents 
+                WHERE category_id = :categoryId AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')
+                ORDER BY created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

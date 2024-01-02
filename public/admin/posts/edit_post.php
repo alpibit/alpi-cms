@@ -19,9 +19,11 @@ require '../../../config/autoload.php';
 $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
+$category = new Category($conn);
 
 $postData = $post->getPostById($_GET['id']);
 $postData = $postData[0];
+$categories = $category->getAllCategories();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
@@ -29,6 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mainImagePath = $_POST['main_image_path'];
     $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
     $isActive = isset($_POST['is_active']) ? 1 : 0;
+    $categoryId = $_POST['category_id'] ?? null;
     $contentBlocks = [];
     $slug = $post->generateSlug($title);
 
@@ -67,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $userId = $_SESSION['user_id'] ?? 0;
-    $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive);
+    $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
@@ -83,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="/assets/css/uploads.css">
 </head>
 
-<body class="uploads-wrap">
+<body class="edit-post-wrap">
     <h1>Edit Post</h1>
     <form action="" method="POST">
         Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
@@ -100,6 +103,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </select><br>
         Show Main Image: <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>><br>
         Is Active: <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>><br>
+        <label>Category:</label>
+        <select name="category_id">
+            <?php foreach ($categories as $cat) : ?>
+                <?php $selected = ($postData['category_id'] == $cat['id']) ? 'selected' : ''; ?>
+                <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= $cat['name'] ?></option>
+            <?php endforeach; ?>
+        </select><br>
+
 
         <div id="contentBlocks">
             <?php

@@ -22,17 +22,17 @@ function renderBlock($block, $page)
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
     $blockContent = $block['content'] ?? null;
-    $blockSelectedPostIds = $block['selected_post_ids'] ?? null;
-    $blockImagePath = $block['image_path'] ?? null;
-    $blockAltText = $block['alt_text'] ?? null;
-    $blockCaption = $block['caption'] ?? null;
-    $blockUrl = $block['url'] ?? null;
-    $blockClass = $block['class'] ?? null;
-    $blockMetafield1 = $block['metafield_1'] ?? null;
-    $blockMetafield2 = $block['metafield_2'] ?? null;
-    $blockMetafield3 = $block['metafield_3'] ?? null;
-    $blockCtaText = $block['cta_text'] ?? null;
-    $blockStatus = $block['status'] ?? null;
+    $blockSelectedPostIds = $block['block_data']['selected_post_ids'] ?? null;
+    $blockImagePath = $block['block_data']['image_path'] ?? null;
+    $blockAltText = $block['block_data']['alt_text'] ?? null;
+    $blockCaption = $block['block_data']['caption'] ?? null;
+    $blockUrl = $block['block_data']['url'] ?? null;
+    $blockClass = $block['block_data']['class'] ?? null;
+    $blockMetafield1 = $block['block_data']['metafield_1'] ?? null;
+    $blockMetafield2 = $block['block_data']['metafield_2'] ?? null;
+    $blockMetafield3 = $block['block_data']['metafield_3'] ?? null;
+    $blockCtaText = $block['block_data']['cta_text'] ?? null;
+    $blockStatus = $block['block_data']['status'] ?? null;
     $blockPath = __DIR__ . '/../blocks/types/' . $blockType . '.php';
     if (file_exists($blockPath)) {
         include($blockPath);
@@ -66,7 +66,7 @@ function renderBlock($block, $page)
     ?>
 
     <footer>
-        <a href="/public/index.php">Back</a>
+        <a href="/">Back</a>
     </footer>
 </body>
 
