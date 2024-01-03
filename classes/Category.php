@@ -84,10 +84,22 @@ class Category
     // Delete a category by its ID
     public function deleteCategory($id)
     {
+        if ($id == 1) {
+            return false;
+        }
+
+        // Transfer posts from the deleted category to the General category
+        $transferPostsSql = "UPDATE contents SET category_id = 1 WHERE category_id = :categoryId";
+        $transferPostsStmt = $this->db->prepare($transferPostsSql);
+        $transferPostsStmt->bindParam(':categoryId', $id, PDO::PARAM_INT);
+        $transferPostsStmt->execute();
+
+        // Proceed to delete the category
         $sql = "DELETE FROM categories WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
+
         return $stmt->rowCount();
     }
 

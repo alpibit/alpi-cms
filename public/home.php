@@ -43,19 +43,10 @@ function renderBlock($block, $page)
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($homePage['title']) ? htmlspecialchars($homePage['title'], ENT_QUOTES, 'UTF-8') : 'Home'; ?></title>
-</head>
+<?php include __DIR__ . '/../templates/header.php'; ?>
 
-<body>
-    <header>
-        <h1><?= isset($homePage['title']) ? htmlspecialchars($homePage['title'], ENT_QUOTES, 'UTF-8') : ''; ?></h1>
-    </header>
+<main class="content">
 
     <?php
     if (isset($homePage['blocks']) && is_array($homePage['blocks'])) {
@@ -65,9 +56,6 @@ function renderBlock($block, $page)
     }
     ?>
 
-    <footer>
-        <a href="/">Back</a>
-    </footer>
-</body>
+</main>
 
-</html>
+<?php include __DIR__ . '/../templates/footer.php'; ?>

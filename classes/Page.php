@@ -193,6 +193,9 @@ class Page
 
     public function deletePage($id)
     {
+        if ($id == 1) {
+            return false;
+        }
         $sqlBlocks = "DELETE FROM blocks WHERE content_id = :id";
         $stmtBlocks = $this->db->prepare($sqlBlocks);
         $stmtBlocks->bindParam(':id', $id, PDO::PARAM_INT);

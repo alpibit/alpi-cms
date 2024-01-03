@@ -36,16 +36,25 @@ try {
 
     $router = new Router($dbConnection);
 
-    echo "<h1>Posts in Category: " . htmlspecialchars($category['name'] ?? "") . "</h1>";
-    foreach ($posts as $post) {
+?>
+    <?php include __DIR__ . '/../templates/header.php'; ?>
+
+
+    <h1>Posts in Category: <?= htmlspecialchars($category['name'] ?? "") ?></h1>
+    <?php foreach ($posts as $post) :
         // Generate URL for the post
         $postUrl = $router->generateUrl('post', $post['slug'], $categorySlug);
+    ?>
+        <div>
+            <h2><a href="<?= $postUrl ?>"><?= htmlspecialchars($post['title'] ?? "") ?></a></h2>
+            <p><?= htmlspecialchars($post['content'] ?? "") ?></p>
+        </div>
+    <?php endforeach; ?>
 
-        echo "<div>";
-        echo "<h2><a href='" . $postUrl . "'>" . htmlspecialchars($post['title'] ?? "") . "</a></h2>";
-        echo "<p>" . htmlspecialchars($post['content'] ?? "") . "</p>";
-        echo "</div>";
-    }
+    <?php include __DIR__ . '/../templates/footer.php'; ?>
+
+<?php
 } catch (Exception $e) {
     die($e->getMessage());
 }
+?>

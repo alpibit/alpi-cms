@@ -58,37 +58,14 @@ function renderBlock($block, $page)
     }
 }
 
-include __DIR__ . '/../templates/header.php';
-
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<?php include __DIR__ . '/../templates/header.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($singlePage['title'], ENT_QUOTES, 'UTF-8') ?: 'Page'; ?></title>
-</head>
+<main class="content">
+    <?php foreach ($blocks as $block) {
+        renderBlock($block, $singlePage);
+    } ?>
+</main>
 
-<body>
-    <header>
-        <h1><?= htmlspecialchars($singlePage['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
-    </header>
-
-    <main class="content">
-        <?php foreach ($blocks as $block) {
-            renderBlock($block, $singlePage);
-        } ?>
-    </main>
-
-    <footer>
-        <a href="/">Back to Home</a>
-    </footer>
-</body>
-
-</html>
-
-<?php
-include __DIR__ . '/../templates/footer.php';
-?>
+<?php include __DIR__ . '/../templates/footer.php'; ?>

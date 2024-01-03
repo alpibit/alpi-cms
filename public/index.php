@@ -35,6 +35,10 @@ try {
             require __DIR__ . '/category.php';
             break;
 
+        case 'admin':
+            require __DIR__ . '/admin/login.php';
+            break;
+
         case '404':
         default:
             header("HTTP/1.0 404 Not Found");

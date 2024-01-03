@@ -18,6 +18,10 @@ class Router
             return ['type' => 'home'];
         }
 
+        if ($segments[0] === 'admin') {
+            return ['type' => 'admin'];
+        }
+
         if ($this->isCategory($segments[0])) {
             if (isset($segments[1])) {
                 return $this->getPostRoute($segments[0], $segments[1]);

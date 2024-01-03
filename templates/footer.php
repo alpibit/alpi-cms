@@ -1,4 +1,5 @@
 <?php
+$settings = new Settings($dbInstance->connect());
 $footer_text = $settings->getSetting('footer_text');
 ?>
 
