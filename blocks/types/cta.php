@@ -1,22 +1,35 @@
-<div class="cta-block">
-    <a href="<?= isset($block['url']) ? htmlspecialchars($block['url'], ENT_QUOTES, 'UTF-8') : '#' ?>" class="cta-button">
-        <?= isset($block['cta_text']) ? htmlspecialchars($block['cta_text'], ENT_QUOTES, 'UTF-8') : 'Click Here' ?>
-    </a>
+<div class="cta-block" style="<?= !empty($blockBackgroundColor) ? "background-color: " . htmlspecialchars($blockBackgroundColor) . ";" : "" ?>
+    <?= !empty($blockTopPadding) ? "padding-top: " . htmlspecialchars($blockTopPadding) . ";" : "" ?>
+    <?= !empty($blockBottomPadding) ? "padding-bottom: " . htmlspecialchars($blockBottomPadding) . ";" : "" ?>
+">
+    <?php if (!empty($blockUrl1) && !empty($blockCtaText1)) : ?>
+        <a href="<?= htmlspecialchars($blockUrl1, ENT_QUOTES, 'UTF-8') ?>" class="cta-button">
+            <?= htmlspecialchars($blockCtaText1, ENT_QUOTES, 'UTF-8') ?>
+        </a>
+    <?php endif; ?>
+    <?php if (!empty($blockUrl2) && !empty($blockCtaText2)) : ?>
+        <a href="<?= htmlspecialchars($blockUrl2, ENT_QUOTES, 'UTF-8') ?>" class="cta-button">
+            <?= htmlspecialchars($blockCtaText2, ENT_QUOTES, 'UTF-8') ?>
+        </a>
+    <?php endif; ?>
 </div>
 
-<!-- !!! REMOVE IT LATER -->
+
 <style>
     .cta-block {
         text-align: center;
+        margin-bottom: 20px;
+        padding: 10px;
     }
 
-    .cta-button {
+    .cta-block .cta-button {
         display: inline-block;
+        margin: 5px;
         padding: 10px 20px;
-        background-color: #fff;
-        color: #000;
+        background-color: #007bff;
+        color: #fff;
         text-decoration: none;
         border-radius: 5px;
-        border: 1px solid #000;
+        border: 1px solid #007bff;
     }
 </style>

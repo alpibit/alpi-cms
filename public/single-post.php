@@ -31,22 +31,32 @@ if (!$singlePost) {
 
 $blocks = $postObj->getBlocksByPostId($singlePost['id']) ?? [];
 
-function renderBlock($block, $page)
+function renderBlock($block, $page, $dbConnection)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
     $blockContent = $block['content'] ?? null;
+    $blockTitleFontSize = $block['block_data']['style6'] ?? null;
+    $blockTitleColor = $block['block_data']['style7'] ?? null;
+    $blockTitleAlignment = $block['block_data']['style8'] ?? null;
+    $blockTextSize = $block['block_data']['style1'] ?? null;
+    $blockTextColor = $block['block_data']['style2'] ?? null;
+    $blockBackgroundColor = $block['block_data']['background_color'] ?? null;
+    $blockTopPadding = $block['block_data']['style4'] ?? null;
+    $blockBottomPadding = $block['block_data']['style5'] ?? null;
+    $blockCtaText1 = $block['block_data']['cta_text1'] ?? null;
+    $blockUrl1 = $block['block_data']['url1'] ?? null;
+    $blockCtaText2 = $block['block_data']['cta_text2'] ?? null;
+    $blockUrl2 = $block['block_data']['url2'] ?? null;
     $blockSelectedPostIds = $block['block_data']['selected_post_ids'] ?? null;
     $blockImagePath = $block['block_data']['image_path'] ?? null;
     $blockAltText = $block['block_data']['alt_text'] ?? null;
     $blockCaption = $block['block_data']['caption'] ?? null;
-    $blockUrl = $block['block_data']['url'] ?? null;
     $blockClass = $block['block_data']['class'] ?? null;
     $blockMetafield1 = $block['block_data']['metafield_1'] ?? null;
     $blockMetafield2 = $block['block_data']['metafield_2'] ?? null;
     $blockMetafield3 = $block['block_data']['metafield_3'] ?? null;
-    $blockCtaText = $block['block_data']['cta_text'] ?? null;
-    $blockStatus = $block['block_data']['status'] ?? null;
+    $blockLayoutToggle = $block['block_data']['layout1'] ?? null;
     $blockPath = __DIR__ . '/../blocks/types/' . $blockType . '.php';
 
     if (file_exists($blockPath)) {
@@ -57,14 +67,13 @@ function renderBlock($block, $page)
 }
 
 
-
 ?>
 
 <?php include __DIR__ . '/../templates/header.php'; ?>
 
 <main class="content">
     <?php foreach ($blocks as $block) {
-        renderBlock($block, $singlePost);
+        renderBlock($block, $singlePost, $dbConnection);
     } ?>
 </main>
 

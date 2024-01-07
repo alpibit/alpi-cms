@@ -332,4 +332,15 @@ class Post
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getCategorySlugByPostId($postId)
+    {
+        $sql = "SELECT categories.slug FROM contents
+            JOIN categories ON contents.category_id = categories.id
+            WHERE contents.id = :postId";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':postId', $postId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['slug'] ?? null;
+    }
 }

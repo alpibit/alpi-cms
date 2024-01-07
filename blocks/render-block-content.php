@@ -47,7 +47,7 @@ switch ($blockType) {
             <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="Text Area"><?php echo $content; ?></textarea><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style3]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
+            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
             <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
         </div>
