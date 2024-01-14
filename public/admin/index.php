@@ -26,28 +26,7 @@ $post = new Post($conn);
 $allPosts = $post->getAllPosts();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
-</head>
-
-<body class="admin-dashboard-wrap">
-
-    <h1>Admin Dashboard</h1>
-
-    <div class="btn-group">
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/posts/add_post.php'">Add New Post</button>
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/logout.php'">Logout</button>
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/settings/index.php'">Settings</button>
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/uploads/index.php'">Uploads</button>
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/pages/index.php'">Manage Pages</button>
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/categories/index.php'">Manage Page Categories</button>
-
-    </div>
+<?php include '../../templates/header-admin.php'; ?>
 
     <table>
         <thead>
@@ -69,8 +48,6 @@ $allPosts = $post->getAllPosts();
             <?php endforeach; ?>
         </tbody>
     </table>
-</body>
+<!-- footer file -->
 
-<script src="/assets/js/main.js"></script>
-
-</html>
+<?php include '../../templates/footer-admin.php'; ?>

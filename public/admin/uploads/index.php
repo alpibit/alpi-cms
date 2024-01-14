@@ -6,8 +6,8 @@ require '../../../config/autoload.php';
 require '../../../classes/Upload.php';
 
 $db = new Database();
-$pdo = $db->connect();
-$upload = new Upload($pdo);
+$conn = $db->connect();
+$upload = new Upload($conn);
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete'])) {
@@ -51,55 +51,40 @@ foreach ($uploads as $fileInfo) {
 ?>
 
 
-<!DOCTYPE html>
-<html lang="en">
+<?php include '../../../templates/header-admin.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Uploads</title>
-    <link rel="stylesheet" href="/assets/css/uploads.css">
-</head>
+<h1>Uploads</h1>
 
-<body class="uploads-wrap">
+<form action="" method="post" enctype="multipart/form-data">
+    Select file to upload:
+    <input type="file" name="fileToUpload" id="fileToUpload">
+    <input type="submit" value="Upload File" name="submit">
+</form>
 
-    <h1>Uploads</h1>
-
-    <div class="btn-group">
-        <button onclick="window.location.href='<?= BASE_URL ?>/public/admin/index.php'">Admin Dashboard</button>
-    </div>
-
-    <form action="" method="post" enctype="multipart/form-data">
-        Select file to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Upload File" name="submit">
-    </form>
-
-    <table>
-        <thead>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>File Size</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($displayUploads as $fileInfo) : ?>
             <tr>
-                <th>File Name</th>
-                <th>File Size</th>
-                <th>Date</th>
-                <th>Action</th>
+                <td><a href="<?= $fileInfo['url'] ?>" target="_blank"><?= $fileInfo['path'] ?></a></td>
+                <td><?= $fileInfo['size'] ?></td>
+                <td><?= $fileInfo['date'] ?></td>
+                <td>
+                    <form method="post">
+                        <input type="hidden" name="delete" value="<?= basename($fileInfo['path']) ?>">
+                        <input type="submit" value="Delete">
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($displayUploads as $fileInfo) : ?>
-                <tr>
-                    <td><a href="<?= $fileInfo['url'] ?>" target="_blank"><?= $fileInfo['path'] ?></a></td>
-                    <td><?= $fileInfo['size'] ?></td>
-                    <td><?= $fileInfo['date'] ?></td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" name="delete" value="<?= basename($fileInfo['path']) ?>">
-                            <input type="submit" value="Delete">
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+        <?php endforeach; ?>
+    </tbody>
+</table>
 
-</body>
-
-</html>
+<?php include '../../../templates/footer-admin.php'; ?>

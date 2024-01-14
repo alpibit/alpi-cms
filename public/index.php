@@ -7,14 +7,14 @@ require_once __DIR__ . '/../utils/helpers.php';
 session_start();
 
 try {
-    $dbInstance = new Database();
-    $dbConnection = $dbInstance->connect();
+    $db = new Database();
+    $conn = $db->connect();
 
-    if (!($dbConnection instanceof PDO)) {
+    if (!($conn instanceof PDO)) {
         throw new Exception("Error establishing a database connection.");
     }
 
-    $router = new Router($dbConnection);
+    $router = new Router($conn);
     $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $route = $router->getRoute($requestUri);
 

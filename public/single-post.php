@@ -12,14 +12,14 @@ if (!$postSlug) {
     die('Post slug is missing.');
 }
 
-$dbInstance = new Database();
-$dbConnection = $dbInstance->connect();
+$db = new Database();
+$conn = $db->connect();
 
-if (!($dbConnection instanceof PDO)) {
+if (!($conn instanceof PDO)) {
     die("Error establishing a database connection.");
 }
 
-$postObj = new Post($dbConnection);
+$postObj = new Post($conn);
 
 $singlePost = $postObj->getPostBySlug($postSlug);
 
@@ -31,7 +31,7 @@ if (!$singlePost) {
 
 $blocks = $postObj->getBlocksByPostId($singlePost['id']) ?? [];
 
-function renderBlock($block, $page, $dbConnection)
+function renderBlock($block, $page, $conn)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
@@ -73,7 +73,7 @@ function renderBlock($block, $page, $dbConnection)
 
 <main class="content">
     <?php foreach ($blocks as $block) {
-        renderBlock($block, $singlePost, $dbConnection);
+        renderBlock($block, $singlePost, $conn);
     } ?>
 </main>
 

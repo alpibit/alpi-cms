@@ -12,12 +12,12 @@ body.admin-dashboard-wrap {
     color: #333;
 }
 
-.admin-dashboard-wrap .btn-group {
+.admin-dashboard-wrap .admin-header {
     text-align: center;
     margin-bottom: 2rem;
 }
 
-.admin-dashboard-wrap .btn-group button {
+.admin-dashboard-wrap .admin-header a {
     background-color: #007bff;
     color: white;
     border: none;
@@ -26,9 +26,10 @@ body.admin-dashboard-wrap {
     margin-right: 10px;
     cursor: pointer;
     transition: background-color 0.3s;
+    text-decoration: none;
 }
 
-.admin-dashboard-wrap .btn-group button:hover {
+.admin-dashboard-wrap .admin-header a:hover {
     background-color: #0056b3;
 }
 

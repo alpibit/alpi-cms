@@ -6,14 +6,14 @@ require_once __DIR__ . '/../config/autoload.php';
 // Home content ID
 $homeContentId = 1;
 
-$dbInstance = new Database();
-$dbConnection = $dbInstance->connect();
+$db = new Database();
+$conn = $db->connect();
 
-if (!($dbConnection instanceof PDO)) {
+if (!($conn instanceof PDO)) {
     die("Error establishing a database connection.");
 }
 
-$page = new Page($dbConnection);
+$page = new Page($conn);
 $homePage = $page->getPageById($homeContentId);
 
 

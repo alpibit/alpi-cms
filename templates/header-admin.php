@@ -1,12 +1,8 @@
 <?php
 
 // Admin Header
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../config/autoload.php';
 
-$dbAdminInstance = new Database();
-$connAdmin = $dbAdminInstance->connect();
-$settingsAdmin = new Settings($connAdmin);
+$settingsAdmin = new Settings($conn);
 $adminSiteName = $settingsAdmin->getSetting('site_name') . ' Admin';
 ?>
 

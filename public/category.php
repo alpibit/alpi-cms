@@ -9,10 +9,10 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 try {
-    $dbInstance = new Database();
-    $dbConnection = $dbInstance->connect();
+    $db = new Database();
+    $conn = $db->connect();
 
-    if (!($dbConnection instanceof PDO)) {
+    if (!($conn instanceof PDO)) {
         throw new Exception("Error establishing a database connection.");
     }
 
@@ -20,8 +20,8 @@ try {
     $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $categorySlug = trim($requestUri, '/');
 
-    $categoryObj = new Category($dbConnection);
-    $postObj = new Post($dbConnection);
+    $categoryObj = new Category($conn);
+    $postObj = new Post($conn);
 
     // Fetch the category details
     $category = $categoryObj->getCategoryBySlug($categorySlug);
@@ -34,7 +34,7 @@ try {
     // Fetch posts in this category
     $posts = $postObj->getPostsByCategoryId($category['id']);
 
-    $router = new Router($dbConnection);
+    $router = new Router($conn);
 
 ?>
     <?php include __DIR__ . '/../templates/header.php'; ?>

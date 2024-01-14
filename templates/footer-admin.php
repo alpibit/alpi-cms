@@ -1,9 +1,8 @@
 <?php
 
 // Admin Footer
-$dbAdminFooterInstance = new Database();
-$connAdminFooter = $dbAdminFooterInstance->connect();
-$settingsAdminFooter = new Settings($connAdminFooter);
+
+$settingsAdminFooter = new Settings($conn);
 $adminFooterText = $settingsAdminFooter->getSetting('footer_text');
 ?>
 

@@ -12,14 +12,14 @@ if (!$pageSlug) {
     die('Page slug is missing.');
 }
 
-$dbInstance = new Database();
-$dbConnection = $dbInstance->connect();
+$db = new Database();
+$conn = $db->connect();
 
-if (!($dbConnection instanceof PDO)) {
+if (!($conn instanceof PDO)) {
     die("Error establishing a database connection.");
 }
 
-$pageObj = new Page($dbConnection);
+$pageObj = new Page($conn);
 
 $pageData = $pageObj->getPageBySlug($pageSlug);
 
@@ -33,7 +33,7 @@ $singlePage = $pageObj->getPageById($pageData['id']);
 
 $blocks = $singlePage['blocks'] ?? [];
 
-function renderBlock($block, $page, $dbConnection)
+function renderBlock($block, $page, $conn)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? null;
@@ -75,7 +75,7 @@ function renderBlock($block, $page, $dbConnection)
 
 <main class="content">
     <?php foreach ($blocks as $block) {
-        renderBlock($block, $singlePage, $dbConnection);
+        renderBlock($block, $singlePage, $conn);
     } ?>
 </main>
 
