@@ -23,31 +23,24 @@ if (!$conn instanceof PDO) {
 }
 
 $post = new Post($conn);
-$allPosts = $post->getAllPosts();
+$page = new Page($conn);
+$category = new Category($conn);
+
+$postCount = $post->countPosts();
+$pageCount = $page->countPages();
+$categoryCount = $category->countCategories();
+
 ?>
 
 <?php include '../../templates/header-admin.php'; ?>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($allPosts as $singlePost) : ?>
-                <tr>
-                    <td><?= $singlePost['title'] ?></td>
-                    <td>
-                        <button onclick="window.location.href='posts/edit_post.php?id=<?= $singlePost['id'] ?>'">Edit</button>
-                        <button class="btn-danger" onclick="confirmDeletion('<?= $singlePost['id'] ?>')">Delete</button>
+<h1>Admin Dashboard</h1>
+<div>
+    <p>Total Posts: <?= $postCount ?></p>
+    <p>Total Pages: <?= $pageCount ?></p>
+    <p>Total Categories: <?= $categoryCount ?></p>
+</div>
 
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
 <!-- footer file -->
 
 <?php include '../../templates/footer-admin.php'; ?>

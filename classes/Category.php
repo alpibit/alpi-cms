@@ -142,4 +142,10 @@ class Category
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function countCategories()
+    {
+        $sql = "SELECT COUNT(*) FROM categories";
+        return $this->db->query($sql)->fetchColumn();
+    }
 }

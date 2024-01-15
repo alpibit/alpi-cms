@@ -343,4 +343,10 @@ class Post
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['slug'] ?? null;
     }
+
+    public function countPosts() {
+        $sql = "SELECT COUNT(*) FROM contents WHERE content_type_id = (SELECT id FROM content_types WHERE name = 'post')";
+        return $this->db->query($sql)->fetchColumn();
+    }
+    
 }

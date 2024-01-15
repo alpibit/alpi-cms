@@ -232,4 +232,10 @@ class Page
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
     }
+
+    public function countPages()
+    {
+        $sql = "SELECT COUNT(*) FROM contents WHERE content_type_id = (SELECT id FROM content_types WHERE name = 'page')";
+        return $this->db->query($sql)->fetchColumn();
+    }
 }

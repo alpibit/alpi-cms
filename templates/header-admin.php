@@ -21,6 +21,7 @@ $adminSiteName = $settingsAdmin->getSetting('site_name') . ' Admin';
     <header class="admin-header">
         <h1><?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?></h1>
         <nav class="admin-nav">
+            <a href="<?= BASE_URL ?>/public/admin/index.php">Dashboard</a>
             <a href="<?= BASE_URL ?>/public/admin/posts/index.php">Manage Posts</a>
             <a href="<?= BASE_URL ?>/public/admin/pages/index.php">Manage Pages</a>
             <a href="<?= BASE_URL ?>/public/admin/categories/index.php">Manage Categories</a>
