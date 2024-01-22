@@ -13,4 +13,4 @@ $adminFooterText = $settingsAdminFooter->getSetting('footer_text');
 <script src="<?= BASE_URL ?>/assets/js/main.js"></script>
 </body>
 
-</html
+</html>

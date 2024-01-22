@@ -14,6 +14,13 @@ $adminSiteName = $settingsAdmin->getSetting('site_name') . ' Admin';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/admin-dashboard.css">
+    <?php
+    if (!empty($custom_css)) {
+    ?>
+        <link rel="stylesheet" href="<?= BASE_URL . $custom_css ?>">
+    <?php
+    }
+    ?>
 </head>
 
 <body class="admin-dashboard-wrap">
