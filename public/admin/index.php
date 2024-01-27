@@ -2,12 +2,12 @@
 session_start();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: /public/admin/login.php');
+    header('Location: /admin');
     exit;
 }
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../../index.php');
+    header('Location: /admin');
     exit;
 }
 
