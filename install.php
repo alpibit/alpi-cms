@@ -1,129 +1,19 @@
 <?php
 
+function executeSQLFromFile($conn, $filePath)
+{
+    $query = file_get_contents($filePath);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+}
+
 function setupTables($conn)
 {
-    // SQL statement for creating a `content_types` table
-    $contentTypesSQL = "
-        CREATE TABLE content_types (
-            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(50) NOT NULL UNIQUE
-        );
-    ";
 
-    // SQL statement for creating a `categories` table
-    $categoriesTableSQL = "
-    CREATE TABLE categories (
-        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        slug VARCHAR(255) NOT NULL UNIQUE
-    );
-";
-
-    // SQL statement for creating a `contents` table
-    $contentsTableSQL = "
-    CREATE TABLE contents (
-        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        content_type_id INT(11) NOT NULL,
-        user_id INT(11),
-        title VARCHAR(255) NOT NULL,
-        subtitle VARCHAR(255),
-        main_image_path VARCHAR(255),
-        show_main_image BOOLEAN DEFAULT true,
-        is_active BOOLEAN DEFAULT true,
-        slug VARCHAR(255) UNIQUE NOT NULL,
-        category_id INT(11) DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (content_type_id) REFERENCES content_types(id),
-        FOREIGN KEY (category_id) REFERENCES categories(id)
-    );
-";
-
-    // SQL statement for creating a `settings` table
-    $settingsTableSQL = "
-        CREATE TABLE settings (
-            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            setting_key VARCHAR(255) NOT NULL UNIQUE,
-            setting_value TEXT NOT NULL
-        );
-    ";
-
-    // SQL statement for creating a `users` table
-    $usersTableSQL = "
-        CREATE TABLE users (
-            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            email VARCHAR(255),
-            role ENUM('admin', 'editor') DEFAULT 'editor',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ";
-
-    // SQL statement for creating a `blocks` table
-    $blocksTableSQL = "
-    CREATE TABLE blocks (
-    id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    content_id INT(11) NOT NULL,
-    type ENUM('text', 'image_text', 'image', 'cta', 'post_picker') NOT NULL,
-    title VARCHAR(255),
-    content MEDIUMTEXT,
-    selected_post_ids TEXT, 
-    image_path VARCHAR(255),
-    alt_text VARCHAR(255),
-    caption VARCHAR(255),
-    url1 VARCHAR(255),
-    cta_text1 VARCHAR(255),
-    url2 VARCHAR(255),
-    cta_text2 VARCHAR(255),
-    layout1 VARCHAR(255),
-    layout2 VARCHAR(255),
-    layout3 VARCHAR(255),
-    layout4 VARCHAR(255),
-    layout5 VARCHAR(255),
-    style1 VARCHAR(255),
-    style2 VARCHAR(255),
-    style3 VARCHAR(255),
-    style4 VARCHAR(255),
-    style5 VARCHAR(255),
-    style6 VARCHAR(255),
-    style7 VARCHAR(255),
-    style8 VARCHAR(255),
-    style9 VARCHAR(255),
-    style10 VARCHAR(255),
-    responsive_class VARCHAR(255),
-    responsive_style VARCHAR(255),
-    background_color VARCHAR(255),
-    border_style VARCHAR(255),
-    border_color VARCHAR(255),
-    border_width VARCHAR(255),
-    animation_type VARCHAR(255),
-    animation_duration VARCHAR(255),
-    custom_css TEXT,
-    custom_js TEXT,
-    aria_label VARCHAR(255),
-    text_size VARCHAR(255),
-    class VARCHAR(255),
-    metafield1 TEXT,
-    metafield2 TEXT,
-    metafield3 TEXT,
-    order_num INT(11) NOT NULL,
-    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
-    start_date DATETIME,
-    end_date DATETIME,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (content_id) REFERENCES contents(id)
-);
-";
-
-    // Execute the SQL statements
-    $conn->exec($contentTypesSQL);
-    $conn->exec($categoriesTableSQL);
-    $conn->exec($contentsTableSQL);
-    $conn->exec($settingsTableSQL);
-    $conn->exec($usersTableSQL);
-    $conn->exec($blocksTableSQL);
+    $sqlFiles = ['sql/content_types.sql', 'sql/categories.sql', 'sql/contents.sql', 'sql/settings.sql', 'sql/users.sql', 'sql/blocks.sql'];
+    foreach ($sqlFiles as $file) {
+        executeSQLFromFile($conn, $file);
+    }
 
     // Insert default content types
     $conn->exec("INSERT INTO content_types (name) VALUES ('post'), ('page');");
