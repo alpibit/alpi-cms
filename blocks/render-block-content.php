@@ -1,222 +1,166 @@
 <?php
 
-// allow AJAX requests to this script
 header('Access-Control-Allow-Origin: *');
 
 require '../config/database.php';
 require '../config/config.php';
 require '../config/autoload.php';
+
 $blockType = $_GET['type'] ?? '';
 $index = $_GET['index'] ?? 0;
-$block = $_GET['blockData'] ?? [];
+$blockDataJson = $_GET['blockData'] ?? '{}';
 
-if (is_string($block)) {
-    $block = json_decode($block, true);
-}
+$block = json_decode($blockDataJson, true) ?: [];
 
 $db = new Database();
 $conn = $db->connect();
-
 $upload = new Upload($conn);
 $uploads = $upload->listFiles();
 
+function renderInput($name, $value, $placeholder, $type = 'text') {
+    echo "<label>{$placeholder}: <input type='{$type}' name='blocks[{$GLOBALS['index']}][{$name}]' value='" . htmlspecialchars($value) . "' placeholder='{$placeholder}'></label><br>";
+}
+
+function renderTextarea($name, $value, $placeholder) {
+    echo "<label>{$placeholder}: <textarea name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars($value) . "</textarea></label><br>";
+}
+
+function renderSelect($name, $options, $selected, $label) {
+    echo "<label>{$label}: <select name='blocks[{$GLOBALS['index']}][{$name}]'>";
+    foreach ($options as $value => $display) {
+        $isSelected = ($value == $selected) ? 'selected' : '';
+        echo "<option value='{$value}' {$isSelected}>{$display}</option>";
+    }
+    echo "</select></label><br>";
+}
+
+function renderFileUpload($name, $uploads, $selected) {
+    echo "<label>Choose a file: <select name='blocks[{$GLOBALS['index']}][{$name}]'>";
+    foreach ($uploads as $upload) {
+        $isSelected = ($upload['url'] == $selected) ? 'selected' : '';
+        echo "<option value='{$upload['url']}' {$isSelected}>{$upload['url']}</option>";
+    }
+    echo "</select></label><br>";
+}
+
+function renderCheckbox($name, $checked, $label) {
+    $isChecked = $checked ? 'checked' : '';
+    echo "<label>{$label}: <input type='checkbox' name='blocks[{$GLOBALS['index']}][{$name}]' {$isChecked}></label><br>";
+}
+
+function renderNumberInput($name, $value, $placeholder) {
+    renderInput($name, $value, $placeholder, 'number');
+}
+
+function renderColorPicker($name, $value, $placeholder) {
+    renderInput($name, $value, $placeholder, 'color');
+}
+
+function renderDateTimeLocal($name, $value, $placeholder) {
+    renderInput($name, $value, $placeholder, 'datetime-local');
+}
+
+$videoSourceOptions = ['url' => 'URL', 'upload' => 'Upload'];
+$backgroundStyleOptions = ['cover' => 'Cover', 'contain' => 'Contain', 'repeat' => 'Repeat', 'no-repeat' => 'No Repeat'];
+$heroLayoutOptions = ['left' => 'Left', 'center' => 'Center', 'right' => 'Right'];
+
 switch ($blockType) {
     case 'text':
-        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
-        $titleFontSize = isset($block['style6']) ? htmlspecialchars($block['style6']) : '';
-        $titleColor = isset($block['style7']) ? htmlspecialchars($block['style7']) : '';
-        $titleAlignment = isset($block['style8']) ? htmlspecialchars($block['style8']) : '';
-        $content = isset($block['content']) ? htmlspecialchars($block['content']) : '';
-        $textSize = isset($block['style1']) ? htmlspecialchars($block['style1']) : '';
-        $textColor = isset($block['style2']) ? htmlspecialchars($block['style2']) : '';
-        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
-        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
-        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
-
-?>
-        <div class="block-wrapper">
-            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
-            <title>Text Alignment: </title>
-            <select name='blocks[<?php echo $index; ?>][style8]'>
-                <option value='left' <?php echo ($titleAlignment == 'left' ? 'selected' : ''); ?>>Left</option>
-                <option value='center' <?php echo ($titleAlignment == 'center' ? 'selected' : ''); ?>>Center</option>
-                <option value='right' <?php echo ($titleAlignment == 'right' ? 'selected' : ''); ?>>Right</option>
-            </select><br>
-            <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="Text Area"><?php echo $content; ?></textarea><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
-        </div>
-    <?php
+        renderInput('title', $block['title'] ?? '', 'Title');
+        renderTextarea('content', $block['content'] ?? '', 'Content');
+        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
+        renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color');
+        renderNumberInput('text_size', $block['text_size'] ?? '', 'Text Size');
         break;
 
     case 'image_text':
-        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
-        $titleFontSize = isset($block['style6']) ? htmlspecialchars($block['style6']) : '';
-        $titleColor = isset($block['style7']) ? htmlspecialchars($block['style7']) : '';
-        $titleAlignment = isset($block['style8']) ? htmlspecialchars($block['style8']) : '';
-        $content = isset($block['content']) ? htmlspecialchars($block['content']) : '';
-        $layoutToggle = isset($block['layout1']) ? $block['layout1'] : 'image-text';
-        $textSize = isset($block['style1']) ? htmlspecialchars($block['style1']) : '';
-        $textColor = isset($block['style2']) ? htmlspecialchars($block['style2']) : '';
-        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
-        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
-        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
-
-    ?>
-        <div class="block-wrapper">
-            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
-            <title>Text Alignment: </title>
-            <select name='blocks[<?php echo $index; ?>][style8]'>
-                <option value='left' <?php echo ($titleAlignment == 'left' ? 'selected' : ''); ?>>Left</option>
-                <option value='center' <?php echo ($titleAlignment == 'center' ? 'selected' : ''); ?>>Center</option>
-                <option value='right' <?php echo ($titleAlignment == 'right' ? 'selected' : ''); ?>>Right</option>
-            </select><br>
-            <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="CTA Text Area"><?php echo $content; ?></textarea><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
-            <select name='blocks[<?php echo $index; ?>][image_path]'>
-                <?php
-                foreach ($uploads as $uploadFile) {
-                    $selected = (isset($block['image_path']) && $uploadFile['url'] == $block['image_path']) ? 'selected' : '';
-                    echo "<option value='{$uploadFile['url']}' {$selected}>{$uploadFile['url']}</option>";
-                }
-                ?>
-            </select>
-        </div>
-    <?php
+        renderInput('title', $block['title'] ?? '', 'Title');
+        renderTextarea('content', $block['content'] ?? '', 'Content');
+        renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
+        renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
+        renderInput('caption', $block['caption'] ?? '', 'Caption');
         break;
 
     case 'image':
-        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
-        $titleFontSize = isset($block['style6']) ? htmlspecialchars($block['style6']) : '';
-        $titleColor = isset($block['style7']) ? htmlspecialchars($block['style7']) : '';
-        $titleAlignment = isset($block['style8']) ? htmlspecialchars($block['style8']) : '';
-        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
-        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
-        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
-
-    ?>
-        <div class="block-wrapper">
-            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
-            <title>Text Alignment: </title>
-            <select name='blocks[<?php echo $index; ?>][style8]'>
-                <option value='left' <?php echo ($titleAlignment == 'left' ? 'selected' : ''); ?>>Left</option>
-                <option value='center' <?php echo ($titleAlignment == 'center' ? 'selected' : ''); ?>>Center</option>
-                <option value='right' <?php echo ($titleAlignment == 'right' ? 'selected' : ''); ?>>Right</option>
-            </select><br>
-            <select name='blocks[<?php echo $index; ?>][image_path]'>
-                <?php
-                foreach ($uploads as $uploadFile) {
-                    $selected = (isset($block['image_path']) && $uploadFile['url'] == $block['image_path']) ? 'selected' : '';
-                    echo "<option value='{$uploadFile['url']}' {$selected}>{$uploadFile['url']}</option>";
-                }
-                ?>
-            </select><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
-        </div>
-    <?php
+        renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
+        renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
+        renderInput('caption', $block['caption'] ?? '', 'Caption');
         break;
 
     case 'cta':
-        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
-        $titleFontSize = isset($block['style6']) ? htmlspecialchars($block['style6']) : '';
-        $titleColor = isset($block['style7']) ? htmlspecialchars($block['style7']) : '';
-        $titleAlignment = isset($block['style8']) ? htmlspecialchars($block['style8']) : '';
-        $content = isset($block['content']) ? htmlspecialchars($block['content']) : '';
-        $textSize = isset($block['style1']) ? htmlspecialchars($block['style1']) : '';
-        $textColor = isset($block['style2']) ? htmlspecialchars($block['style2']) : '';
-        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
-        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
-        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
-        $ctaText1 = isset($block['cta_text1']) ? htmlspecialchars($block['cta_text1']) : '';
-        $url1 = isset($block['url1']) ? htmlspecialchars($block['url1']) : '';
-        $ctaText2 = isset($block['cta_text2']) ? htmlspecialchars($block['cta_text2']) : '';
-        $url2 = isset($block['url2']) ? htmlspecialchars($block['url2']) : '';
-
-    ?>
-        <div class="block-wrapper">
-            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style6]' value='<?php echo $titleFontSize; ?>' placeholder='Title Font Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style7]' value='<?php echo $titleColor; ?>' placeholder='Title Color'><br>
-            <title>Text Alignment: </title>
-            <select name='blocks[<?php echo $index; ?>][style8]'>
-                <option value='left' <?php echo ($titleAlignment == 'left' ? 'selected' : ''); ?>>Left</option>
-                <option value='center' <?php echo ($titleAlignment == 'center' ? 'selected' : ''); ?>>Center</option>
-                <option value='right' <?php echo ($titleAlignment == 'right' ? 'selected' : ''); ?>>Right</option>
-            </select><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][cta_text1]' value='<?php echo $ctaText1; ?>' placeholder="CTA Text 1"><br>
-            <input type='url' name='blocks[<?php echo $index; ?>][url1]' value='<?php echo $url1; ?>' placeholder="URL 1"><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][cta_text2]' value='<?php echo $ctaText2; ?>' placeholder="CTA Text 2"><br>
-            <input type='url' name='blocks[<?php echo $index; ?>][url2]' value='<?php echo $url2; ?>' placeholder="URL 2"><br>
-            <textarea name='blocks[<?php echo $index; ?>][content]' placeholder="CTA Text Area"><?php echo $content; ?></textarea><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style1]' value='<?php echo $textSize; ?>' placeholder='Text Size'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style2]' value='<?php echo $textColor; ?>' placeholder='Text Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
-        </div>
-    <?php
+        renderInput('title', $block['title'] ?? '', 'Title');
+        renderInput('url1', $block['url1'] ?? '', 'URL 1');
+        renderInput('cta_text1', $block['cta_text1'] ?? '', 'CTA Text 1');
+        renderInput('url2', $block['url2'] ?? '', 'URL 2');
+        renderInput('cta_text2', $block['cta_text2'] ?? '', 'CTA Text 2');
         break;
 
     case 'post_picker':
         $postObj = new Post($conn);
         $availablePosts = $postObj->getAllPosts();
-        $selectedPostIds = isset($block['selected_post_ids']) ? explode(',', htmlspecialchars($block['selected_post_ids'])) : [];
-        $title = isset($block['title']) ? htmlspecialchars($block['title']) : '';
-        $content = isset($block['content']) ? htmlspecialchars($block['content']) : ''; // Used as subtitle/description
-        $backgroundColor = isset($block['background_color']) ? htmlspecialchars($block['background_color']) : '';
-        $topPadding = isset($block['style4']) ? htmlspecialchars($block['style4']) : '';
-        $bottomPadding = isset($block['style5']) ? htmlspecialchars($block['style5']) : '';
-
-    ?>
-        <div class="block-wrapper">
-            <input type='text' name='blocks[<?php echo $index; ?>][title]' value='<?php echo $title; ?>' placeholder='Title'><br>
-            <textarea name='blocks[<?php echo $index; ?>][content]' placeholder='Description (Subtitle)'><?php echo $content; ?></textarea><br>
-            <label>Select Posts:</label>
-            <select name='blocks[<?php echo $index; ?>][selected_post_ids][]' multiple size="5">
-                <?php foreach ($availablePosts as $post) {
-                    $selected = in_array($post['id'], $selectedPostIds) ? 'selected' : '';
-                    echo "<option value='{$post['id']}' {$selected}>{$post['title']}</option>";
-                } ?>
-            </select><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][background_color]' value='<?php echo $backgroundColor; ?>' placeholder='Background Color'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style4]' value='<?php echo $topPadding; ?>' placeholder='Top Padding'><br>
-            <input type='text' name='blocks[<?php echo $index; ?>][style5]' value='<?php echo $bottomPadding; ?>' placeholder='Bottom Padding'><br>
-        </div>
-<?php
+        echo "<label>Select Posts: <select name='blocks[{$index}][selected_post_ids][]' multiple>";
+        foreach ($availablePosts as $post) {
+            $isSelected = in_array($post['id'], $block['selected_post_ids'] ?? []) ? 'selected' : '';
+            echo "<option value='{$post['id']}' {$isSelected}>{$post['title']}</option>";
+        }
+        echo "</select></label><br>";
         break;
 
+    case 'video':
+        renderInput('video_url', $block['video_url'] ?? '', 'Video URL');
+        renderSelect('video_source', $videoSourceOptions, $block['video_source'] ?? '', 'Video Source');
+        break;
 
+    case 'slider_gallery':
+        renderTextarea('gallery_data', $block['gallery_data'] ?? '', 'Gallery Data (JSON)');
+        renderNumberInput('slider_speed', $block['slider_speed'] ?? '', 'Slider Speed');
+        break;
+
+    case 'quote':
+        renderTextarea('quotes_data', $block['quotes_data'] ?? '', 'Quotes Data (JSON)');
+        break;
+
+    case 'accordion':
+        renderTextarea('accordion_data', $block['accordion_data'] ?? '', 'Accordion Data (JSON)');
+        break;
+
+    case 'audio':
+        renderInput('audio_url', $block['audio_url'] ?? '', 'Audio URL');
+        renderSelect('audio_source', $videoSourceOptions, $block['audio_source'] ?? '', 'Audio Source');
+        break;
+
+    case 'free_code':
+        renderTextarea('free_code_content', $block['free_code_content'] ?? '', 'Free Code Content');
+        break;
+
+    case 'map':
+        renderTextarea('map_embed_code', $block['map_embed_code'] ?? '', 'Map Embed Code');
+        break;
+
+    case 'form':
+        renderInput('form_shortcode', $block['form_shortcode'] ?? '', 'Form Shortcode');
+        break;
+
+    case 'hero':
+        renderInput('title', $block['title'] ?? '', 'Title');
+        renderTextarea('content', $block['content'] ?? '', 'Content');
+        renderSelect('hero_layout', $heroLayoutOptions, $block['hero_layout'] ?? '', 'Hero Layout');
+        renderFileUpload('background_image_path', $uploads, $block['background_image_path'] ?? '');
+        renderInput('background_video_url', $block['background_video_url'] ?? '', 'Background Video URL');
+        renderSelect('background_style', $backgroundStyleOptions, $block['background_style'] ?? '', 'Background Style');
+        renderColorPicker('overlay_color', $block['overlay_color'] ?? '', 'Overlay Color');
+        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
+        break;
 
     default:
         echo "Unknown block type";
 }
-
 ?>
 
 <style>
-    /* !!! REMOVE/MOVE */
     .block-wrapper {
         padding: 10px;
         margin-bottom: 10px;
         border: 1px solid #ccc;
-    }
-
-    title {
-        display: inline-block;
     }
 </style>
