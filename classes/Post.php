@@ -93,6 +93,8 @@ class Post
         // Inserting blocks related to this post
         foreach ($contentBlocks as $index => $block) {
             $orderNum = $index + 1;
+            $videoSource = in_array($block['video_source'], ['url', 'upload']) ? $block['video_source'] : 'url';
+            $audioSource = in_array($block['audio_source'], ['url', 'upload']) ? $block['audio_source'] : 'url';
             $sqlBlock = "INSERT INTO blocks (
                 content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, 
                 url1, cta_text1, url2, cta_text2, video_url, video_source, audio_url, audio_source, 
@@ -132,9 +134,9 @@ class Post
             $stmtBlock->bindValue(':url2', $block['url2'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':ctaText2', $block['cta_text2'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':videoUrl', $block['video_url'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':videoSource', $block['video_source'] ?? '', PDO::PARAM_STR);
+            $stmtBlock->bindValue(':videoSource', $videoSource, PDO::PARAM_STR);
             $stmtBlock->bindValue(':audioUrl', $block['audio_url'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':audioSource', $block['audio_source'] ?? '', PDO::PARAM_STR);
+            $stmtBlock->bindValue(':audioSource', $audioSource, PDO::PARAM_STR);
             $stmtBlock->bindValue(':sliderSpeed', $block['slider_speed'] ?? 0, PDO::PARAM_INT);
             $stmtBlock->bindValue(':freeCodeContent', $block['free_code_content'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':mapEmbedCode', $block['map_embed_code'] ?? '', PDO::PARAM_STR);
