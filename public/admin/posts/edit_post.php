@@ -39,6 +39,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $blockData = [
             'type' => $block['type'],
             'title' => $block['title'] ?? '',
+            'content' => $block['content'] ?? '',
+            'selected_post_ids' => implode(',', $block['selected_post_ids'] ?? []),
+            'image_path' => $block['image_path'] ?? '',
+            'alt_text' => $block['alt_text'] ?? '',
+            'caption' => $block['caption'] ?? '',
+            'url1' => $block['url1'] ?? '',
+            'cta_text1' => $block['cta_text1'] ?? '',
+            'url2' => $block['url2'] ?? '',
+            'cta_text2' => $block['cta_text2'] ?? '',
+            'video_url' => $block['video_url'] ?? '',
+            'video_source' => $block['video_source'] ?? '',
+            'audio_url' => $block['audio_url'] ?? '',
+            'audio_source' => $block['audio_source'] ?? '',
+            'slider_speed' => $block['slider_speed'] ?? 0,
+            'free_code_content' => $block['free_code_content'] ?? '',
+            'map_embed_code' => $block['map_embed_code'] ?? '',
+            'form_shortcode' => $block['form_shortcode'] ?? '',
+            'gallery_data' => $block['gallery_data'] ?? '',
+            'quotes_data' => $block['quotes_data'] ?? '',
+            'accordion_data' => $block['accordion_data'] ?? '',
+            'background_image_path' => $block['background_image_path'] ?? '',
+            'background_video_url' => $block['background_video_url'] ?? '',
+            'background_style' => $block['background_style'] ?? 'cover',
+            'hero_layout' => $block['hero_layout'] ?? 'center',
+            'overlay_color' => $block['overlay_color'] ?? '',
+            'text_color' => $block['text_color'] ?? '',
+            'layout1' => $block['layout1'] ?? '',
+            'layout2' => $block['layout2'] ?? '',
+            'layout3' => $block['layout3'] ?? '',
+            'layout4' => $block['layout4'] ?? '',
+            'layout5' => $block['layout5'] ?? '',
+            'layout6' => $block['layout6'] ?? '',
+            'layout7' => $block['layout7'] ?? '',
+            'layout8' => $block['layout8'] ?? '',
+            'layout9' => $block['layout9'] ?? '',
+            'layout10' => $block['layout10'] ?? '',
             'style1' => $block['style1'] ?? '',
             'style2' => $block['style2'] ?? '',
             'style3' => $block['style3'] ?? '',
@@ -47,24 +83,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'style6' => $block['style6'] ?? '',
             'style7' => $block['style7'] ?? '',
             'style8' => $block['style8'] ?? '',
+            'style9' => $block['style9'] ?? '',
+            'style10' => $block['style10'] ?? '',
+            'responsive_class' => $block['responsive_class'] ?? '',
+            'responsive_style' => $block['responsive_style'] ?? '',
             'background_color' => $block['background_color'] ?? '',
-            'content' => $block['content'] ?? ''
+            'border_style' => $block['border_style'] ?? '',
+            'border_color' => $block['border_color'] ?? '',
+            'border_width' => $block['border_width'] ?? '',
+            'animation_type' => $block['animation_type'] ?? '',
+            'animation_duration' => $block['animation_duration'] ?? '',
+            'custom_css' => $block['custom_css'] ?? '',
+            'custom_js' => $block['custom_js'] ?? '',
+            'aria_label' => $block['aria_label'] ?? '',
+            'text_size' => $block['text_size'] ?? '',
+            'class' => $block['class'] ?? '',
+            'metafield1' => $block['metafield1'] ?? '',
+            'metafield2' => $block['metafield2'] ?? '',
+            'metafield3' => $block['metafield3'] ?? '',
+            'metafield4' => $block['metafield4'] ?? '',
+            'metafield5' => $block['metafield5'] ?? '',
+            'metafield6' => $block['metafield6'] ?? '',
+            'metafield7' => $block['metafield7'] ?? '',
+            'metafield8' => $block['metafield8'] ?? '',
+            'metafield9' => $block['metafield9'] ?? '',
+            'metafield10' => $block['metafield10'] ?? '',
+            'order_num' => $index + 1,
+            'status' => 'active',
         ];
-
-        if ($block['type'] == 'image' || $block['type'] == 'image_text') {
-            $blockData['image_path'] = $_POST['blocks'][$index]['image_path'] ?? '';
-        }
-
-        if ($block['type'] == 'cta') {
-            $blockData['url1'] = $block['url1'] ?? '';
-            $blockData['cta_text1'] = $block['cta_text1'] ?? '';
-            $blockData['url2'] = $block['url2'] ?? '';
-            $blockData['cta_text2'] = $block['cta_text2'] ?? '';
-        }
-
-        if ($block['type'] == 'post_picker') {
-            $blockData['selected_post_ids'] = implode(',', $block['selected_post_ids'] ?? []);
-        }
 
         $contentBlocks[] = $blockData;
     }
