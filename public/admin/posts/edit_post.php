@@ -170,6 +170,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";
                     echo "<option value='cta' " . ($block['type'] == 'cta' ? 'selected' : '') . ">Call to Action</option>";
                     echo "<option value='post_picker' " . ($block['type'] == 'post_picker' ? 'selected' : '') . ">Post Picker</option>";
+                    echo "<option value='video' " . ($block['type'] == 'video' ? 'selected' : '') . ">Video</option>";
+                    echo "<option value='slider_gallery' " . ($block['type'] == 'slider_gallery' ? 'selected' : '') . ">Slider Gallery</option>";
+                    echo "<option value='quote' " . ($block['type'] == 'quote' ? 'selected' : '') . ">Quotes</option>";
+                    echo "<option value='accordion' " . ($block['type'] == 'accordion' ? 'selected' : '') . ">Accordion</option>";
+                    echo "<option value='audio' " . ($block['type'] == 'audio' ? 'selected' : '') . ">Audio</option>";
+                    echo "<option value='free_code' " . ($block['type'] == 'free_code' ? 'selected' : '') . ">Free Code</option>";
+                    echo "<option value='map' " . ($block['type'] == 'map' ? 'selected' : '') . ">Map</option>";
+                    echo "<option value='form' " . ($block['type'] == 'form' ? 'selected' : '') . ">Form</option>";
+                    echo "<option value='hero' " . ($block['type'] == 'hero' ? 'selected' : '') . ">Hero</option>";
                     echo "</select><br>";
                     $blockDataJson = htmlspecialchars(json_encode($block['block_data']), ENT_QUOTES, 'UTF-8');
                     echo "<div class='block-content' data-value='{$blockDataJson}'></div>";

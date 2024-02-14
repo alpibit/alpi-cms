@@ -5,10 +5,19 @@ function addBlock() {
             <label>Type:</label>
             <select name="blocks[${index}][type]" onchange="loadBlockContent(this, ${index})">
                 <option value="text">Text</option>
-                <option value="image_text">Image Text</option>
+                <option value="image_text">Image + Text</option>
                 <option value="image">Image</option>
-                <option value="cta">CTA</option>
+                <option value="cta">Call to Action (CTA)</option>
                 <option value="post_picker">Post Picker</option>
+                <option value="video">Video</option>
+                <option value="slider_gallery">Slider Gallery</option>
+                <option value="quote">Quote</option>
+                <option value="accordion">Accordion</option>
+                <option value="audio">Audio</option>
+                <option value="free_code">Free Code</option>
+                <option value="map">Map</option>
+                <option value="form">Form</option>
+                <option value="hero">Hero</option>
             </select><br>
             <div class="block-content"></div>
             <div class="buttons">
@@ -22,6 +31,7 @@ function addBlock() {
     document.getElementById('contentBlocks').insertAdjacentHTML('beforeend', blockHTML);
     updateButtons();
 }
+
 
 function deleteBlock(button) {
     const block = button.closest('div.block');
