@@ -262,6 +262,21 @@ class Post
         $stmtDelete->bindParam(':id', $id, PDO::PARAM_INT);
         $stmtDelete->execute();
 
+        // Update the slug if it's empty
+        $sqlSlug = "SELECT slug FROM contents WHERE id = :id";
+        $stmtSlug = $this->db->prepare($sqlSlug);
+        $stmtSlug->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtSlug->execute();
+        $currentSlug = $stmtSlug->fetchColumn();
+        if (empty($currentSlug)) {
+            $sqlUpdateSlug = "UPDATE contents SET slug = :slug WHERE id = :id";
+            $stmtUpdateSlug = $this->db->prepare($sqlUpdateSlug);
+            $stmtUpdateSlug->bindParam(':slug', $slug, PDO::PARAM_STR);
+            $stmtUpdateSlug->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtUpdateSlug->execute();
+        }
+
+
         // Inserting updated blocks for this post
         if (!empty($contentBlocks)) {
             foreach ($contentBlocks as $index => $block) {
