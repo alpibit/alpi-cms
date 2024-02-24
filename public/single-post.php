@@ -49,7 +49,7 @@ function renderBlock($block, $page, $conn)
     $blockCtaText2 = $block['block_data']['cta_text2'] ?? null;
     $blockUrl2 = $block['block_data']['url2'] ?? null;
     $blockSelectedPostIds = $block['block_data']['selected_post_ids'] ?? null;
-    $blockImagePath = $block['block_data']['image_path'] ?? null;
+    $blockImagePath = $block['image_path'] ?? null;
     $blockAltText = $block['block_data']['alt_text'] ?? null;
     $blockCaption = $block['block_data']['caption'] ?? null;
     $blockClass = $block['block_data']['class'] ?? null;

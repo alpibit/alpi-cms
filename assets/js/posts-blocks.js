@@ -85,7 +85,7 @@ function loadBlockContent(selectElement, index) {
     const blockDataString = JSON.stringify(blockData);
     console.log(blockDataString);
 
-    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}&blockData=${blockDataString}`)
+    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}&blockData=${encodeURIComponent(blockDataString)}`)
         .then(response => response.text())
         .then(html => contentDiv.innerHTML = html)
         .catch(error => console.error('Error:', error));
