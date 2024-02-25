@@ -106,3 +106,28 @@ window.onload = function () {
         loadBlockContent(select, parseInt(select.name.match(/\d+/)[0], 10));
     });
 };
+
+
+
+
+
+function toggleSourceField(selector, type) {
+    const value = selector.value;
+    const urlField = document.querySelector('.' + type + '-url-field');
+    const uploadField = document.querySelector('.' + type + '-upload-field');
+
+    if (value === 'url') {
+        urlField.style.display = 'block';
+        uploadField.style.display = 'none';
+    } else if (value === 'upload') {
+        urlField.style.display = 'none';
+        uploadField.style.display = 'block';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    const videoSelector = document.querySelector('select[name="blocks[0][video_source]"]');
+    const audioSelector = document.querySelector('select[name="blocks[0][audio_source]"]');
+    if (videoSelector) toggleSourceField(videoSelector, 'video');
+    if (audioSelector) toggleSourceField(audioSelector, 'audio');
+});

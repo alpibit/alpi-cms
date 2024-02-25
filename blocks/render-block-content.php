@@ -17,15 +17,18 @@ $conn = $db->connect();
 $upload = new Upload($conn);
 $uploads = $upload->listFiles();
 
-function renderInput($name, $value, $placeholder, $type = 'text') {
+function renderInput($name, $value, $placeholder, $type = 'text')
+{
     echo "<label>{$placeholder}: <input type='{$type}' name='blocks[{$GLOBALS['index']}][{$name}]' value='" . htmlspecialchars($value) . "' placeholder='{$placeholder}'></label><br>";
 }
 
-function renderTextarea($name, $value, $placeholder) {
+function renderTextarea($name, $value, $placeholder)
+{
     echo "<label>{$placeholder}: <textarea name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars($value) . "</textarea></label><br>";
 }
 
-function renderSelect($name, $options, $selected, $label) {
+function renderSelect($name, $options, $selected, $label)
+{
     echo "<label>{$label}: <select name='blocks[{$GLOBALS['index']}][{$name}]'>";
     foreach ($options as $value => $display) {
         $isSelected = ($value == $selected) ? 'selected' : '';
@@ -34,7 +37,8 @@ function renderSelect($name, $options, $selected, $label) {
     echo "</select></label><br>";
 }
 
-function renderFileUpload($name, $uploads, $selected) {
+function renderFileUpload($name, $uploads, $selected)
+{
     echo "<label>Choose a file: <select name='blocks[{$GLOBALS['index']}][{$name}]'>";
     foreach ($uploads as $upload) {
         $isSelected = ($upload['url'] == $selected) ? 'selected' : '';
@@ -43,20 +47,35 @@ function renderFileUpload($name, $uploads, $selected) {
     echo "</select></label><br>";
 }
 
-function renderCheckbox($name, $checked, $label) {
+function renderVideoSourceSelector($name, $selected)
+{
+    $videoSourceOptions = ['url' => 'URL', 'upload' => 'Upload'];
+    echo "<label>Video Source: <select name='blocks[{$GLOBALS['index']}][{$name}]' onchange='toggleSourceField(this, \"video\")'>";
+    foreach ($videoSourceOptions as $value => $display) {
+        $isSelected = ($value == $selected) ? 'selected' : '';
+        echo "<option value='{$value}' {$isSelected}>{$display}</option>";
+    }
+    echo "</select></label><br>";
+}
+
+function renderCheckbox($name, $checked, $label)
+{
     $isChecked = $checked ? 'checked' : '';
     echo "<label>{$label}: <input type='checkbox' name='blocks[{$GLOBALS['index']}][{$name}]' {$isChecked}></label><br>";
 }
 
-function renderNumberInput($name, $value, $placeholder) {
+function renderNumberInput($name, $value, $placeholder)
+{
     renderInput($name, $value, $placeholder, 'number');
 }
 
-function renderColorPicker($name, $value, $placeholder) {
+function renderColorPicker($name, $value, $placeholder)
+{
     renderInput($name, $value, $placeholder, 'color');
 }
 
-function renderDateTimeLocal($name, $value, $placeholder) {
+function renderDateTimeLocal($name, $value, $placeholder)
+{
     renderInput($name, $value, $placeholder, 'datetime-local');
 }
 
@@ -107,8 +126,14 @@ switch ($blockType) {
         break;
 
     case 'video':
-        renderInput('video_url', $block['video_url'] ?? '', 'Video URL');
-        renderSelect('video_source', $videoSourceOptions, $block['video_source'] ?? '', 'Video Source');
+        echo "<div class='video-url-field' style='display:none;'>";
+        renderInput('video_url', $block['video_url'] ?? '', 'Video URL', 'text');
+        echo "</div>";
+
+        echo "<div class='video-upload-field' style='display:none;'>";
+        renderFileUpload('video_file', $uploads, $block['video_file'] ?? '');
+        echo "</div>";
+        renderVideoSourceSelector('video_source', $block['video_source'] ?? '');
         break;
 
     case 'slider_gallery':
@@ -126,6 +151,7 @@ switch ($blockType) {
 
     case 'audio':
         renderInput('audio_url', $block['audio_url'] ?? '', 'Audio URL');
+        renderFileUpload('video_url', $uploads, $block['audio_url'] ?? '');
         renderSelect('audio_source', $videoSourceOptions, $block['audio_source'] ?? '', 'Audio Source');
         break;
 
