@@ -126,11 +126,11 @@ switch ($blockType) {
         break;
 
     case 'video':
-        echo "<div class='video-url-field' style='display:none;'>";
+        echo "<div class='video-url-field' id='video-url-field-{$index}' style='display:none;'>";
         renderInput('video_url', $block['video_url'] ?? '', 'Video URL', 'text');
         echo "</div>";
 
-        echo "<div class='video-upload-field' style='display:none;'>";
+        echo "<div class='video-upload-field' id='video-upload-field-{$index}' style='display:none;'>";
         renderFileUpload('video_file', $uploads, $block['video_file'] ?? '');
         echo "</div>";
         renderVideoSourceSelector('video_source', $block['video_source'] ?? '');

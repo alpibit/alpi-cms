@@ -113,8 +113,9 @@ window.onload = function () {
 
 function toggleSourceField(selector, type) {
     const value = selector.value;
-    const urlField = document.querySelector('.' + type + '-url-field');
-    const uploadField = document.querySelector('.' + type + '-upload-field');
+    const block = selector.closest('.block');
+    const urlField = block.querySelector('.' + type + '-url-field');
+    const uploadField = block.querySelector('.' + type + '-upload-field');
 
     if (value === 'url') {
         urlField.style.display = 'block';
@@ -126,8 +127,13 @@ function toggleSourceField(selector, type) {
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
-    const videoSelector = document.querySelector('select[name="blocks[0][video_source]"]');
-    const audioSelector = document.querySelector('select[name="blocks[0][audio_source]"]');
-    if (videoSelector) toggleSourceField(videoSelector, 'video');
-    if (audioSelector) toggleSourceField(audioSelector, 'audio');
+    document.querySelectorAll('select[name^="blocks["][name$="[video_source]"]').forEach(selector => {
+        toggleSourceField(selector, 'video');
+        selector.addEventListener('change', () => toggleSourceField(selector, 'video'));
+    });
+
+    document.querySelectorAll('select[name^="blocks["][name$="[audio_source]"]').forEach(selector => {
+        toggleSourceField(selector, 'audio');
+        selector.addEventListener('change', () => toggleSourceField(selector, 'audio'));
+    });
 });
