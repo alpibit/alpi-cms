@@ -50,7 +50,7 @@ function renderFileUpload($name, $uploads, $selected)
 function renderVideoSourceSelector($name, $selected)
 {
     $videoSourceOptions = ['url' => 'URL', 'upload' => 'Upload'];
-    echo "<label>Video Source: <select name='blocks[{$GLOBALS['index']}][{$name}]' onchange='toggleSourceField(this, \"video\")'>";
+    echo "<label>Video Source: <select class='video-source-selector' name='blocks[{$GLOBALS['index']}][{$name}]' onchange='toggleSourceField(this, \"video\")'>";
     foreach ($videoSourceOptions as $value => $display) {
         $isSelected = ($value == $selected) ? 'selected' : '';
         echo "<option value='{$value}' {$isSelected}>{$display}</option>";

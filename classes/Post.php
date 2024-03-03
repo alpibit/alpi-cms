@@ -97,7 +97,7 @@ class Post
             $audioSource = in_array($block['audio_source'], ['url', 'upload']) ? $block['audio_source'] : 'url';
             $sqlBlock = "INSERT INTO blocks (
                 content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, 
-                url1, cta_text1, url2, cta_text2, video_url, video_source, audio_url, audio_source, 
+                url1, cta_text1, url2, cta_text2, video_url, video_source, video_file, audio_url, audio_source, audio_file, 
                 slider_speed, free_code_content, map_embed_code, form_shortcode, gallery_data, quotes_data, 
                 accordion_data, background_image_path, background_video_url, background_style, hero_layout, 
                 overlay_color, text_color, layout1, layout2, layout3, layout4, layout5, layout6, layout7, 
@@ -109,7 +109,7 @@ class Post
                 order_num, status
             ) VALUES (
                 :contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, 
-                :url1, :ctaText1, :url2, :ctaText2, :videoUrl, :videoSource, :audioUrl, :audioSource, 
+                :url1, :ctaText1, :url2, :ctaText2, :videoUrl, :videoSource, :videoFile, :audioUrl, :audioSource, :audioFile, 
                 :sliderSpeed, :freeCodeContent, :mapEmbedCode, :formShortcode, :galleryData, :quotesData, 
                 :accordionData, :backgroundImagePath, :backgroundVideoUrl, :backgroundStyle, :heroLayout, 
                 :overlayColor, :textColor, :layout1, :layout2, :layout3, :layout4, :layout5, :layout6, :layout7, 
@@ -135,8 +135,10 @@ class Post
             $stmtBlock->bindValue(':ctaText2', $block['cta_text2'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':videoUrl', $block['video_url'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':videoSource', $videoSource, PDO::PARAM_STR);
+            $stmtBlock->bindValue(':videoFile', $block['video_file'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':audioUrl', $block['audio_url'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':audioSource', $audioSource, PDO::PARAM_STR);
+            $stmtBlock->bindValue(':audioFile', $block['audio_file'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':sliderSpeed', $block['slider_speed'] ?? 0, PDO::PARAM_INT);
             $stmtBlock->bindValue(':freeCodeContent', $block['free_code_content'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':mapEmbedCode', $block['map_embed_code'] ?? '', PDO::PARAM_STR);
@@ -229,14 +231,14 @@ class Post
     public function updatePost($id, $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId)
     {
         $sql = "UPDATE contents SET 
-                title = :title, 
-                subtitle = :subtitle, 
-                main_image_path = :mainImagePath, 
-                show_main_image = :showMainImage, 
-                is_active = :isActive, 
-                user_id = :userId,
-                category_id = :categoryId
-            WHERE id = :id";
+            title = :title, 
+            subtitle = :subtitle, 
+            main_image_path = :mainImagePath, 
+            show_main_image = :showMainImage, 
+            is_active = :isActive, 
+            user_id = :userId,
+            category_id = :categoryId
+        WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
@@ -285,7 +287,7 @@ class Post
                 $audioSource = in_array($block['audio_source'], ['url', 'upload']) ? $block['audio_source'] : 'url';
                 $sqlBlock = "INSERT INTO blocks (
                     content_id, type, title, content, selected_post_ids, image_path, alt_text, caption, 
-                    url1, cta_text1, url2, cta_text2, video_url, video_source, audio_url, audio_source, 
+                    url1, cta_text1, url2, cta_text2, video_url, video_source, video_file, audio_url, audio_source, audio_file, 
                     slider_speed, free_code_content, map_embed_code, form_shortcode, gallery_data, quotes_data, 
                     accordion_data, background_image_path, background_video_url, background_style, hero_layout, 
                     overlay_color, text_color, layout1, layout2, layout3, layout4, layout5, layout6, layout7, 
@@ -297,7 +299,7 @@ class Post
                     order_num, status
                 ) VALUES (
                     :contentId, :type, :title, :content, :selectedPostIds, :imagePath, :altText, :caption, 
-                    :url1, :ctaText1, :url2, :ctaText2, :videoUrl, :videoSource, :audioUrl, :audioSource, 
+                    :url1, :ctaText1, :url2, :ctaText2, :videoUrl, :videoSource, :videoFile, :audioUrl, :audioSource, :audioFile, 
                     :sliderSpeed, :freeCodeContent, :mapEmbedCode, :formShortcode, :galleryData, :quotesData, 
                     :accordionData, :backgroundImagePath, :backgroundVideoUrl, :backgroundStyle, :heroLayout, 
                     :overlayColor, :textColor, :layout1, :layout2, :layout3, :layout4, :layout5, :layout6, :layout7, 
@@ -323,8 +325,10 @@ class Post
                 $stmtBlock->bindValue(':ctaText2', $block['cta_text2'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':videoUrl', $block['video_url'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':videoSource', $videoSource, PDO::PARAM_STR);
+                $stmtBlock->bindValue(':video_file', $block['video_file'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':audioUrl', $block['audio_url'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':audioSource', $audioSource, PDO::PARAM_STR);
+                $stmtBlock->bindValue(':audio_file', $block['audio_file'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':sliderSpeed', $block['slider_speed'] ?? 0, PDO::PARAM_INT);
                 $stmtBlock->bindValue(':freeCodeContent', $block['free_code_content'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':mapEmbedCode', $block['map_embed_code'] ?? '', PDO::PARAM_STR);

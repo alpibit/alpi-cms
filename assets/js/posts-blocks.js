@@ -112,28 +112,53 @@ window.onload = function () {
 
 
 function toggleSourceField(selector, type) {
-    const value = selector.value;
     const block = selector.closest('.block');
     const urlField = block.querySelector('.' + type + '-url-field');
     const uploadField = block.querySelector('.' + type + '-upload-field');
+    const value = selector.value;
 
-    if (value === 'url') {
-        urlField.style.display = 'block';
-        uploadField.style.display = 'none';
-    } else if (value === 'upload') {
-        urlField.style.display = 'none';
-        uploadField.style.display = 'block';
+    // const blockData = JSON.parse(block.querySelector('.block-content').getAttribute('data-value') || '{}');
+    // const uploadValue = blockData[type + '_url'] || '';
+    // console.log("UPLOAD VALUE:" + uploadValue);
+    // if (uploadField) {
+    //     const select = uploadField.querySelector('select');
+    //     console.log("SELECTOR:" + select);
+    //     if (select) {
+    //         select.value = uploadValue;
+    //     }
+    // }
+
+
+    // console.log(blockData);
+
+    if (urlField && uploadField) {
+        if (value === 'url') {
+            urlField.style.display = 'block';
+            uploadField.style.display = 'none';
+        } else if (value === 'upload') {
+            urlField.style.display = 'none';
+            uploadField.style.display = 'block';
+        }
     }
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    document.querySelectorAll('select[name^="blocks["][name$="[video_source]"]').forEach(selector => {
-        toggleSourceField(selector, 'video');
-        selector.addEventListener('change', () => toggleSourceField(selector, 'video'));
-    });
+function initializeSourceFields() {
+    document.querySelectorAll('.block').forEach(block => {
+        const videoSelector = block.querySelector('.video-source-selector');
+        const audioSelector = block.querySelector('.audio-source-selector');
 
-    document.querySelectorAll('select[name^="blocks["][name$="[audio_source]"]').forEach(selector => {
-        toggleSourceField(selector, 'audio');
-        selector.addEventListener('change', () => toggleSourceField(selector, 'audio'));
+        if (videoSelector) {
+            toggleSourceField(videoSelector, 'video');
+            videoSelector.addEventListener('change', () => toggleSourceField(videoSelector, 'video'));
+        }
+
+        if (audioSelector) {
+            toggleSourceField(audioSelector, 'audio');
+            audioSelector.addEventListener('change', () => toggleSourceField(audioSelector, 'audio'));
+        }
     });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initializeSourceFields, 500);
 });
