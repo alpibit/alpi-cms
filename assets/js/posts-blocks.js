@@ -162,3 +162,34 @@ function initializeSourceFields() {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initializeSourceFields, 500);
 });
+
+
+function addAccordionSection(blockIndex) {
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    console.log(contentBlocks);
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const sections = blockContent.querySelectorAll('.accordion-section');
+    const newIndex = sections.length;
+
+    let newSectionHtml = `<div class='accordion-section' data-index='${newIndex}'>`;
+    newSectionHtml += `<label>Section Title: <input type='text' name='blocks[${blockIndex}][accordion_data][${newIndex}][title]' placeholder='Section Title'></label><br>`;
+    newSectionHtml += `<label>Section Content: <textarea name='blocks[${blockIndex}][accordion_data][${newIndex}][content]' placeholder='Section Content'></textarea></label><br>`;
+    newSectionHtml += `</div>`;
+
+    blockContent.insertAdjacentHTML('beforeend', newSectionHtml);
+}
+
+

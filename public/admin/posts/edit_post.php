@@ -164,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php
             if (isset($postData['blocks']) && is_array($postData['blocks'])) {
                 foreach ($postData['blocks'] as $index => $block) {
-                    echo "<div class='block'>";
+                    echo "<div class='block' data-index='{$index}'>";
                     echo "<label>Type:</label>";
                     echo "<select name='blocks[$index][type]' onchange='loadBlockContent(this, $index)'>";
                     echo "<option value='text' " . ($block['type'] == 'text' ? 'selected' : '') . ">Text</option>";

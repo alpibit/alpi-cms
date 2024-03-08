@@ -119,8 +119,8 @@ switch ($blockType) {
         $availablePosts = $postObj->getAllPosts();
         echo "<label>Select Posts: <select name='blocks[{$index}][selected_post_ids][]' multiple>";
         foreach ($availablePosts as $post) {
-            $isSelected = in_array($post['id'], $block['selected_post_ids'] ?? []) ? 'selected' : '';
-            echo "<option value='{$post['id']}' {$isSelected}>{$post['title']}</option>";
+            $selected = in_array($post['id'], explode(',', $block['selected_post_ids'] ?? '')) ? 'selected' : '';
+            echo "<option value='{$post['id']}' {$selected}>{$post['title']}</option>";
         }
         echo "</select></label><br>";
         break;
@@ -146,7 +146,22 @@ switch ($blockType) {
         break;
 
     case 'accordion':
-        renderTextarea('accordion_data', $block['accordion_data'] ?? '', 'Accordion Data (JSON)');
+        $accordionData = json_decode($block['accordion_data'] ?? '[]', true);
+        if (!is_array($accordionData)) {
+            $accordionData = [];
+        }
+
+        if (!empty($accordionData)) {
+            foreach ($accordionData as $sectionIndex => $section) {
+                echo "<div class='accordion-section' data-index='{$sectionIndex}'>";
+                renderInput("accordion_data[{$sectionIndex}][title]", $section['title'] ?? '', 'Section Title');
+                renderTextarea("accordion_data[{$sectionIndex}][content]", $section['content'] ?? '', 'Section Content');
+                echo "<button type='button' class='delete-section' onclick='deleteAccordionSection(this, {$index}, {$sectionIndex})'>Delete Section</button>";
+                echo "</div>";
+            }
+        }
+
+        echo "<button type='button' onclick='addAccordionSection({$index})'>Add New Section</button>";
         break;
 
     case 'audio':

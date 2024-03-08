@@ -325,10 +325,10 @@ class Post
                 $stmtBlock->bindValue(':ctaText2', $block['cta_text2'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':videoUrl', $block['video_url'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':videoSource', $videoSource, PDO::PARAM_STR);
-                $stmtBlock->bindValue(':video_file', $block['video_file'] ?? '', PDO::PARAM_STR);
+                $stmtBlock->bindValue(':videoFile', $block['video_file'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':audioUrl', $block['audio_url'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':audioSource', $audioSource, PDO::PARAM_STR);
-                $stmtBlock->bindValue(':audio_file', $block['audio_file'] ?? '', PDO::PARAM_STR);
+                $stmtBlock->bindValue(':audioFile', $block['audio_file'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':sliderSpeed', $block['slider_speed'] ?? 0, PDO::PARAM_INT);
                 $stmtBlock->bindValue(':freeCodeContent', $block['free_code_content'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':mapEmbedCode', $block['map_embed_code'] ?? '', PDO::PARAM_STR);
