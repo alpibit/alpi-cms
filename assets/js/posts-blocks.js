@@ -165,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function addAccordionSection(blockIndex) {
-
     const contentBlocks = document.getElementById('contentBlocks');
     console.log(contentBlocks);
     let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
@@ -187,9 +186,55 @@ function addAccordionSection(blockIndex) {
     let newSectionHtml = `<div class='accordion-section' data-index='${newIndex}'>`;
     newSectionHtml += `<label>Section Title: <input type='text' name='blocks[${blockIndex}][accordion_data][${newIndex}][title]' placeholder='Section Title'></label><br>`;
     newSectionHtml += `<label>Section Content: <textarea name='blocks[${blockIndex}][accordion_data][${newIndex}][content]' placeholder='Section Content'></textarea></label><br>`;
+    newSectionHtml += `<div class="buttons">`;
+    newSectionHtml += `<button type="button" onclick="moveUp(this)">Move Up</button>`;
+    newSectionHtml += `<button type="button" onclick="moveDown(this)">Move Down</button>`;
+    newSectionHtml += `<button type="button" onclick="deleteSection(this)">Delete</button>`;
+    newSectionHtml += `</div>`;
     newSectionHtml += `</div>`;
 
     blockContent.insertAdjacentHTML('beforeend', newSectionHtml);
+    updateButtons();
 }
 
+function deleteSection(button) {
+    const section = button.closest('.accordion-section');
+    section.remove();
+    updateButtons();
+}
 
+function moveUp(button) {
+    const section = button.closest('.accordion-section');
+    const prevSection = section.previousElementSibling;
+    if (prevSection) {
+        section.parentNode.insertBefore(section, prevSection);
+        updateButtons();
+    }
+}
+
+function moveDown(button) {
+    const section = button.closest('.accordion-section');
+    const nextSection = section.nextElementSibling;
+    if (nextSection) {
+        section.parentNode.insertBefore(nextSection, section);
+        updateButtons();
+    }
+}
+
+function updateButtons() {
+    const sections = document.querySelectorAll('.accordion-section');
+    sections.forEach((section, index) => {
+        const buttonsDiv = section.querySelector('.buttons');
+        buttonsDiv.innerHTML = '';
+        if (index > 0) {
+            const moveUpButton = createButton('Move Up', () => moveUp(section));
+            buttonsDiv.appendChild(moveUpButton);
+        }
+        if (index < sections.length - 1) {
+            const moveDownButton = createButton('Move Down', () => moveDown(section));
+            buttonsDiv.appendChild(moveDownButton);
+        }
+        const deleteButton = createButton('Delete', () => deleteSection(section));
+        buttonsDiv.appendChild(deleteButton);
+    });
+}
