@@ -36,6 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $slug = $post->generateSlug($title);
 
     foreach ($_POST['blocks'] as $index => $block) {
+        if ($block['type'] == 'accordion') {
+            $accordionData = $block['accordion_data'] ?? [];
+            $block['accordion_data'] = json_encode($accordionData);
+        }
         $blockData = [
             'type' => $block['type'],
             'title' => $block['title'] ?? '',

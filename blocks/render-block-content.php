@@ -153,11 +153,18 @@ switch ($blockType) {
 
         if (!empty($accordionData)) {
             foreach ($accordionData as $sectionIndex => $section) {
-                echo "<div class='accordion-section' data-index='{$sectionIndex}'>";
-                renderInput("accordion_data[{$sectionIndex}][title]", $section['title'] ?? '', 'Section Title');
-                renderTextarea("accordion_data[{$sectionIndex}][content]", $section['content'] ?? '', 'Section Content');
-                echo "<button type='button' class='delete-section' onclick='deleteAccordionSection(this, {$index}, {$sectionIndex})'>Delete Section</button>";
-                echo "</div>";
+                $newIndex = $sectionIndex;
+                $blockIndex = $index;
+                $newSectionHtml = "<div class='accordion-section' data-index='{$newIndex}'>";
+                $newSectionHtml .= "<label>Section Title: <input type='text' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title]' placeholder='Section Title' value='{$section['title']}'></label><br>";
+                $newSectionHtml .= "<label>Section Content: <textarea name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content]' placeholder='Section Content' rows='4'>{$section['content']}</textarea></label><br>";
+                $newSectionHtml .= "<div class='buttons'>";
+                $newSectionHtml .= "<button type='button' onclick='moveUp(this)'>Move Up</button>";
+                $newSectionHtml .= "<button type='button' onclick='moveDown(this)'>Move Down</button>";
+                $newSectionHtml .= "<button type='button' onclick='deleteSection(this)'>Delete</button>";
+                $newSectionHtml .= "</div>";
+                $newSectionHtml .= "</div>";
+                echo $newSectionHtml;
             }
         }
 
