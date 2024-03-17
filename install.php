@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     DB Host: <input type="text" name="db_host" required><br>
     DB Name: <input type="text" name="db_name" required><br>
     DB User: <input type="text" name="db_user" required><br>
-    DB Password: <input type="text" name="db_pass" required><br><br>
+    DB Password: <input type="text" name="db_pass"><br><br>
     Admin Username: <input type="text" name="admin_user" required><br>
     Admin Password: <input type="password" name="admin_pass" required><br>
     <input type="submit" value="Install">
