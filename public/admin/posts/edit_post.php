@@ -40,10 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $accordionData = $block['accordion_data'] ?? [];
             $block['accordion_data'] = json_encode($accordionData);
         }
-        if ($block['type'] == 'slider_gallery') {
-            $galleryData = $block['gallery_data'] ?? [];
-            $block['gallery_data'] = json_encode($galleryData);
-        }
         $blockData = [
             'type' => $block['type'],
             'title' => $block['title'] ?? '',
@@ -127,8 +123,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $userId = $_SESSION['user_id'] ?? 0;
     $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
-    // var_dump($contentBlocks);
-    // die();
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
@@ -208,15 +202,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </html>
 <?php ob_end_flush(); ?>
-
-
-<script>
-    // document.querySelector('form').addEventListener('submit', function(e) {
-    //     e.preventDefault(); 
-    //     console.log("Form data:", new FormData(e.target));
-
-    //     for (let [key, value] of new FormData(e.target).entries()) {
-    //         console.log(key, value);
-    //     }
-    // });
-</script>

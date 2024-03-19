@@ -137,29 +137,9 @@ switch ($blockType) {
         break;
 
     case 'slider_gallery':
-        $galleryData = json_decode($block['gallery_data'] ?? '[]', true);
-        if (!is_array($galleryData)) {
-            $galleryData = [];
-        }
-
-        echo "<div class='slider-gallery' data-index='{$index}'>";
-        foreach ($galleryData as $imageIndex => $image) {
-            echo "<div class='gallery-image' data-index='{$imageIndex}'>";
-            renderFileUpload("gallery_data][{$imageIndex}][url", $uploads, $image['url'] ?? ''); // Changed
-            renderInput("gallery_data][{$imageIndex}][alt_text", $image['alt_text'] ?? '', 'Alt Text', 'text'); // Changed
-            renderInput("gallery_data][{$imageIndex}][caption", $image['caption'] ?? '', 'Caption', 'text'); // Changed
-            echo "<div class='buttons'>";
-            echo "<button type='button' onclick='shiftImageUpward({$index}, {$imageIndex})'>Move Up</button>";
-            echo "<button type='button' onclick='shiftImageDownward({$index}, {$imageIndex})'>Move Down</button>";
-            echo "<button type='button' onclick='removeGalleryImage({$index}, {$imageIndex})'>Delete Image</button>";
-            echo "</div>";
-            echo "</div>";
-        }
-        echo "<button type='button' onclick='addGalleryImage({$index})'>Add New Image</button>";
-        echo "</div>";
+        renderTextarea('gallery_data', $block['gallery_data'] ?? '', 'Gallery Data (JSON)');
+        renderNumberInput('slider_speed', $block['slider_speed'] ?? '', 'Slider Speed');
         break;
-
-
 
     case 'quote':
         renderTextarea('quotes_data', $block['quotes_data'] ?? '', 'Quotes Data (JSON)');
@@ -179,16 +159,16 @@ switch ($blockType) {
                 $newSectionHtml .= "<label>Section Title: <input type='text' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title]' placeholder='Section Title' value='{$section['title']}'></label><br>";
                 $newSectionHtml .= "<label>Section Content: <textarea name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content]' placeholder='Section Content' rows='4'>{$section['content']}</textarea></label><br>";
                 $newSectionHtml .= "<div class='buttons'>";
-                $newSectionHtml .= "<button type='button' onclick='shiftAccordionSectionUp(this)'>Move Up</button>";
-                $newSectionHtml .= "<button type='button' onclick='shiftAccordionSectionDown(this)'>Move Down</button>";
-                $newSectionHtml .= "<button type='button' onclick='removeAccordionSection(this)'>Delete</button>";
+                $newSectionHtml .= "<button type='button' onclick='moveUp(this)'>Move Up</button>";
+                $newSectionHtml .= "<button type='button' onclick='moveDown(this)'>Move Down</button>";
+                $newSectionHtml .= "<button type='button' onclick='deleteSection(this)'>Delete</button>";
                 $newSectionHtml .= "</div>";
                 $newSectionHtml .= "</div>";
                 echo $newSectionHtml;
             }
         }
 
-        echo "<button type='button' onclick='insertAccordionSection({$index})'>Add New Section</button>";
+        echo "<button type='button' onclick='addAccordionSection({$index})'>Add New Section</button>";
         break;
 
     case 'audio':
