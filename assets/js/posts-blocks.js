@@ -1,9 +1,9 @@
 function addBlock() {
     const index = document.getElementById('contentBlocks').childElementCount;
     const blockHTML = `
-        <div class="block">
+        <div class="block" data-index="${index}"> 
             <label>Type:</label>
-            <select name="blocks[${index}][type]" onchange="loadBlockContent(this, ${index})">
+            <select name="blocks[${index}][type]" onchange="loadSelectedBlockContent(this, ${index})">
                 <option value="text">Text</option>
                 <option value="image_text">Image + Text</option>
                 <option value="image">Image</option>
@@ -21,64 +21,65 @@ function addBlock() {
             </select><br>
             <div class="block-content"></div>
             <div class="buttons">
-                <button type="button" onclick="moveUp(this)">Move Up</button>
-                <button type="button" onclick="moveDown(this)">Move Down</button>
-                <button type="button" onclick="deleteBlock(this)">Delete</button>
+                <button type="button" onclick="shiftBlockUpward(this)">Move Up</button>
+                <button type="button" onclick="shiftBlockDownward(this)">Move Down</button>
+                <button type="button" onclick="removeContentBlock(this)">Delete</button>
             </div>
             <br>
         </div>
     `;
     document.getElementById('contentBlocks').insertAdjacentHTML('beforeend', blockHTML);
-    updateButtons();
+    updateButtonsBlock();
 }
 
 
-function deleteBlock(button) {
+
+function removeContentBlock(button) {
     const block = button.closest('div.block');
     block.remove();
-    updateButtons();
+    updateButtonsBlock();
 }
 
-function moveUp(button) {
+function shiftBlockUpward(button) {
     const block = button.closest('div.block');
     const prevBlock = block.previousElementSibling;
     if (prevBlock) {
         block.parentNode.insertBefore(block, prevBlock);
-        updateButtons();
+        updateButtonsBlock();
     }
 }
 
-function moveDown(button) {
+function shiftBlockDownward(button) {
     const block = button.closest('div.block');
     const nextBlock = block.nextElementSibling;
     if (nextBlock) {
         block.parentNode.insertBefore(nextBlock, block);
-        updateButtons();
+        updateButtonsBlock();
     }
 }
 
-function updateButtons() {
+function updateButtonsBlock() {
     const blocks = document.querySelectorAll('#contentBlocks .block');
     blocks.forEach((block, index) => {
         const buttonsDiv = block.querySelector('.buttons');
         buttonsDiv.innerHTML = '';
 
         if (index > 0) {
-            const moveUpButton = createButton('Move Up', () => moveUp(block));
+            const moveUpButton = generateBlockControlButton('Move Up', () => shiftBlockUpward(block));
             buttonsDiv.appendChild(moveUpButton);
         }
 
         if (index < blocks.length - 1) {
-            const moveDownButton = createButton('Move Down', () => moveDown(block));
+            const moveDownButton = generateBlockControlButton('Move Down', () => shiftBlockDownward(block));
             buttonsDiv.appendChild(moveDownButton);
         }
 
-        const deleteButton = createButton('Delete', () => deleteBlock(block));
+        const deleteButton = generateBlockControlButton('Delete', () => removeContentBlock(block));
         buttonsDiv.appendChild(deleteButton);
     });
 }
 
-function loadBlockContent(selectElement, index) {
+function loadSelectedBlockContent(selectElement, index) {
     const type = selectElement.value;
     const contentDiv = selectElement.closest('.block').querySelector('.block-content');
     const blockData = JSON.parse(contentDiv.getAttribute('data-value') || '{}');
@@ -91,7 +92,7 @@ function loadBlockContent(selectElement, index) {
         .catch(error => console.error('Error:', error));
 }
 
-function createButton(text, onClick) {
+function generateBlockControlButton(text, onClick) {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = text;
@@ -101,35 +102,17 @@ function createButton(text, onClick) {
 
 // Initialize blocks on page load
 window.onload = function () {
-    updateButtons();
+    updateButtonsBlock();
     document.querySelectorAll('#contentBlocks .block select').forEach(select => {
-        loadBlockContent(select, parseInt(select.name.match(/\d+/)[0], 10));
+        loadSelectedBlockContent(select, parseInt(select.name.match(/\d+/)[0], 10));
     });
 };
-
-
-
-
 
 function toggleSourceField(selector, type) {
     const block = selector.closest('.block');
     const urlField = block.querySelector('.' + type + '-url-field');
     const uploadField = block.querySelector('.' + type + '-upload-field');
     const value = selector.value;
-
-    // const blockData = JSON.parse(block.querySelector('.block-content').getAttribute('data-value') || '{}');
-    // const uploadValue = blockData[type + '_url'] || '';
-    // console.log("UPLOAD VALUE:" + uploadValue);
-    // if (uploadField) {
-    //     const select = uploadField.querySelector('select');
-    //     console.log("SELECTOR:" + select);
-    //     if (select) {
-    //         select.value = uploadValue;
-    //     }
-    // }
-
-
-    // console.log(blockData);
 
     if (urlField && uploadField) {
         if (value === 'url') {
@@ -142,7 +125,7 @@ function toggleSourceField(selector, type) {
     }
 }
 
-function initializeSourceFields() {
+function initializeMediaSourceSelectors() {
     document.querySelectorAll('.block').forEach(block => {
         const videoSelector = block.querySelector('.video-source-selector');
         const audioSelector = block.querySelector('.audio-source-selector');
@@ -160,13 +143,102 @@ function initializeSourceFields() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initializeSourceFields, 500);
+    setTimeout(initializeMediaSourceSelectors, 500);
 });
 
 
-function addAccordionSection(blockIndex) {
+function addGalleryImage(blockIndex) {
+    fetch('../../../utils/get-uploads.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.uploads) {
+                const block = document.querySelector(`.block[data-index="${blockIndex}"] .slider-gallery`);
+
+                if (!block) {
+                    console.error('Block not found');
+                    return;
+                }
+                const newIndex = block.querySelectorAll('.gallery-image').length + 1;
+
+                let newImageHtml = `<div class='gallery-image' data-index='${newIndex}'>`;
+                newImageHtml += "<label>Image: <select name='blocks[" + blockIndex + "][gallery_data][" + newIndex + "][url]'>";
+                data.uploads.forEach(upload => {
+                    newImageHtml += `<option value='${upload.url}'>${upload.url}</option>`;
+                });
+                newImageHtml += "</select></label><br>";
+                newImageHtml += `<label>Alt Text: <input type='text' name='blocks[${blockIndex}][gallery_data][${newIndex}][alt_text]' placeholder='Alt Text'></label><br>`;
+                newImageHtml += `<label>Caption: <input type='text' name='blocks[${blockIndex}][gallery_data][${newIndex}][caption]' placeholder='Caption'></label><br>`;
+                newImageHtml += `<div class="buttons">`;
+                newImageHtml += `<button type='button' onclick='shiftImageUpward(this)'>Move Up</button>`;
+                newImageHtml += `<button type='button' onclick='shiftImageDownward(this)'>Move Down</button>`;
+                newImageHtml += `<button type='button' onclick='removeGalleryImage(${blockIndex}, ${newIndex})'>Delete Image</button>`;
+                newImageHtml += `</div>`;
+                newImageHtml += "</div>";
+
+                block.insertAdjacentHTML('beforeend', newImageHtml);
+                updateButtonsImage();
+            } else {
+                console.error('No upload data found');
+            }
+        })
+        .catch(error => console.error('Error loading uploads:', error));
+}
+
+
+function removeGalleryImage(blockIndex, imageIndex) {
+    const block = document.querySelector(`.block[data-index="${blockIndex}"] .slider-gallery`);
+    const image = block.querySelector(`.gallery-image[data-index="${imageIndex}"]`);
+    if (image) {
+        image.remove();
+    }
+}
+
+function shiftImageUpward(button) {
+    const image = button.closest('.gallery-image');
+    const prevImage = image.previousElementSibling;
+    if (prevImage) {
+        image.parentNode.insertBefore(image, prevImage);
+        updateButtonsImage();
+    }
+}
+
+function shiftImageDownward(button) {
+    const image = button.closest('.gallery-image');
+    const nextImage = image.nextElementSibling;
+    if (nextImage) {
+        image.parentNode.insertBefore(nextImage, image);
+        updateButtonsImage();
+    }
+}
+
+function updateButtonsImage() {
+    const images = document.querySelectorAll('.gallery-image');
+    images.forEach((image, index) => {
+        const buttonsDiv = image.querySelector('.buttons');
+        buttonsDiv.innerHTML = '';
+        if (index > 0) {
+            const moveUpButton = generateImageControlButton('Move Up', () => shiftImageUpward(image));
+            buttonsDiv.appendChild(moveUpButton);
+        }
+        if (index < images.length - 1) {
+            const moveDownButton = generateImageControlButton('Move Down', () => shiftImageDownward(image));
+            buttonsDiv.appendChild(moveDownButton);
+        }
+        const deleteButton = generateImageControlButton('Delete', () => deleteImage(image));
+        buttonsDiv.appendChild(deleteButton);
+    });
+}
+
+function generateImageControlButton(text, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    button.onclick = onClick;
+    return button;
+}
+
+function insertAccordionSection(blockIndex) {
     const contentBlocks = document.getElementById('contentBlocks');
-    console.log(contentBlocks);
     let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
 
     if (!block) {
@@ -187,54 +259,218 @@ function addAccordionSection(blockIndex) {
     newSectionHtml += `<label>Section Title: <input type='text' name='blocks[${blockIndex}][accordion_data][${newIndex}][title]' placeholder='Section Title'></label><br>`;
     newSectionHtml += `<label>Section Content: <textarea name='blocks[${blockIndex}][accordion_data][${newIndex}][content]' placeholder='Section Content'></textarea></label><br>`;
     newSectionHtml += `<div class="buttons">`;
-    newSectionHtml += `<button type="button" onclick="moveUp(this)">Move Up</button>`;
-    newSectionHtml += `<button type="button" onclick="moveDown(this)">Move Down</button>`;
-    newSectionHtml += `<button type="button" onclick="deleteSection(this)">Delete</button>`;
+    newSectionHtml += `<button type="button" onclick="shiftAccordionSectionUp(this)">Move Up</button>`;
+    newSectionHtml += `<button type="button" onclick="shiftAccordionSectionDown(this)">Move Down</button>`;
+    newSectionHtml += `<button type="button" onclick="removeAccordionSection(this)">Delete</button>`;
     newSectionHtml += `</div>`;
     newSectionHtml += `</div>`;
 
     blockContent.insertAdjacentHTML('beforeend', newSectionHtml);
-    updateButtons();
+    updateButtonsAccordionSection();
 }
 
-function deleteSection(button) {
+function removeAccordionSection(button) {
     const section = button.closest('.accordion-section');
     section.remove();
-    updateButtons();
+    updateButtonsAccordionSection();
 }
 
-function moveUp(button) {
+function shiftAccordionSectionUp(button) {
     const section = button.closest('.accordion-section');
     const prevSection = section.previousElementSibling;
     if (prevSection) {
         section.parentNode.insertBefore(section, prevSection);
-        updateButtons();
+        updateButtonsAccordionSection();
     }
 }
 
-function moveDown(button) {
+function shiftAccordionSectionDown(button) {
     const section = button.closest('.accordion-section');
     const nextSection = section.nextElementSibling;
     if (nextSection) {
         section.parentNode.insertBefore(nextSection, section);
-        updateButtons();
+        updateButtonsAccordionSection();
     }
 }
 
-function updateButtons() {
+function updateButtonsAccordionSection() {
     const sections = document.querySelectorAll('.accordion-section');
     sections.forEach((section, index) => {
         const buttonsDiv = section.querySelector('.buttons');
         buttonsDiv.innerHTML = '';
         if (index > 0) {
-            const moveUpButton = createButton('Move Up', () => moveUp(section));
+            const moveUpButton = generateSectionControlButton('Move Up', () => shiftAccordionSectionUp(section));
             buttonsDiv.appendChild(moveUpButton);
         }
         if (index < sections.length - 1) {
-            const moveDownButton = createButton('Move Down', () => moveDown(section));
+            const moveDownButton = generateSectionControlButton('Move Down', () => shiftAccordionSectionDown(section));
             buttonsDiv.appendChild(moveDownButton);
         }
-        const deleteButton = createButton('Delete', () => deleteSection(section));
+        const deleteButton = generateSectionControlButton('Delete', () => removeAccordionSection(section));
         buttonsDiv.appendChild(deleteButton);
     });
+}
+
+function generateSectionControlButton(text, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    button.onclick = onClick;
+    return button;
+}
+
+
+
+// Functions for manipulating the quotes. 
+
+function addQuote(blockIndex) {
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const quotes = blockContent.querySelectorAll('.quote');
+    const newIndex = quotes.length;
+
+    let newQuoteHtml = `<div class='quote' data-index='${newIndex}'>`;
+    newQuoteHtml += `<label>Quote Content: <textarea name='blocks[${blockIndex}][quotes_data][${newIndex}][content]' placeholder='Quote Content'></textarea></label><br>`;
+    newQuoteHtml += `<label>Author: <input type='text' name='blocks[${blockIndex}][quotes_data][${newIndex}][author]' placeholder='Author'></label><br>`;
+    newQuoteHtml += `<div class="buttons">`;
+    newQuoteHtml += `<button type="button" onclick="shiftQuoteUpward(${blockIndex}, ${newIndex})">Move Up</button>`;
+    newQuoteHtml += `<button type="button" onclick="shiftQuoteDownward(${blockIndex}, ${newIndex})">Move Down</button>`;
+    newQuoteHtml += `<button type="button" onclick="removeQuote(${blockIndex}, ${newIndex})">Delete Quote</button>`;
+    newQuoteHtml += `</div>`;
+    newQuoteHtml += `</div>`;
+
+    blockContent.insertAdjacentHTML('beforeend', newQuoteHtml);
+    updateButtonsQuote(blockIndex);
+}
+
+
+function shiftQuoteUpward(blockIndex, quoteIndex) {
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const quotes = blockContent.querySelectorAll('.quote');
+    const quote = quotes[quoteIndex];
+    const prevQuote = quote.previousElementSibling;
+    if (prevQuote) {
+        quote.parentNode.insertBefore(quote, prevQuote);
+        updateButtonsQuote(blockIndex);
+    }
+
+}
+
+function shiftQuoteDownward(blockIndex, quoteIndex) {
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const quotes = blockContent.querySelectorAll('.quote');
+    const quote = quotes[quoteIndex];
+    const nextQuote = quote.nextElementSibling;
+    if (nextQuote) {
+        quote.parentNode.insertBefore(nextQuote, quote);
+        updateButtonsQuote(blockIndex);
+    }
+   
+}
+
+function removeQuote(blockIndex, quoteIndex) {
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const quotes = blockContent.querySelectorAll('.quote');
+    const quote = quotes[quoteIndex];
+    if (quote) {
+        quote.remove();
+    }
+    updateButtonsQuote(blockIndex);
+    
+}
+
+function updateButtonsQuote(blockIndex) {
+   
+    const contentBlocks = document.getElementById('contentBlocks');
+    let block = contentBlocks.querySelector(`.block[data-index="${blockIndex}"]`);
+
+    if (!block) {
+        console.error('Block not found!');
+        return;
+    }
+
+    const blockContent = block.querySelector('.block-content');
+    if (!blockContent) {
+        console.error('Block content area not found!');
+        return;
+    }
+
+    const quotes = blockContent.querySelectorAll('.quote');
+    quotes.forEach((quote, index) => {
+        const buttonsDiv = quote.querySelector('.buttons');
+        buttonsDiv.innerHTML = '';
+        if (index > 0) {
+            const moveUpButton = generateQuoteControlButton('Move Up', () => shiftQuoteUpward(blockIndex, index));
+            buttonsDiv.appendChild(moveUpButton);
+        }
+        if (index < quotes.length - 1) {
+            const moveDownButton = generateQuoteControlButton('Move Down', () => shiftQuoteDownward(blockIndex, index));
+            buttonsDiv.appendChild(moveDownButton);
+        }
+        const deleteButton = generateQuoteControlButton('Delete', () => removeQuote(blockIndex, index));
+        buttonsDiv.appendChild(deleteButton);
+    });
+}
+
+function generateQuoteControlButton(text, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    button.onclick = onClick;
+    return button;
 }

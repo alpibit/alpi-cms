@@ -40,6 +40,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $accordionData = $block['accordion_data'] ?? [];
             $block['accordion_data'] = json_encode($accordionData);
         }
+        if ($block['type'] == 'slider_gallery') {
+            $galleryData = $block['gallery_data'] ?? [];
+            $block['gallery_data'] = json_encode($galleryData);
+        }
+        if ($block['type'] == 'quote') {
+            $quotesData = $block['quotes_data'] ?? [];
+            $block['quotes_data'] = json_encode($quotesData);
+        }
         $blockData = [
             'type' => $block['type'],
             'title' => $block['title'] ?? '',
@@ -123,6 +131,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $userId = $_SESSION['user_id'] ?? 0;
     $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
+    // var_dump($contentBlocks);
+    // die();
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
@@ -170,7 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 foreach ($postData['blocks'] as $index => $block) {
                     echo "<div class='block' data-index='{$index}'>";
                     echo "<label>Type:</label>";
-                    echo "<select name='blocks[$index][type]' onchange='loadBlockContent(this, $index)'>";
+                    echo "<select name='blocks[$index][type]' onchange='loadSelectedBlockContent(this, $index)'>";
                     echo "<option value='text' " . ($block['type'] == 'text' ? 'selected' : '') . ">Text</option>";
                     echo "<option value='image_text' " . ($block['type'] == 'image_text' ? 'selected' : '') . ">Image + Text</option>";
                     echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";
@@ -202,3 +212,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </html>
 <?php ob_end_flush(); ?>
+
+
+<script>
+    // document.querySelector('form').addEventListener('submit', function(e) {
+    //     e.preventDefault(); 
+    //     console.log("Form data:", new FormData(e.target));
+
+    //     for (let [key, value] of new FormData(e.target).entries()) {
+    //         console.log(key, value);
+    //     }
+    // });
+</script>

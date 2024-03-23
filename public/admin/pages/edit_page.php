@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 foreach ($blocksData as $index => $block) {
                     echo "<div class='block'>";
                     echo "<label>Type:</label>";
-                    echo "<select name='blocks[$index][type]' onchange='loadBlockContent(this, $index)'>";
+                    echo "<select name='blocks[$index][type]' onchange='loadSelectedBlockContent(this, $index)'>";
                     echo "<option value='text' " . ($block['type'] == 'text' ? 'selected' : '') . ">Text</option>";
                     echo "<option value='image_text' " . ($block['type'] == 'image_text' ? 'selected' : '') . ">Image + Text</option>";
                     echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";

@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
         <div id="contentBlocks">
             <div class='block'>
                 <label>Type:</label>
-                <select name='blocks[0][type]' onchange='loadBlockContent(this, 0)'>
+                <select name='blocks[0][type]' onchange='loadSelectedBlockContent(this, 0)'>
                     <option value='text'>Text</option>
                     <option value='image_text'>Image + Text</option>
                     <option value='image'>Image</option>
