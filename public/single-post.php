@@ -44,9 +44,9 @@ function renderBlock($block, $page, $conn)
     $blockCtaText1 = $block['block_data']['cta_text1'] ?? '';
     $blockUrl2 = $block['block_data']['url2'] ?? '';
     $blockCtaText2 = $block['block_data']['cta_text2'] ?? '';
-    $blockVideoUrl = $block['block_data']['video_url'] ?? '';
-    $blockVideoSource = $block['block_data']['video_source'] ?? '';
-    $blockVideoFile = $block['block_data']['video_file'] ?? '';
+    $blockVideoUrl = $block['video_url'] ?? '';
+    $blockVideoSource = $block['video_source'] ?? '';
+    $blockVideoFile = $block['video_file'] ?? '';
     $blockAudioUrl = $block['block_data']['audio_url'] ?? '';
     $blockAudioSource = $block['block_data']['audio_source'] ?? '';
     $blockAudioFile = $block['block_data']['audio_file'] ?? '';
