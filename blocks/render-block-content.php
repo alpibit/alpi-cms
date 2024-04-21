@@ -22,6 +22,22 @@ function renderInput($name, $value, $placeholder, $type = 'text')
     echo "<label>{$placeholder}: <input type='{$type}' name='blocks[{$GLOBALS['index']}][{$name}]' value='" . htmlspecialchars($value) . "' placeholder='{$placeholder}'></label><br>";
 }
 
+function renderSpacingControls($block, $type)
+{
+    $sizes = ['desktop', 'tablet', 'mobile'];
+    $properties = ['padding', 'margin'];
+    $directions = ['top', 'right', 'bottom', 'left'];
+
+    foreach ($sizes as $size) {
+        foreach ($properties as $property) {
+            foreach ($directions as $direction) {
+                $fullName = "{$property}_{$direction}_{$size}";
+                renderInput($fullName, $block[$fullName] ?? '', ucfirst($property) . ' ' . ucfirst($direction) . ' (' . ucfirst($size) . ')');
+            }
+        }
+    }
+}
+
 function renderTextarea($name, $value, $placeholder)
 {
     echo "<label>{$placeholder}: <textarea name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars($value) . "</textarea></label><br>";
@@ -90,6 +106,7 @@ switch ($blockType) {
         renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
         renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color');
         renderNumberInput('text_size', $block['text_size'] ?? '', 'Text Size');
+        renderSpacingControls($block, 'text');
         break;
 
     case 'image_text':
@@ -98,12 +115,14 @@ switch ($blockType) {
         renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
         renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
         renderInput('caption', $block['caption'] ?? '', 'Caption');
+        renderSpacingControls($block, 'image_text');
         break;
 
     case 'image':
         renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
         renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
         renderInput('caption', $block['caption'] ?? '', 'Caption');
+        renderSpacingControls($block, 'image');
         break;
 
     case 'cta':
@@ -112,6 +131,7 @@ switch ($blockType) {
         renderInput('cta_text1', $block['cta_text1'] ?? '', 'CTA Text 1');
         renderInput('url2', $block['url2'] ?? '', 'URL 2');
         renderInput('cta_text2', $block['cta_text2'] ?? '', 'CTA Text 2');
+        renderSpacingControls($block, 'cta');
         break;
 
     case 'post_picker':
@@ -123,6 +143,7 @@ switch ($blockType) {
             echo "<option value='{$post['id']}' {$selected}>{$post['title']}</option>";
         }
         echo "</select></label><br>";
+        renderSpacingControls($block, 'post_picker');
         break;
 
     case 'video':
@@ -134,6 +155,7 @@ switch ($blockType) {
         renderFileUpload('video_file', $uploads, $block['video_file'] ?? '');
         echo "</div>";
         renderVideoSourceSelector('video_source', $block['video_source'] ?? '');
+        renderSpacingControls($block, 'video');
         break;
 
     case 'slider_gallery':
@@ -157,6 +179,7 @@ switch ($blockType) {
         }
         echo "<button type='button' onclick='addGalleryImage({$index})'>Add New Image</button>";
         echo "</div>";
+        renderSpacingControls($block, 'slider_gallery');
         break;
 
 
@@ -181,6 +204,7 @@ switch ($blockType) {
         }
         echo "<button type='button' onclick='addQuote({$index})'>Add New Quote</button>";
         echo "</div>";
+        renderSpacingControls($block, 'quote');
         break;
 
     case 'accordion':
@@ -207,24 +231,29 @@ switch ($blockType) {
         }
 
         echo "<button type='button' onclick='insertAccordionSection({$index})'>Add New Section</button>";
+        renderSpacingControls($block, 'accordion');
         break;
 
     case 'audio':
         renderInput('audio_url', $block['audio_url'] ?? '', 'Audio URL');
         renderFileUpload('video_url', $uploads, $block['audio_url'] ?? '');
         renderSelect('audio_source', $videoSourceOptions, $block['audio_source'] ?? '', 'Audio Source');
+        renderSpacingControls($block, 'audio');
         break;
 
     case 'free_code':
         renderTextarea('free_code_content', $block['free_code_content'] ?? '', 'Free Code Content');
+        renderSpacingControls($block, 'free_code');
         break;
 
     case 'map':
         renderTextarea('map_embed_code', $block['map_embed_code'] ?? '', 'Map Embed Code');
+        renderSpacingControls($block, 'map');
         break;
 
     case 'form':
         renderInput('form_shortcode', $block['form_shortcode'] ?? '', 'Form Shortcode');
+        renderSpacingControls($block, 'form');
         break;
 
     case 'hero':
@@ -236,6 +265,7 @@ switch ($blockType) {
         renderSelect('background_style', $backgroundStyleOptions, $block['background_style'] ?? '', 'Background Style');
         renderColorPicker('overlay_color', $block['overlay_color'] ?? '', 'Overlay Color');
         renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
+        renderSpacingControls($block, 'hero');
         break;
 
     default:
