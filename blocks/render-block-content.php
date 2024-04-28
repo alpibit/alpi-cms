@@ -38,6 +38,37 @@ function renderSpacingControls($block, $type)
     }
 }
 
+function renderBackgroundOptions($block, $index)
+{
+    $backgroundTypes = ['image' => 'Image', 'video' => 'Video', 'color' => 'Color'];
+    $selectedBackgroundType = $block['background_type_desktop'] ?? 'image';
+
+    echo "<label>Background Type: <select name='blocks[$index][background_type_desktop]' id='background_type_$index' onchange='updateBackgroundTypeFields($index)'>";
+    foreach ($backgroundTypes as $value => $name) {
+        $isSelected = ($value == $selectedBackgroundType) ? 'selected' : '';
+        echo "<option value='$value' $isSelected>$name</option>";
+    }
+    echo "</select></label><br>";
+
+    renderColorPicker("background_color", $block['background_color'] ?? '', 'Background Color');
+
+    renderFileUpload("background_image_desktop", $GLOBALS['uploads'], $block['background_image_desktop'] ?? '');
+
+    renderInput("background_video_url", $block['background_video_url'] ?? '', 'Background Video URL');
+
+    echo "<script>
+        function updateBackgroundTypeFields(index) {
+            var typeSelector = document.getElementById('background_type_' + index);
+            var selectedType = typeSelector.value;
+            document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
+            document.getElementById('background_image_desktop_' + index).style.display = (selectedType == 'image') ? 'block' : 'none';
+            document.getElementById('background_video_url_' + index).style.display = (selectedType == 'video') ? 'block' : 'none';
+        }
+        updateBackgroundTypeFields($index); 
+    </script>";
+}
+
+
 function renderTextarea($name, $value, $placeholder)
 {
     echo "<label>{$placeholder}: <textarea name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars($value) . "</textarea></label><br>";
@@ -131,6 +162,7 @@ switch ($blockType) {
         renderInput('cta_text1', $block['cta_text1'] ?? '', 'CTA Text 1');
         renderInput('url2', $block['url2'] ?? '', 'URL 2');
         renderInput('cta_text2', $block['cta_text2'] ?? '', 'CTA Text 2');
+        renderBackgroundOptions($block, $index);
         renderSpacingControls($block, 'cta');
         break;
 
@@ -260,11 +292,7 @@ switch ($blockType) {
         renderInput('title', $block['title'] ?? '', 'Title');
         renderTextarea('content', $block['content'] ?? '', 'Content');
         renderSelect('hero_layout', $heroLayoutOptions, $block['hero_layout'] ?? '', 'Hero Layout');
-        renderFileUpload('background_image_path', $uploads, $block['background_image_path'] ?? '');
-        renderInput('background_video_url', $block['background_video_url'] ?? '', 'Background Video URL');
-        renderSelect('background_style', $backgroundStyleOptions, $block['background_style'] ?? '', 'Background Style');
-        renderColorPicker('overlay_color', $block['overlay_color'] ?? '', 'Overlay Color');
-        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
+        renderBackgroundOptions($block, $index);
         renderSpacingControls($block, 'hero');
         break;
 
