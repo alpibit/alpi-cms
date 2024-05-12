@@ -15,9 +15,9 @@ function getBackground($type, $color, $image, $video)
             return ['type' => 'video', 'code' => "<iframe src='https://player.vimeo.com/video/$videoId?background=1&autoplay=1&muted=1&loop=1&byline=0&title=0' style='position:absolute; top:0; left:0; width:100%; height:100%; border:0; z-index:-100;' frameborder='0' allow='autoplay; fullscreen' allowfullscreen></iframe>"];
         }
     } elseif ($type === 'image') {
-        return ['type' => 'image', 'code' => "background-image: url('$image');"];
+        return ['type' => 'image', 'code' => "background-image: url('$image'); position:absolute; top:0; left:0; width:100%; height:100%;"];
     } else {
-        return ['type' => 'color', 'code' => "background-color: $color;"];
+        return ['type' => 'color', 'code' => "background-color: $color; position:absolute; top:0; left:0; width:100%; height:100%;"];
     }
 }
 
@@ -28,10 +28,14 @@ $backgroundStyles = [
 ];
 ?>
 
-<div class="hero-block <?php echo $layoutClass; ?>">
-    <div class="hero-background">
+<div class="hero-block <?php echo $layoutClass; ?>" style="color: <?php echo $blockTextColor; ?>;" data-text-size-desktop="<?php echo $blockTextSizeDesktop . 'px'; ?>" data-text-size-tablet="<?php echo $blockTextSizeTablet . 'px'; ?>" data-text-size-mobile="<?php echo $blockTextSizeMobile . 'px'; ?>" data-padding-top-desktop="<?php echo $blockPaddingTopDesktop . 'px'; ?>" data-padding-right-desktop="<?php echo $blockPaddingRightDesktop . 'px'; ?>" data-padding-bottom-desktop="<?php echo $blockPaddingBottomDesktop . 'px'; ?>" data-padding-left-desktop="<?php echo $blockPaddingLeftDesktop . 'px'; ?>" data-padding-top-tablet="<?php echo $blockPaddingTopTablet . 'px'; ?>" data-padding-right-tablet="<?php echo $blockPaddingRightTablet . 'px'; ?>" data-padding-bottom-tablet="<?php echo $blockPaddingBottomTablet . 'px'; ?>" data-padding-left-tablet="<?php echo $blockPaddingLeftTablet . 'px'; ?>" data-padding-top-mobile="<?php echo $blockPaddingTopMobile . 'px'; ?>" data-padding-right-mobile="<?php echo $blockPaddingRightMobile . 'px'; ?>" data-padding-bottom-mobile="<?php echo $blockPaddingBottomMobile . 'px'; ?>" data-padding-left-mobile="<?php echo $blockPaddingLeftMobile . 'px'; ?>" data-margin-top-desktop="<?php echo $blockMarginTopDesktop . 'px'; ?>" data-margin-right-desktop="<?php echo $blockMarginRightDesktop . 'px'; ?>" data-margin-bottom-desktop="<?php echo $blockMarginBottomDesktop . 'px'; ?>" data-margin-left-desktop="<?php echo $blockMarginLeftDesktop . 'px'; ?>" data-margin-top-tablet="<?php echo $blockMarginTopTablet . 'px'; ?>" data-margin-right-tablet="<?php echo $blockMarginRightTablet . 'px'; ?>" data-margin-bottom-tablet="<?php echo $blockMarginBottomTablet . 'px'; ?>" data-margin-left-tablet="<?php echo $blockMarginLeftTablet . 'px'; ?>" data-margin-top-mobile="<?php echo $blockMarginTopMobile . 'px'; ?>" data-margin-right-mobile="<?php echo $blockMarginRightMobile . 'px'; ?>" data-margin-bottom-mobile="<?php echo $blockMarginBottomMobile . 'px'; ?>" data-margin-left-mobile="<?php echo $blockMarginLeftMobile . 'px'; ?>">
+
+    <div class="hero-background" style="<?php echo $backgroundStyles['desktop']['code']; ?>">
         <?php
-        echo $backgroundStyles['desktop']['code'];
+        // check if it's video
+        if ($backgroundStyles['desktop']['type'] === 'video') {
+            echo $backgroundStyles['desktop']['code'];
+        }
         ?>
     </div>
     <div class="hero-content" style="<?php echo $textStyle; ?>">
@@ -43,6 +47,7 @@ $backgroundStyles = [
         <?php endif; ?>
     </div>
 </div>
+
 
 <style>
     .hero-block {
@@ -85,3 +90,48 @@ $backgroundStyles = [
         justify-content: flex-end;
     }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var heroBlock = document.querySelector('.hero-block');
+
+        function applyResponsiveStyles() {
+            var width = window.innerWidth;
+            if (width < 768) { // Mobile styles
+                heroBlock.style.fontSize = heroBlock.getAttribute('data-text-size-mobile');
+                heroBlock.style.paddingTop = heroBlock.getAttribute('data-padding-top-mobile');
+                heroBlock.style.paddingRight = heroBlock.getAttribute('data-padding-right-mobile');
+                heroBlock.style.paddingBottom = heroBlock.getAttribute('data-padding-bottom-mobile');
+                heroBlock.style.paddingLeft = heroBlock.getAttribute('data-padding-left-mobile');
+                heroBlock.style.marginTop = heroBlock.getAttribute('data-margin-top-mobile');
+                heroBlock.style.marginRight = heroBlock.getAttribute('data-margin-right-mobile');
+                heroBlock.style.marginBottom = heroBlock.getAttribute('data-margin-bottom-mobile');
+                heroBlock.style.marginLeft = heroBlock.getAttribute('data-margin-left-mobile');
+            } else if (width < 992) { // Tablet styles
+                heroBlock.style.fontSize = heroBlock.getAttribute('data-text-size-tablet');
+                heroBlock.style.paddingTop = heroBlock.getAttribute('data-padding-top-tablet');
+                heroBlock.style.paddingRight = heroBlock.getAttribute('data-padding-right-tablet');
+                heroBlock.style.paddingBottom = heroBlock.getAttribute('data-padding-bottom-tablet');
+                heroBlock.style.paddingLeft = heroBlock.getAttribute('data-padding-left-tablet');
+                heroBlock.style.marginTop = heroBlock.getAttribute('data-margin-top-tablet');
+                heroBlock.style.marginRight = heroBlock.getAttribute('data-margin-right-tablet');
+                heroBlock.style.marginBottom = heroBlock.getAttribute('data-margin-bottom-tablet');
+                heroBlock.style.marginLeft = heroBlock.getAttribute('data-margin-left-tablet');
+            } else { // Desktop styles
+                heroBlock.style.fontSize = heroBlock.getAttribute('data-text-size-desktop');
+                heroBlock.style.paddingTop = heroBlock.getAttribute('data-padding-top-desktop');
+                heroBlock.style.paddingRight = heroBlock.getAttribute('data-padding-right-desktop');
+                heroBlock.style.paddingBottom = heroBlock.getAttribute('data-padding-bottom-desktop');
+                heroBlock.style.paddingLeft = heroBlock.getAttribute('data-padding-left-desktop');
+                heroBlock.style.marginTop = heroBlock.getAttribute('data-margin-top-desktop');
+                heroBlock.style.marginRight = heroBlock.getAttribute('data-margin-right-desktop');
+                heroBlock.style.marginBottom = heroBlock.getAttribute('data-margin-bottom-desktop');
+                heroBlock.style.marginLeft = heroBlock.getAttribute('data-margin-left-desktop');
+            }
+            console.log('Responsive styles applied at width: ' + width);
+        }
+
+        setTimeout(applyResponsiveStyles, 3000); // Apply styles after a delay of 3 seconds
+        window.addEventListener('resize', applyResponsiveStyles); // Reapply styles on window resize
+    });
+</script>
