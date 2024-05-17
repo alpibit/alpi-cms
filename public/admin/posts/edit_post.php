@@ -37,16 +37,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     foreach ($_POST['blocks'] as $index => $block) {
         if ($block['type'] == 'accordion') {
-            $accordionData = $block['accordion_data'] ?? [];
-            $block['accordion_data'] = json_encode($accordionData);
+            $block['accordion_data'] = json_encode($block['accordion_data'] ?? []);
         }
         if ($block['type'] == 'slider_gallery') {
-            $galleryData = $block['gallery_data'] ?? [];
-            $block['gallery_data'] = json_encode($galleryData);
+            $block['gallery_data'] = json_encode($block['gallery_data'] ?? []);
         }
         if ($block['type'] == 'quote') {
-            $quotesData = $block['quotes_data'] ?? [];
-            $block['quotes_data'] = json_encode($quotesData);
+            $block['quotes_data'] = json_encode($block['quotes_data'] ?? []);
         }
         $blockData = [
             'type' => $block['type'],
@@ -173,14 +170,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'order_num' => $index + 1,
             'status' => 'active',
         ];
-        
+
         $contentBlocks[] = $blockData;
     }
 
     $userId = $_SESSION['user_id'] ?? 0;
     $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
-    // var_dump($contentBlocks);
-    // die();
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
@@ -189,40 +184,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Edit Post</title>
     <link rel="stylesheet" href="/assets/css/uploads.css">
+    <link rel="stylesheet" href="/assets/css/editor.css">
+    <script src="/assets/js/editor.js"></script>
 </head>
-
 <body class="edit-post-wrap">
     <h1>Edit Post</h1>
     <form action="" method="POST">
-        Title: <input type="text" name="title" value="<?= isset($postData['title']) ? $postData['title'] : '' ?>"><br>
-        Subtitle: <input type="text" name="subtitle" value="<?= isset($postData['subtitle']) ? $postData['subtitle'] : '' ?>"><br>
-        Featured Image:
-        <select name="main_image_path">
-            <?php
-            $uploads = (new Upload($conn))->listFiles();
-            foreach ($uploads as $upload) {
-                $selected = $postData['main_image_path'] == $upload['url'] ? 'selected' : '';
-                echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
-            }
-            ?>
-        </select><br>
-        Show Main Image: <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>><br>
-        Is Active: <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>><br>
-        <label>Category:</label>
-        <select name="category_id">
-            <?php foreach ($categories as $cat) : ?>
-                <?php $selected = ($postData['category_id'] == $cat['id']) ? 'selected' : ''; ?>
-                <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= $cat['name'] ?></option>
-            <?php endforeach; ?>
-        </select><br>
+        <fieldset>
+            <legend>Post Details</legend>
+            <label>Title: <input type="text" name="title" value="<?= isset($postData['title']) ? htmlspecialchars($postData['title'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Title"></label><br>
+            <label>Subtitle: <input type="text" name="subtitle" value="<?= isset($postData['subtitle']) ? htmlspecialchars($postData['subtitle'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Subtitle"></label><br>
+            <label>Featured Image:
+                <select name="main_image_path">
+                    <?php
+                    $uploads = (new Upload($conn))->listFiles();
+                    foreach ($uploads as $upload) {
+                        $selected = $postData['main_image_path'] == $upload['url'] ? 'selected' : '';
+                        echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
+                    }
+                    ?>
+                </select>
+            </label><br>
+            <label>Show Main Image: <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>></label><br>
+            <label>Is Active: <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>></label><br>
+            <label>Category:
+                <select name="category_id">
+                    <?php foreach ($categories as $cat) : ?>
+                        <?php $selected = ($postData['category_id'] == $cat['id']) ? 'selected' : ''; ?>
+                        <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label><br>
+        </fieldset>
 
-
-        <div id="contentBlocks">
+        <fieldset id="contentBlocks">
+            <legend>Content Blocks</legend>
             <?php
             if (isset($postData['blocks']) && is_array($postData['blocks'])) {
                 foreach ($postData['blocks'] as $index => $block) {
@@ -251,24 +251,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             ?>
+        </fieldset>
+        
+        <div class="form-buttons">
+            <input type="submit" value="Update Post">
+            <button type="button" onclick="addBlock()">Add Another Block</button>
         </div>
-        <input type="submit" value="Update Post">
-        <button type="button" onclick="addBlock()">Add Another Block</button>
     </form>
     <script src="/assets/js/posts-blocks.js"></script>
 </body>
-
 </html>
 <?php ob_end_flush(); ?>
-
-
-<script>
-    // document.querySelector('form').addEventListener('submit', function(e) {
-    //     e.preventDefault(); 
-    //     console.log("Form data:", new FormData(e.target));
-
-    //     for (let [key, value] of new FormData(e.target).entries()) {
-    //         console.log(key, value);
-    //     }
-    // });
-</script>

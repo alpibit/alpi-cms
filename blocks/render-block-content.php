@@ -225,8 +225,8 @@ switch ($blockType) {
         echo "<div class='quote-wrapper' data-index='{$index}'>";
         foreach ($quotesData as $quoteIndex => $quote) {
             echo "<div class='quote' data-index='{$quoteIndex}'>";
-            renderTextarea("quotes_data][{$quoteIndex}][content", $quote['content'] ?? '', 'Quote Content'); // Changed
-            renderInput("quotes_data][{$quoteIndex}][author", $quote['author'] ?? '', 'Author', 'text'); // Changed
+            renderTextarea("quotes_data][{$quoteIndex}][content", $quote['content'] ?? '', 'Quote Content');
+            renderInput("quotes_data][{$quoteIndex}][author", $quote['author'] ?? '', 'Author', 'text'); 
             echo "<div class='buttons'>";
             echo "<button type='button' onclick='shiftQuoteUpward({$index}, {$quoteIndex})'>Move Up</button>";
             echo "<button type='button' onclick='shiftQuoteDownward({$index}, {$quoteIndex})'>Move Down</button>";
