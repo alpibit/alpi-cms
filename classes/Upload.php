@@ -19,6 +19,11 @@ class Upload
             throw new Exception('Error in file upload');
         }
 
+		$fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+		if ($fileExt != 'png' && $fileExt != 'jpg' && $fileExt != 'jpeg' && $fileExt != 'gif') {
+			throw new Exception('File is not an image');
+		}
+		
         $fileName = basename($file['name']);
         $filePath = $this->uploadDir . '/' . $fileName;
 
