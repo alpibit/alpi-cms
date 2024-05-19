@@ -383,3 +383,46 @@ function updateButtonsQuote(blockIndex) {
         buttonsDiv.appendChild(deleteButton);
     });
 }
+
+function openTab(evt, tabName, containerId) {
+    evt.preventDefault();
+
+    const container = document.getElementById(containerId);
+
+    if (!container) {
+        console.error('Container not found for ID:', containerId);
+        return;
+    }
+
+    let i;
+    const tabcontent = container.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    const tablinks = container.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    const tabContentElement = document.getElementById(tabName);
+    if (tabContentElement) {
+        tabContentElement.style.display = "block";
+        evt.currentTarget.className += " active";
+    } else {
+        console.error('Tab content not found for tab name:', tabName);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+        const tabContainers = document.querySelectorAll(".tabs-container");
+        tabContainers.forEach(function (container) {
+            const tablinks = container.getElementsByClassName("tablinks");
+            if (tablinks.length > 0) {
+                tablinks[0].click();
+            }
+        });
+    }, 2000);
+});
+

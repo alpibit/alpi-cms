@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'audio_url' => $block['audio_url'] ?? '',
             'audio_source' => $block['audio_source'] ?? '',
             'audio_file' => $block['audio_file'] ?? '',
-            'slider_type' => $block['slider_type'] ?? 'image', 
+            'slider_type' => $block['slider_type'] ?? 'image',
             'slider_speed' => $block['slider_speed'] ?? 0,
             'free_code_content' => $block['free_code_content'] ?? '',
             'map_embed_code' => $block['map_embed_code'] ?? '',
@@ -184,13 +184,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Edit Post</title>
-    <link rel="stylesheet" href="/assets/css/uploads.css">
     <link rel="stylesheet" href="/assets/css/editor.css">
-    <script src="/assets/js/editor.js"></script>
 </head>
+
 <body class="edit-post-wrap">
     <h1>Edit Post</h1>
     <form action="" method="POST">
@@ -252,7 +252,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             ?>
         </fieldset>
-        
+
         <div class="form-buttons">
             <input type="submit" value="Update Post">
             <button type="button" onclick="addBlock()">Add Another Block</button>
@@ -260,5 +260,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
     <script src="/assets/js/posts-blocks.js"></script>
 </body>
+
 </html>
 <?php ob_end_flush(); ?>

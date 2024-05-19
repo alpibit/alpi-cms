@@ -1,5 +1,4 @@
 <?php
-
 header('Access-Control-Allow-Origin: *');
 
 require '../config/database.php';
@@ -28,15 +27,31 @@ function renderSpacingControls($block, $type)
     $properties = ['padding', 'margin'];
     $directions = ['top', 'right', 'bottom', 'left'];
 
+    // Create a unique ID for each block to isolate the tabs
+    $uniqueId = uniqid($type . '-tabs-');
+
+    echo "<div id='{$uniqueId}' class='tabs-container'>";
+    echo "<div class='tabs'>";
     foreach ($sizes as $size) {
+        echo "<button class='tablinks' onclick=\"openTab(event, '{$type}-{$size}-{$uniqueId}', '{$uniqueId}')\">" . ucfirst($size) . "</button>";
+    }
+    echo "</div>";
+
+    foreach ($sizes as $size) {
+        echo "<div id='{$type}-{$size}-{$uniqueId}' class='tab-content' style='display: none;'>";
         foreach ($properties as $property) {
             foreach ($directions as $direction) {
                 $fullName = "{$property}_{$direction}_{$size}";
                 renderInput($fullName, $block[$fullName] ?? '', ucfirst($property) . ' ' . ucfirst($direction) . ' (' . ucfirst($size) . ')');
             }
         }
+        echo "</div>";
     }
+    echo "</div>";
 }
+
+
+
 
 function renderBackgroundOptions($block, $index)
 {
@@ -226,7 +241,7 @@ switch ($blockType) {
         foreach ($quotesData as $quoteIndex => $quote) {
             echo "<div class='quote' data-index='{$quoteIndex}'>";
             renderTextarea("quotes_data][{$quoteIndex}][content", $quote['content'] ?? '', 'Quote Content');
-            renderInput("quotes_data][{$quoteIndex}][author", $quote['author'] ?? '', 'Author', 'text'); 
+            renderInput("quotes_data][{$quoteIndex}][author", $quote['author'] ?? '', 'Author', 'text');
             echo "<div class='buttons'>";
             echo "<button type='button' onclick='shiftQuoteUpward({$index}, {$quoteIndex})'>Move Up</button>";
             echo "<button type='button' onclick='shiftQuoteDownward({$index}, {$quoteIndex})'>Move Down</button>";
@@ -299,12 +314,51 @@ switch ($blockType) {
     default:
         echo "Unknown block type";
 }
+
 ?>
+
 
 <style>
     .block-wrapper {
         padding: 10px;
         margin-bottom: 10px;
         border: 1px solid #ccc;
+    }
+
+    .tabs {
+        overflow: hidden;
+        background: #f1f1f1;
+        margin-bottom: 10px;
+    }
+
+    .tabs button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        transition: background-color 0.3s;
+        color: #000;
+
+    }
+
+    .tabs button:hover {
+        background-color: #ddd;
+    }
+
+    .tabs button.active {
+        background-color: #ccc;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+
+    .tab-content.active {
+        display: block;
     }
 </style>
