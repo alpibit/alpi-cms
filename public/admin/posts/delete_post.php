@@ -1,19 +1,9 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: /public/admin/login.php');
-    exit;
-}
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../../index.php');
-    exit;
-}
 
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
+require '../auth_check.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: " . BASE_URL . "/public/admin/index.php");

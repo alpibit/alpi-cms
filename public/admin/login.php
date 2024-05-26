@@ -1,4 +1,10 @@
 <?php
+
+if (!defined('ROUTER_ACCESS')) {
+    header("Location: /admin");
+    exit;
+}
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }

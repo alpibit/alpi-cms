@@ -2,6 +2,7 @@
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
+require '../auth_check.php';
 
 $db = new Database();
 $conn = $db->connect();

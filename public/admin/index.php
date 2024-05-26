@@ -1,19 +1,10 @@
 <?php
-session_start();
 
-if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: /admin');
-    exit;
-}
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: /admin');
-    exit;
-}
 
 require '../../config/database.php';
 require '../../config/config.php';
 require '../../config/autoload.php';
+require './auth_check.php';
 
 $db = new Database();
 $conn = $db->connect();

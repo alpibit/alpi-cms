@@ -1,10 +1,13 @@
 <?php
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/autoload.php';
 require_once __DIR__ . '/../utils/helpers.php';
 
 session_start();
+
+define('ROUTER_ACCESS', true);
 
 try {
     $db = new Database();

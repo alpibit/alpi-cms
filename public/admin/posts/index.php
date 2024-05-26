@@ -1,21 +1,9 @@
 <?php
-session_start();
-
-// Redirect to login if not logged in
-if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: /public/admin/login.php');
-    exit;
-}
-
-// Access control for admin role
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../../index.php');
-    exit;
-}
 
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
+require '../auth_check.php';
 
 // Database connection
 $db = new Database();
