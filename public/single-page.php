@@ -1,7 +1,11 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/autoload.php';
+if (!defined('CONFIG_INCLUDED')) {
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/../config/autoload.php';
+    require_once __DIR__ . '/../utils/helpers.php';
+    define('CONFIG_INCLUDED', true);
+}
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = trim($path, '/');

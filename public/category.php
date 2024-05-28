@@ -1,8 +1,11 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/autoload.php';
-require_once __DIR__ . '/../utils/helpers.php';
+if (!defined('CONFIG_INCLUDED')) {
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/../config/autoload.php';
+    require_once __DIR__ . '/../utils/helpers.php';
+    define('CONFIG_INCLUDED', true);
+}
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
