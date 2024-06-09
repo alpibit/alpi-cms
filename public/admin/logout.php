@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+session_regenerate_id(true);
+
 $_SESSION = [];
 
 if (ini_get("session.use_cookies")) {
@@ -19,7 +21,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 session_start();
-session_regenerate_id(true);
 
 header("Location: /admin");
 exit;

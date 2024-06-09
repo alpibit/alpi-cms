@@ -21,18 +21,15 @@ $user = new User($conn);
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    // Sanitize user input
-    $username = htmlspecialchars($username);
-    $password = htmlspecialchars($password);
+    $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     // Validate user input
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password';
     } else {
         if ($user->authenticate($username, $password)) {
+            session_regenerate_id(true);
             $userData = $user->getUserData($username);
             $_SESSION['loggedIn'] = true;
             $_SESSION['username'] = $username;
@@ -57,11 +54,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body class="login-page">
-
+    
     <div class="container">
         <h1 class="login-title">Login to Admin Panel</h1>
         <?php if ($error) : ?>
-            <p class="error-message"><?= $error ?></p>
+            <p class="error-message"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
         <form class="login-form" action="" method="POST">
             <div class="login-input-wrap">

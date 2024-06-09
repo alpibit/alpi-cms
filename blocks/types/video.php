@@ -20,7 +20,7 @@ if ($blockVideoSource === 'url') {
     ?>
     <div class='video-container'>
         <video id='uploaded-video' class='video-player' controls>
-            <source src='/uploads/<?php echo $blockVideoFile; ?>' type='video/mp4'>
+            <source src='<?php echo $blockVideoFile; ?>' type='video/mpeg'>
         </video>
     </div>
     <?php

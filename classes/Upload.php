@@ -4,6 +4,9 @@ class Upload
     protected $db;
     protected $uploadDir;
     protected $uploadUrl;
+    protected $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    protected $allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mpeg'];
+    protected $maxFileSize = 10485760; // 10MB
 
     public function __construct(PDO $db, $uploadDir = null, $uploadUrl = BASE_URL . '/uploads/')
     {
@@ -11,7 +14,7 @@ class Upload
         $this->uploadDir = $uploadDir ?? realpath(__DIR__ . '/../uploads');
         $this->uploadUrl = $uploadUrl;
     }
-
+    
 
     public function uploadFile($file)
     {
@@ -19,12 +22,17 @@ class Upload
             throw new Exception('Error in file upload');
         }
 
-		$fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-		if ($fileExt != 'png' && $fileExt != 'jpg' && $fileExt != 'jpeg' && $fileExt != 'gif') {
-			throw new Exception('File is not an image');
-		}
-		
-        $fileName = basename($file['name']);
+        if ($file['size'] > $this->maxFileSize) {
+            throw new Exception('File is too large');
+        }
+
+        $fileMimeType = mime_content_type($file['tmp_name']);
+        if (!in_array($fileMimeType, array_merge($this->allowedImageTypes, $this->allowedVideoTypes))) {
+            throw new Exception('Invalid file type');
+        }
+
+        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $fileName = basename($file['name'], ".$fileExt") . '-' . uniqid() . '.' . $fileExt;
         $filePath = $this->uploadDir . '/' . $fileName;
 
         if (!move_uploaded_file($file['tmp_name'], $filePath)) {
