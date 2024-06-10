@@ -264,8 +264,10 @@ class Post
             $stmtBlock->bindValue(':metafield9', $block['metafield9'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':metafield10', $block['metafield10'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':orderNum', $orderNum, PDO::PARAM_INT);
-            $stmtBlock->bindValue(':startDate', $block['start_date'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':endDate', $block['end_date'] ?? '', PDO::PARAM_STR);
+            $startDate = !empty($block['start_date']) ? $block['start_date'] : null;
+            $endDate = !empty($block['end_date']) ? $block['end_date'] : null;
+            $stmtBlock->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+            $stmtBlock->bindValue(':endDate', $endDate, PDO::PARAM_STR);
             $stmtBlock->execute();
         }
     }
@@ -526,8 +528,10 @@ class Post
                 $stmtBlock->bindValue(':metafield8', $block['metafield8'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':metafield9', $block['metafield9'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':metafield10', $block['metafield10'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':startDate', $block['start_date'] ?? null, PDO::PARAM_STR);
-                $stmtBlock->bindValue(':endDate', $block['end_date'] ?? null, PDO::PARAM_STR);
+                $startDate = !empty($block['start_date']) ? $block['start_date'] : null;
+                $endDate = !empty($block['end_date']) ? $block['end_date'] : null;
+                $stmtBlock->bindValue(':startDate', $startDate, PDO::PARAM_STR);
+                $stmtBlock->bindValue(':endDate', $endDate, PDO::PARAM_STR);
                 $stmtBlock->execute();
             }
         }

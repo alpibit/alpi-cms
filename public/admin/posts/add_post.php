@@ -24,6 +24,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
 
     foreach ($_POST['blocks'] as $index => $block) {
+        if ($block['type'] == 'accordion') {
+            $block['accordion_data'] = json_encode($block['accordion_data'] ?? []);
+        }
+        if ($block['type'] == 'slider_gallery') {
+            $block['gallery_data'] = json_encode($block['gallery_data'] ?? []);
+        }
+        if ($block['type'] == 'quote') {
+            $block['quotes_data'] = json_encode($block['quotes_data'] ?? []);
+        }
+
         $blockData = [
             'type' => $block['type'],
             'title' => $block['title'] ?? '',
@@ -38,8 +48,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
             'cta_text2' => $block['cta_text2'] ?? '',
             'video_url' => $block['video_url'] ?? '',
             'video_source' => $block['video_source'] ?? '',
+            'video_file' => $block['video_file'] ?? '',
             'audio_url' => $block['audio_url'] ?? '',
             'audio_source' => $block['audio_source'] ?? '',
+            'audio_file' => $block['audio_file'] ?? '',
+            'slider_type' => $block['slider_type'] ?? 'image',
             'slider_speed' => $block['slider_speed'] ?? 0,
             'free_code_content' => $block['free_code_content'] ?? '',
             'map_embed_code' => $block['map_embed_code'] ?? '',
@@ -47,12 +60,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
             'gallery_data' => $block['gallery_data'] ?? '',
             'quotes_data' => $block['quotes_data'] ?? '',
             'accordion_data' => $block['accordion_data'] ?? '',
-            'background_image_path' => $block['background_image_path'] ?? '',
+            'transition_speed' => $block['transition_speed'] ?? 0,
+            'transition_effect' => $block['transition_effect'] ?? 'slide',
+            'autoplay' => $block['autoplay'] ?? false,
+            'pause_on_hover' => $block['pause_on_hover'] ?? false,
+            'infinite_loop' => $block['infinite_loop'] ?? false,
+            'show_arrows' => $block['show_arrows'] ?? false,
+            'show_dots' => $block['show_dots'] ?? false,
+            'dot_style' => $block['dot_style'] ?? 'classic',
+            'lazy_load' => $block['lazy_load'] ?? false,
+            'aspect_ratio' => $block['aspect_ratio'] ?? '16:9',
+            'lightbox_enabled' => $block['lightbox_enabled'] ?? false,
+            'thumbnail_path' => $block['thumbnail_path'] ?? '',
+            'background_type_desktop' => $block['background_type_desktop'] ?? 'image',
+            'background_type_tablet' => $block['background_type_tablet'] ?? 'image',
+            'background_type_mobile' => $block['background_type_mobile'] ?? 'image',
+            'background_image_desktop' => $block['background_image_desktop'] ?? '',
+            'background_image_tablet' => $block['background_image_tablet'] ?? '',
+            'background_image_mobile' => $block['background_image_mobile'] ?? '',
             'background_video_url' => $block['background_video_url'] ?? '',
+            'background_color' => $block['background_color'] ?? '',
+            'background_opacity_desktop' => $block['background_opacity_desktop'] ?? 1.0,
+            'background_opacity_tablet' => $block['background_opacity_tablet'] ?? 1.0,
+            'background_opacity_mobile' => $block['background_opacity_mobile'] ?? 1.0,
             'background_style' => $block['background_style'] ?? 'cover',
             'hero_layout' => $block['hero_layout'] ?? 'center',
             'overlay_color' => $block['overlay_color'] ?? '',
             'text_color' => $block['text_color'] ?? '',
+            'text_size_desktop' => $block['text_size_desktop'] ?? '',
+            'text_size_tablet' => $block['text_size_tablet'] ?? '',
+            'text_size_mobile' => $block['text_size_mobile'] ?? '',
+            'padding_top_desktop' => $block['padding_top_desktop'] ?? '',
+            'padding_right_desktop' => $block['padding_right_desktop'] ?? '',
+            'padding_bottom_desktop' => $block['padding_bottom_desktop'] ?? '',
+            'padding_left_desktop' => $block['padding_left_desktop'] ?? '',
+            'padding_top_tablet' => $block['padding_top_tablet'] ?? '',
+            'padding_right_tablet' => $block['padding_right_tablet'] ?? '',
+            'padding_bottom_tablet' => $block['padding_bottom_tablet'] ?? '',
+            'padding_left_tablet' => $block['padding_left_tablet'] ?? '',
+            'padding_top_mobile' => $block['padding_top_mobile'] ?? '',
+            'padding_right_mobile' => $block['padding_right_mobile'] ?? '',
+            'padding_bottom_mobile' => $block['padding_bottom_mobile'] ?? '',
+            'padding_left_mobile' => $block['padding_left_mobile'] ?? '',
+            'margin_top_desktop' => $block['margin_top_desktop'] ?? '',
+            'margin_right_desktop' => $block['margin_right_desktop'] ?? '',
+            'margin_bottom_desktop' => $block['margin_bottom_desktop'] ?? '',
+            'margin_left_desktop' => $block['margin_left_desktop'] ?? '',
+            'margin_top_tablet' => $block['margin_top_tablet'] ?? '',
+            'margin_right_tablet' => $block['margin_right_tablet'] ?? '',
+            'margin_bottom_tablet' => $block['margin_bottom_tablet'] ?? '',
+            'margin_left_tablet' => $block['margin_left_tablet'] ?? '',
+            'margin_top_mobile' => $block['margin_top_mobile'] ?? '',
+            'margin_right_mobile' => $block['margin_right_mobile'] ?? '',
+            'margin_bottom_mobile' => $block['margin_bottom_mobile'] ?? '',
+            'margin_left_mobile' => $block['margin_left_mobile'] ?? '',
             'layout1' => $block['layout1'] ?? '',
             'layout2' => $block['layout2'] ?? '',
             'layout3' => $block['layout3'] ?? '',
@@ -75,7 +136,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
             'style10' => $block['style10'] ?? '',
             'responsive_class' => $block['responsive_class'] ?? '',
             'responsive_style' => $block['responsive_style'] ?? '',
-            'background_color' => $block['background_color'] ?? '',
             'border_style' => $block['border_style'] ?? '',
             'border_color' => $block['border_color'] ?? '',
             'border_width' => $block['border_width'] ?? '',
@@ -103,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
         $contentBlocks[] = $blockData;
     }
 
-    // Call the new addPost function
+    // Call the addPost function
     $post->addPost($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId, $categoryId);
 
     header("Location: " . BASE_URL . "/public/admin/index.php");
@@ -118,33 +178,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Add New Post</title>
-    <link rel="stylesheet" href="/assets/css/uploads.css">
+    <link rel="stylesheet" href="/assets/css/editor.css">
 </head>
 
 <body class="add-post-wrap">
     <h1>Add New Post</h1>
     <form action="" method="POST">
-        Title: <input type="text" name="title"><br>
-        Subtitle: <input type="text" name="subtitle"><br>
-        Featured Image:
-        <select name="main_image_path">
-            <?php
-            $uploads = (new Upload($conn))->listFiles();
-            foreach ($uploads as $upload) {
-                echo "<option value='{$upload['url']}'>{$upload['url']}</option>";
-            }
-            ?>
-        </select><br>
-        Show Main Image: <input type="checkbox" name="show_main_image"><br>
-        Is Active: <input type="checkbox" name="is_active"><br>
-        Category:
-        <select name="category_id">
-            <?php foreach ($categories as $category) : ?>
-                <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
-            <?php endforeach; ?>
-        </select><br>
-        <div id="contentBlocks">
-            <div class='block'>
+        <fieldset>
+            <legend>Post Details</legend>
+            <label>Title: <input type="text" name="title" placeholder="Title"></label><br>
+            <label>Subtitle: <input type="text" name="subtitle" placeholder="Subtitle"></label><br>
+            <label>Featured Image:
+                <select name="main_image_path">
+                    <?php
+                    $uploads = (new Upload($conn))->listFiles();
+                    foreach ($uploads as $upload) {
+                        echo "<option value='{$upload['url']}'>{$upload['url']}</option>";
+                    }
+                    ?>
+                </select>
+            </label><br>
+            <label>Show Main Image: <input type="checkbox" name="show_main_image"></label><br>
+            <label>Is Active: <input type="checkbox" name="is_active"></label><br>
+            <label>Category:
+                <select name="category_id">
+                    <?php foreach ($categories as $cat) : ?>
+                        <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label><br>
+        </fieldset>
+
+        <fieldset id="contentBlocks">
+            <legend>Content Blocks</legend>
+            <div class='block' data-index='0'>
                 <label>Type:</label>
                 <select name='blocks[0][type]' onchange='loadSelectedBlockContent(this, 0)'>
                     <option value='text'>Text</option>
@@ -165,9 +232,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
                 <div class='block-content'></div>
                 <div class='buttons'>...</div>
             </div>
+        </fieldset>
+
+        <div class="form-buttons">
+            <input type="submit" value="Add Post">
+            <button type="button" onclick="addBlock()">Add Another Block</button>
         </div>
-        <button type="button" onclick="addBlock()">Add Another Block</button>
-        <input type="submit" value="Add Post">
     </form>
     <script src="/assets/js/posts-blocks.js"></script>
 </body>
