@@ -31,7 +31,15 @@ if (!$singlePost) {
 
 $blocks = $postObj->getBlocksByPostId($singlePost['id']) ?? [];
 
-function renderBlock($block, $page, $conn)
+$assetManager = new AssetManager();
+
+// Preload CSS files for all blocks
+foreach ($blocks as $block) {
+    $blockType = $block['type'];
+    $assetManager->addCss("blocks/{$blockType}.css");
+}
+
+function renderBlock($block, $page, $conn, $assetManager)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? '';
@@ -154,6 +162,9 @@ function renderBlock($block, $page, $conn)
     $blockMetafield9 = $block['metafield9'] ?? '';
     $blockMetafield10 = $block['metafield10'] ?? '';
     $blockStatus = 'active';
+
+    $assetManager->addJs("blocks/{$blockType}.js");
+
     $blockPath = __DIR__ . '/../blocks/types/' . $blockType . '.php';
 
     if (file_exists($blockPath)) {
@@ -164,13 +175,12 @@ function renderBlock($block, $page, $conn)
 }
 
 
+include __DIR__ . '/../templates/header.php';
 ?>
-
-<?php include __DIR__ . '/../templates/header.php'; ?>
 
 <main class="content">
     <?php foreach ($blocks as $block) {
-        renderBlock($block, $singlePost, $conn);
+        renderBlock($block, $singlePost, $conn, $assetManager);
     } ?>
 </main>
 

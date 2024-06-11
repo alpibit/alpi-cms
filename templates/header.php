@@ -1,7 +1,5 @@
 <?php
-// Ensure the necessary configurations and database are only included once
 if (!defined('CONFIG_INCLUDED')) {
-    var_dump("config included");
     require_once __DIR__ . '../../config/config.php';
     require_once __DIR__ . '../../config/database.php';
     require_once __DIR__ . '../../config/autoload.php';
@@ -49,6 +47,9 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $siteName ?></title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/header.css">
+    <!-- Dynamically injected CSS files -->
+    <?php global $assetManager;
+    echo $assetManager->getCssLinks(); ?>
 </head>
 
 <body>
