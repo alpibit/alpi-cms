@@ -14,7 +14,7 @@ class Upload
         $this->uploadDir = $uploadDir ?? realpath(__DIR__ . '/../uploads');
         $this->uploadUrl = $uploadUrl;
     }
-    
+
 
     public function uploadFile($file)
     {
@@ -51,9 +51,13 @@ class Upload
             if ($file !== '.' && $file !== '..') {
                 $filePath = $this->uploadDir . '/' . $file;
                 $fileUrl = $this->uploadUrl . $file;
+                $fileType = mime_content_type($filePath);
+                $isImage = in_array($fileType, $this->allowedImageTypes);
                 $files[] = [
                     'path' => $filePath,
-                    'url' => $fileUrl
+                    'url' => $fileUrl,
+                    'isImage' => $isImage,
+                    'type' => $fileType
                 ];
             }
         }
