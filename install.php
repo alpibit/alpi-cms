@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pass = trim($_POST['db_pass']);
     $adminUser = trim($_POST['admin_user']);
     $adminPass = trim($_POST['admin_pass']);
+    $adminEmail = trim($_POST['admin_email']);
+    $websiteUrl = trim($_POST['website_url']);
 
     if (empty($host)) {
         $errors[] = "Please enter the database host.";
@@ -48,17 +50,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($adminPass)) {
         $errors[] = "Please enter the admin password.";
     }
+    if (empty($adminEmail)) {
+        $errors[] = "Please enter the admin email.";
+    }
+    if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Please enter a valid admin email.";
+    }
     if (strlen($adminUser) < 5) {
         $errors[] = "Admin username should be at least 5 characters long.";
     }
     if (strlen($adminPass) < 8) {
         $errors[] = "Admin password should be at least 8 characters long.";
     }
+    if (empty($websiteUrl)) {
+        $errors[] = "Please enter the website URL.";
+    }
 
     if (empty($errors)) {
         try {
             $installer = new Installer();
-            $installer->install($adminUser, $adminPass, $host, $name, $user, $pass);
+            $installer->install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl);
 
             header("Location: " . BASE_URL . "/admin");
             exit;
@@ -184,12 +195,20 @@ function isInstalled($conn)
                 <input type="password" name="db_pass" id="db_pass" class="alpi-install-form-control">
             </div>
             <div class="alpi-install-form-group">
+                <label for="admin_email" class="alpi-install-form-label">Admin Email</label>
+                <input type="email" name="admin_email" id="admin_email" class="alpi-install-form-control" required>
+            </div>
+            <div class="alpi-install-form-group">
                 <label for="admin_user" class="alpi-install-form-label">Admin Username</label>
                 <input type="text" name="admin_user" id="admin_user" class="alpi-install-form-control" required>
             </div>
             <div class="alpi-install-form-group">
                 <label for="admin_pass" class="alpi-install-form-label">Admin Password</label>
                 <input type="password" name="admin_pass" id="admin_pass" class="alpi-install-form-control" required>
+            </div>
+            <div class="alpi-install-form-group">
+                <label for="website_url" class="alpi-install-form-label">Website URL</label>
+                <input type="url" name="website_url" id="website_url" class="alpi-install-form-control" required>
             </div>
             <button type="submit" class="alpi-install-btn alpi-install-btn-primary">Install</button>
         </form>

@@ -1,9 +1,11 @@
 <?php
+require 'config/autoload.php';
+
 class Installer
 {
     private $conn;
 
-    public function install($adminUser, $adminPass, $host, $name, $user, $pass)
+    public function install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl)
     {
         $this->writeConfigFile($host, $name, $user, $pass);
 
@@ -15,8 +17,9 @@ class Installer
         $this->setupTables();
         $this->insertDefaultContent();
         $this->setDefaultSettings();
-        $this->createAdminUser($adminUser, $adminPass);
+        $this->createAdminUser($adminUser, $adminPass, $adminEmail);
         $this->flagAsInstalledIfNotSet();
+        $this->sendWelcomeEmail($adminEmail, $websiteUrl);
     }
 
     private function writeConfigFile($host, $name, $user, $pass)
@@ -192,13 +195,14 @@ class Installer
         $this->conn->exec($sql);
     }
 
-    private function createAdminUser($username, $password)
+    private function createAdminUser($username, $password, $email)
     {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO users (username, password, role) VALUES (:username, :hashedPassword, 'admin')";
+        $sql = "INSERT INTO users (username, password, email, role) VALUES (:username, :hashedPassword, :email, 'admin')";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':hashedPassword', $hashedPassword);
+        $stmt->bindParam(':email', $email);
         $stmt->execute();
     }
 
@@ -212,5 +216,32 @@ class Installer
             $sql = "INSERT INTO settings (setting_key, setting_value) VALUES ('installed', 'true')";
             $this->conn->exec($sql);
         }
+    }
+
+    private function sendWelcomeEmail($email, $websiteUrl)
+    {
+        $subject = 'Welcome to AlpiCMS';
+        $message = "Dear Admin,\n\nThank you for installing AlpiCMS. Your new CMS is now ready to use.\n\nBest regards,\nThe AlpiCMS Team";
+
+        $fromEmail = $this->generateFromEmail($websiteUrl);
+
+        $mail = new Email($email, $subject, $message);
+        $mail->setHeader('From', $fromEmail);
+        $mail->setHeader('Reply-To', $fromEmail);
+        $mail->setHeader('X-Mailer', 'AlpiCMS');
+
+        $mail->send();
+    }
+
+    private function generateFromEmail($websiteUrl)
+    {
+        $urlParts = parse_url($websiteUrl);
+        $domain = $urlParts['host'];
+
+        $domain = preg_replace('/^www\./', '', $domain);
+
+        $fromEmail = "info@{$domain}";
+
+        return $fromEmail;
     }
 }
