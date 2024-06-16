@@ -49,6 +49,11 @@ try {
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/header.css">
     <!-- Dynamically injected CSS files -->
     <?php global $assetManager;
+
+    if (!isset($assetManager)) {
+        $assetManager = new AssetManager();
+    }
+    
     echo $assetManager->getCssLinks(); ?>
 </head>
 

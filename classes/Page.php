@@ -74,7 +74,7 @@ class Page
     // Fetch a page by its slug
     public function getPageBySlug($slug)
     {
-        $sql = "SELECT * FROM contents WHERE slug = :slug";
+        $sql = "SELECT id, title, subtitle, main_image_path, show_main_image, is_active, slug FROM contents WHERE slug = :slug";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();
@@ -499,6 +499,15 @@ class Page
             $stmtBlock->bindValue(':endDate', $endDate, PDO::PARAM_STR);
             $stmtBlock->execute();
         }
+    }
+
+    public function getBlocksByPageId($pageId)
+    {
+        $sql = "SELECT * FROM blocks WHERE content_id = :pageId ORDER BY order_num ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':pageId', $pageId);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function deletePage($id)
