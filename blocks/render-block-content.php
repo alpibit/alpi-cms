@@ -56,33 +56,36 @@ function renderSpacingControls($block, $type)
 function renderBackgroundOptions($block, $index)
 {
     $backgroundTypes = ['image' => 'Image', 'video' => 'Video', 'color' => 'Color'];
-    $selectedBackgroundType = $block['background_type_desktop'] ?? 'image';
+    $sizes = ['desktop', 'tablet', 'mobile'];
 
-    echo "<label>Background Type: <select name='blocks[$index][background_type_desktop]' id='background_type_$index' onchange='updateBackgroundTypeFields($index)'>";
-    foreach ($backgroundTypes as $value => $name) {
-        $isSelected = ($value == $selectedBackgroundType) ? 'selected' : '';
-        echo "<option value='$value' $isSelected>$name</option>";
-    }
-    echo "</select></label><br>";
+    foreach ($sizes as $size) {
+        $selectedBackgroundType = $block["background_type_{$size}"] ?? 'image';
 
-    renderColorPicker("background_color", $block['background_color'] ?? '', 'Background Color');
-
-    renderFileUpload("background_image_desktop", $GLOBALS['uploads'], $block['background_image_desktop'] ?? '');
-
-    renderInput("background_video_url", $block['background_video_url'] ?? '', 'Background Video URL');
-
-    echo "<script>
-        function updateBackgroundTypeFields(index) {
-            var typeSelector = document.getElementById('background_type_' + index);
-            var selectedType = typeSelector.value;
-            document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
-            document.getElementById('background_image_desktop_' + index).style.display = (selectedType == 'image') ? 'block' : 'none';
-            document.getElementById('background_video_url_' + index).style.display = (selectedType == 'video') ? 'block' : 'none';
+        echo "<label>Background Type ({$size}): <select name='blocks[$index][background_type_{$size}]' id='background_type_{$index}_{$size}' onchange='updateBackgroundTypeFields($index, \"$size\")'>";
+        foreach ($backgroundTypes as $value => $name) {
+            $isSelected = ($value == $selectedBackgroundType) ? 'selected' : '';
+            echo "<option value='$value' $isSelected>$name</option>";
         }
-        updateBackgroundTypeFields($index); 
-    </script>";
-}
+        echo "</select></label><br>";
 
+        renderColorPicker("background_color_{$size}", $block["background_color_{$size}"] ?? '', "Background Color ({$size})", 'background');
+
+        renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
+
+        renderInput("background_video_url_{$size}", $block["background_video_url_{$size}"] ?? '', "Background Video URL ({$size})");
+
+        echo "<script>
+            function updateBackgroundTypeFields(index, size) {
+                var typeSelector = document.getElementById('background_type_' + index + '_' + size);
+                var selectedType = typeSelector.value;
+                document.getElementById('background_color_' + index + '_' + size).style.display = (selectedType == 'color') ? 'block' : 'none';
+                document.getElementById('background_image_' + index + '_' + size).style.display = (selectedType == 'image') ? 'block' : 'none';
+                document.getElementById('background_video_url_' + index + '_' + size).style.display = (selectedType == 'video') ? 'block' : 'none';
+            }
+            updateBackgroundTypeFields($index, '$size'); 
+        </script>";
+    }
+}
 
 function renderTextarea($name, $value, $placeholder)
 {
@@ -131,8 +134,10 @@ function renderNumberInput($name, $value, $placeholder)
     renderInput($name, $value, $placeholder, 'number');
 }
 
-function renderColorPicker($name, $value, $placeholder)
+function renderColorPicker($name, $value, $placeholder, $type = 'text')
 {
+    $defaultValue = ($type == 'text') ? '#000000' : '#ffffff';
+    $value = empty($value) ? $defaultValue : $value;
     renderInput($name, $value, $placeholder, 'color');
 }
 
@@ -149,9 +154,11 @@ switch ($blockType) {
     case 'text':
         renderInput('title', $block['title'] ?? '', 'Title');
         renderTextarea('content', $block['content'] ?? '', 'Content');
-        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color');
-        renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color');
-        renderNumberInput('text_size', $block['text_size'] ?? '', 'Text Size');
+        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color', 'text');
+        renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color', 'background');
+        renderNumberInput('text_size_desktop', $block['text_size_desktop'] ?? '', 'Text Size (Desktop)');
+        renderNumberInput('text_size_tablet', $block['text_size_tablet'] ?? '', 'Text Size (Tablet)');
+        renderNumberInput('text_size_mobile', $block['text_size_mobile'] ?? '', 'Text Size (Mobile)');
         renderSpacingControls($block, 'text');
         break;
 
@@ -161,6 +168,13 @@ switch ($blockType) {
         renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
         renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
         renderInput('caption', $block['caption'] ?? '', 'Caption');
+        renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color', 'background');
+        renderNumberInput('title_size_desktop', $block['title_size_desktop'] ?? '', 'Title Size (Desktop)');
+        renderNumberInput('title_size_tablet', $block['title_size_tablet'] ?? '', 'Title Size (Tablet)');
+        renderNumberInput('title_size_mobile', $block['title_size_mobile'] ?? '', 'Title Size (Mobile)');
+        renderNumberInput('content_size_desktop', $block['content_size_desktop'] ?? '', 'Content Size (Desktop)');
+        renderNumberInput('content_size_tablet', $block['content_size_tablet'] ?? '', 'Content Size (Tablet)');
+        renderNumberInput('content_size_mobile', $block['content_size_mobile'] ?? '', 'Content Size (Mobile)');
         renderSpacingControls($block, 'image_text');
         break;
 
@@ -178,6 +192,10 @@ switch ($blockType) {
         renderInput('url2', $block['url2'] ?? '', 'URL 2');
         renderInput('cta_text2', $block['cta_text2'] ?? '', 'CTA Text 2');
         renderBackgroundOptions($block, $index);
+        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color', 'text');
+        renderNumberInput('title_size_desktop', $block['title_size_desktop'] ?? '', 'Title Size (Desktop)');
+        renderNumberInput('title_size_tablet', $block['title_size_tablet'] ?? '', 'Title Size (Tablet)');
+        renderNumberInput('title_size_mobile', $block['title_size_mobile'] ?? '', 'Title Size (Mobile)');
         renderSpacingControls($block, 'cta');
         break;
 
@@ -214,9 +232,9 @@ switch ($blockType) {
         echo "<div class='slider-gallery' data-index='{$index}'>";
         foreach ($galleryData as $imageIndex => $image) {
             echo "<div class='gallery-image' data-index='{$imageIndex}'>";
-            renderFileUpload("gallery_data][{$imageIndex}][url", $uploads, $image['url'] ?? ''); // Changed
-            renderInput("gallery_data][{$imageIndex}][alt_text", $image['alt_text'] ?? '', 'Alt Text', 'text'); // Changed
-            renderInput("gallery_data][{$imageIndex}][caption", $image['caption'] ?? '', 'Caption', 'text'); // Changed
+            renderFileUpload("gallery_data][{$imageIndex}][url", $uploads, $image['url'] ?? '');
+            renderInput("gallery_data][{$imageIndex}][alt_text", $image['alt_text'] ?? '', 'Alt Text', 'text');
+            renderInput("gallery_data][{$imageIndex}][caption", $image['caption'] ?? '', 'Caption', 'text');
             echo "<div class='buttons'>";
             echo "<button type='button' onclick='shiftImageUpward({$index}, {$imageIndex})'>Move Up</button>";
             echo "<button type='button' onclick='shiftImageDownward({$index}, {$imageIndex})'>Move Down</button>";
@@ -229,8 +247,6 @@ switch ($blockType) {
         renderSpacingControls($block, 'slider_gallery');
         break;
 
-
-
     case 'quote':
         $quotesData = json_decode($block['quotes_data'] ?? '[]', true);
         if (!is_array($quotesData)) {
@@ -242,9 +258,14 @@ switch ($blockType) {
             echo "<div class='quote' data-index='{$quoteIndex}'>";
             renderTextarea("quotes_data][{$quoteIndex}][content", $quote['content'] ?? '', 'Quote Content');
             renderInput("quotes_data][{$quoteIndex}][author", $quote['author'] ?? '', 'Author', 'text');
+            renderColorPicker("quotes_data][{$quoteIndex}][text_color", $quote['text_color'] ?? '', 'Text Color', 'text');
+            renderColorPicker("quotes_data][{$quoteIndex}][background_color", $quote['background_color'] ?? '', 'Background Color', 'background');
+            renderNumberInput("quotes_data][{$quoteIndex}][text_size_desktop", $quote['text_size_desktop'] ?? '', 'Text Size (Desktop)');
+            renderNumberInput("quotes_data][{$quoteIndex}][text_size_tablet", $quote['text_size_tablet'] ?? '', 'Text Size (Tablet)');
+            renderNumberInput("quotes_data][{$quoteIndex}][text_size_mobile", $quote['text_size_mobile'] ?? '', 'Text Size (Mobile)');
             echo "<div class='buttons'>";
             echo "<button type='button' onclick='shiftQuoteUpward({$index}, {$quoteIndex})'>Move Up</button>";
-            echo "<button type='button' onclick='shiftQuoteDownward({$index}, {$quoteIndex})'>Move Down</button>";
+            echo "<button type='button' onclick='shiftQuoteDownward({$index}, {$quoteIndex})'>Move Down</button";
             echo "<button type='button' onclick='removeQuote({$index}, {$quoteIndex})'>Delete Quote</button>";
             echo "</div>";
             echo "</div>";
@@ -253,7 +274,6 @@ switch ($blockType) {
         echo "</div>";
         renderSpacingControls($block, 'quote');
         break;
-
     case 'accordion':
         $accordionData = json_decode($block['accordion_data'] ?? '[]', true);
         if (!is_array($accordionData)) {
@@ -267,6 +287,14 @@ switch ($blockType) {
                 $newSectionHtml = "<div class='accordion-section' data-index='{$newIndex}'>";
                 $newSectionHtml .= "<label>Section Title: <input type='text' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title]' placeholder='Section Title' value='{$section['title']}'></label><br>";
                 $newSectionHtml .= "<label>Section Content: <textarea name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content]' placeholder='Section Content' rows='4'>{$section['content']}</textarea></label><br>";
+                $newSectionHtml .= "<label>Text Color: <input type='color' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][text_color]' value='{$section['text_color']}'></label><br>";
+                $newSectionHtml .= "<label>Background Color: <input type='color' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][background_color]' value='{$section['background_color']}'></label><br>";
+                $newSectionHtml .= "<label>Title Size (Desktop): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title_size_desktop]' value='{$section['title_size_desktop']}'></label><br>";
+                $newSectionHtml .= "<label>Title Size (Tablet): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title_size_tablet]' value='{$section['title_size_tablet']}'></label><br>";
+                $newSectionHtml .= "<label>Title Size (Mobile): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][title_size_mobile]' value='{$section['title_size_mobile']}'></label><br>";
+                $newSectionHtml .= "<label>Content Size (Desktop): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content_size_desktop]' value='{$section['content_size_desktop']}'></label><br>";
+                $newSectionHtml .= "<label>Content Size (Tablet): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content_size_tablet]' value='{$section['content_size_tablet']}'></label><br>";
+                $newSectionHtml .= "<label>Content Size (Mobile): <input type='number' name='blocks[{$blockIndex}][accordion_data][{$newIndex}][content_size_mobile]' value='{$section['content_size_mobile']}'></label><br>";
                 $newSectionHtml .= "<div class='buttons'>";
                 $newSectionHtml .= "<button type='button' onclick='shiftAccordionSectionUp(this)'>Move Up</button>";
                 $newSectionHtml .= "<button type='button' onclick='shiftAccordionSectionDown(this)'>Move Down</button>";
@@ -308,16 +336,21 @@ switch ($blockType) {
         renderTextarea('content', $block['content'] ?? '', 'Content');
         renderSelect('hero_layout', $heroLayoutOptions, $block['hero_layout'] ?? '', 'Hero Layout');
         renderBackgroundOptions($block, $index);
+        renderColorPicker('text_color', $block['text_color'] ?? '', 'Text Color', 'text');
+        renderColorPicker('overlay_color', $block['overlay_color'] ?? '', 'Overlay Color', 'background');
+        renderNumberInput('title_size_desktop', $block['title_size_desktop'] ?? '', 'Title Size (Desktop)');
+        renderNumberInput('title_size_tablet', $block['title_size_tablet'] ?? '', 'Title Size (Tablet)');
+        renderNumberInput('title_size_mobile', $block['title_size_mobile'] ?? '', 'Title Size (Mobile)');
+        renderNumberInput('content_size_desktop', $block['content_size_desktop'] ?? '', 'Content Size (Desktop)');
+        renderNumberInput('content_size_tablet', $block['content_size_tablet'] ?? '', 'Content Size (Tablet)');
+        renderNumberInput('content_size_mobile', $block['content_size_mobile'] ?? '', 'Content Size (Mobile)');
         renderSpacingControls($block, 'hero');
         break;
 
     default:
         echo "Unknown block type";
 }
-
 ?>
-
-
 <style>
     .block-wrapper {
         padding: 10px;
