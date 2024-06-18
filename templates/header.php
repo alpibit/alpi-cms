@@ -15,7 +15,7 @@ if (!$conn) {
 }
 
 $settings = new Settings($conn);
-$siteName = htmlspecialchars($settings->getSetting('site_name'), ENT_QUOTES, 'UTF-8');
+$siteName = htmlspecialchars($settings->getSetting('site_title'), ENT_QUOTES, 'UTF-8');
 
 try {
     // Fetch pages

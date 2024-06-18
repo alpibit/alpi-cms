@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 require '../../../config/database.php';
 require '../../../config/config.php';
@@ -14,36 +15,69 @@ if (!$conn instanceof PDO) {
 
 $settings = new Settings($conn);
 
-$site_name = htmlspecialchars($settings->getSetting('site_name'), ENT_QUOTES, 'UTF-8');
+$site_title = htmlspecialchars($settings->getSetting('site_title'), ENT_QUOTES, 'UTF-8');
+$site_description = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
+$site_logo = htmlspecialchars($settings->getSetting('site_logo'), ENT_QUOTES, 'UTF-8');
+$site_favicon = htmlspecialchars($settings->getSetting('site_favicon'), ENT_QUOTES, 'UTF-8');
 $footer_text = htmlspecialchars($settings->getSetting('footer_text'), ENT_QUOTES, 'UTF-8');
-$header_logo = htmlspecialchars($settings->getSetting('header_logo'), ENT_QUOTES, 'UTF-8');
-
-$custom_css = "/assets/css/admin/settings.css";
-
-// CSRF token generation
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-$csrf_token = $_SESSION['csrf_token'];
+$default_language = htmlspecialchars($settings->getSetting('default_language'), ENT_QUOTES, 'UTF-8');
+$timezone = htmlspecialchars($settings->getSetting('timezone'), ENT_QUOTES, 'UTF-8');
+$date_format = htmlspecialchars($settings->getSetting('date_format'), ENT_QUOTES, 'UTF-8');
+$time_format = htmlspecialchars($settings->getSetting('time_format'), ENT_QUOTES, 'UTF-8');
+$posts_per_page = htmlspecialchars($settings->getSetting('posts_per_page'), ENT_QUOTES, 'UTF-8');
+$email_settings = htmlspecialchars($settings->getSetting('email_settings'), ENT_QUOTES, 'UTF-8');
+$social_media_links = htmlspecialchars($settings->getSetting('social_media_links'), ENT_QUOTES, 'UTF-8');
+$google_analytics_code = htmlspecialchars($settings->getSetting('google_analytics_code'), ENT_QUOTES, 'UTF-8');
+$custom_css = htmlspecialchars($settings->getSetting('custom_css'), ENT_QUOTES, 'UTF-8');
+$custom_js = htmlspecialchars($settings->getSetting('custom_js'), ENT_QUOTES, 'UTF-8');
+$maintenance_mode = htmlspecialchars($settings->getSetting('maintenance_mode'), ENT_QUOTES, 'UTF-8');
+$header_scripts = htmlspecialchars($settings->getSetting('header_scripts'), ENT_QUOTES, 'UTF-8');
+$footer_scripts = htmlspecialchars($settings->getSetting('footer_scripts'), ENT_QUOTES, 'UTF-8');
+$default_post_thumbnail = htmlspecialchars($settings->getSetting('default_post_thumbnail'), ENT_QUOTES, 'UTF-8');
+$pagination_type = htmlspecialchars($settings->getSetting('pagination_type'), ENT_QUOTES, 'UTF-8');
+$allSettings = $settings->getAllSettings();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF token verification
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $csrf_token) {
-        die("CSRF token validation failed.");
-    }
-
     // Update settings securely
-    $site_name = $_POST['site_name'];
-    $footer_text = $_POST['footer_text'];
-    $header_logo = $_POST['header_logo'];
+    $site_title = $_POST['site_title'];
+    $site_description = $_POST['site_description'];
+    $site_logo = $_POST['site_logo'];
+    $site_favicon = $_POST['site_favicon'];
+    $default_language = $_POST['default_language'];
+    $timezone = $_POST['timezone'];
+    $date_format = $_POST['date_format'];
+    $time_format = $_POST['time_format'];
+    $posts_per_page = $_POST['posts_per_page'];
+    $email_settings = $_POST['email_settings'];
+    $social_media_links = $_POST['social_media_links'];
+    $google_analytics_code = $_POST['google_analytics_code'];
+    $custom_css = $_POST['custom_css'];
+    $custom_js = $_POST['custom_js'];
+    $maintenance_mode = $_POST['maintenance_mode'];
+    $header_scripts = $_POST['header_scripts'];
+    $footer_scripts = $_POST['footer_scripts'];
+    $default_post_thumbnail = $_POST['default_post_thumbnail'];
+    $pagination_type = $_POST['pagination_type'];
 
-    $settings->updateSetting('site_name', $site_name);
-    $settings->updateSetting('footer_text', $footer_text);
-    $settings->updateSetting('header_logo', $header_logo);
-
-    // Regenerate CSRF token
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $settings->updateSetting('site_title', $site_title);
+    $settings->updateSetting('site_description', $site_description);
+    $settings->updateSetting('site_logo', $site_logo);
+    $settings->updateSetting('site_favicon', $site_favicon);
+    $settings->updateSetting('default_language', $default_language);
+    $settings->updateSetting('timezone', $timezone);
+    $settings->updateSetting('date_format', $date_format);
+    $settings->updateSetting('time_format', $time_format);
+    $settings->updateSetting('posts_per_page', $posts_per_page);
+    $settings->updateSetting('email_settings', $email_settings);
+    $settings->updateSetting('social_media_links', $social_media_links);
+    $settings->updateSetting('google_analytics_code', $google_analytics_code);
+    $settings->updateSetting('custom_css', $custom_css);
+    $settings->updateSetting('custom_js', $custom_js);
+    $settings->updateSetting('maintenance_mode', $maintenance_mode);
+    $settings->updateSetting('header_scripts', $header_scripts);
+    $settings->updateSetting('footer_scripts', $footer_scripts);
+    $settings->updateSetting('default_post_thumbnail', $default_post_thumbnail);
+    $settings->updateSetting('pagination_type', $pagination_type);
 }
 
 include '../../../templates/header-admin.php';
@@ -53,21 +87,107 @@ include '../../../templates/header-admin.php';
     <h1 class="settings-title">Settings</h1>
 
     <form action="" method="POST" class="settings-form">
-        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
         <div class="form-group">
-            <label for="site_name" class="form-label">Site Name:</label>
-            <input type="text" id="site_name" name="site_name" class="form-input" value="<?= $site_name ?>">
+            <label for="site_title" class="form-label">Site Title:</label>
+            <input type="text" id="site_title" name="site_title" class="form-input" value="<?= $site_title ?>">
         </div>
 
         <div class="form-group">
-            <label for="footer_text" class="form-label">Footer Text:</label>
-            <input type="text" id="footer_text" name="footer_text" class="form-input" value="<?= $footer_text ?>">
+            <label for="site_description" class="form-label">Site Description:</label>
+            <textarea id="site_description" name="site_description" class="form-input"><?= $site_description ?></textarea>
         </div>
 
         <div class="form-group">
-            <label for="header_logo" class="form-label">Header Logo:</label>
-            <input type="text" id="header_logo" name="header_logo" class="form-input" value="<?= $header_logo ?>">
+            <label for="site_logo" class="form-label">Site Logo:</label>
+            <input type="text" id="site_logo" name="site_logo" class="form-input" value="<?= $site_logo ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="site_favicon" class="form-label">Site Favicon:</label>
+            <input type="text" id="site_favicon" name="site_favicon" class="form-input" value="<?= $site_favicon ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="default_language" class="form-label">Default Language:</label>
+            <input type="text" id="default_language" name="default_language" class="form-input" value="<?= $default_language ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="timezone" class="form-label">Timezone:</label>
+            <input type="text" id="timezone" name="timezone" class="form-input" value="<?= $timezone ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="date_format" class="form-label">Date Format:</label>
+            <input type="text" id="date_format" name="date_format" class="form-input" value="<?= $date_format ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="time_format" class="form-label">Time Format:</label>
+            <input type="text" id="time_format" name="time_format" class="form-input" value="<?= $time_format ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="posts_per_page" class="form-label">Posts per Page:</label>
+            <input type="number" id="posts_per_page" name="posts_per_page" class="form-input" value="<?= $posts_per_page ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="email_settings" class="form-label">Email Settings:</label>
+            <textarea id="email_settings" name="email_settings" class="form-input"><?= $email_settings ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="social_media_links" class="form-label">Social Media Links:</label>
+            <textarea id="social_media_links" name="social_media_links" class="form-input"><?= $social_media_links ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="google_analytics_code" class="form-label">Google Analytics Code:</label>
+            <textarea id="google_analytics_code" name="google_analytics_code" class="form-input"><?= $google_analytics_code ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="custom_css" class="form-label">Custom CSS:</label>
+            <textarea id="custom_css" name="custom_css" class="form-input"><?= $custom_css ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="custom_js" class="form-label">Custom JS:</label>
+            <textarea id="custom_js" name="custom_js" class="form-input"><?= $custom_js ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="maintenance_mode" class="form-label">Maintenance Mode:</label>
+            <select id="maintenance_mode" name="maintenance_mode" class="form-input">
+                <option value="false" <?= $maintenance_mode == 'false' ? 'selected' : '' ?>>Disabled</option>
+                <option value="true" <?= $maintenance_mode == 'true' ? 'selected' : '' ?>>Enabled</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="header_scripts" class="form-label">Header Scripts:</label>
+            <textarea id="header_scripts" name="header_scripts" class="form-input"><?= $header_scripts ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="footer_scripts" class="form-label">Footer Scripts:</label>
+            <textarea id="footer_scripts" name="footer_scripts" class="form-input"><?= $footer_scripts ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="default_post_thumbnail" class="form-label">Default Post Thumbnail:</label>
+            <input type="text" id="default_post_thumbnail" name="default_post_thumbnail" class="form-input" value="<?= $default_post_thumbnail ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="pagination_type" class="form-label">Pagination Type:</label>
+            <select id="pagination_type" name="pagination_type" class="form-input">
+                <option value="numbered" <?= $pagination_type == 'numbered' ? 'selected' : '' ?>>Numbered</option>
+                <option value="load_more" <?= $pagination_type == 'load_more' ? 'selected' : '' ?>>Load More</option>
+                <option value="infinite_scroll" <?= $pagination_type == 'infinite_scroll' ? 'selected' : '' ?>>Infinite Scroll</option>
+            </select>
         </div>
 
         <input type="submit" value="Update" class="form-submit">
