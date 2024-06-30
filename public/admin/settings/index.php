@@ -14,6 +14,7 @@ if (!$conn instanceof PDO) {
 }
 
 $settings = new Settings($conn);
+$upload = new Upload($conn);
 
 $site_title = htmlspecialchars($settings->getSetting('site_title'), ENT_QUOTES, 'UTF-8');
 $site_description = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
@@ -35,7 +36,22 @@ $header_scripts = htmlspecialchars($settings->getSetting('header_scripts'), ENT_
 $footer_scripts = htmlspecialchars($settings->getSetting('footer_scripts'), ENT_QUOTES, 'UTF-8');
 $default_post_thumbnail = htmlspecialchars($settings->getSetting('default_post_thumbnail'), ENT_QUOTES, 'UTF-8');
 $pagination_type = htmlspecialchars($settings->getSetting('pagination_type'), ENT_QUOTES, 'UTF-8');
-$allSettings = $settings->getAllSettings();
+
+$timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+
+$date_formats = [
+    'F j, Y' => date('F j, Y'),
+    'Y-m-d' => date('Y-m-d'),
+    'm/d/Y' => date('m/d/Y'),
+    'd/m/Y' => date('d/m/Y'),
+    'M j, Y' => date('M j, Y'),
+];
+
+$time_formats = [
+    'g:i a' => date('g:i a'),
+    'g:i A' => date('g:i A'),
+    'H:i' => date('H:i'),
+];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Update settings securely
@@ -80,6 +96,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $settings->updateSetting('pagination_type', $pagination_type);
 }
 
+$uploads = $upload->listFiles();
+
 include '../../../templates/header-admin.php';
 ?>
 
@@ -100,12 +118,30 @@ include '../../../templates/header-admin.php';
 
         <div class="form-group">
             <label for="site_logo" class="form-label">Site Logo:</label>
-            <input type="text" id="site_logo" name="site_logo" class="form-input" value="<?= $site_logo ?>">
+            <select name="site_logo" id="site_logo" class="form-input">
+                <option value="">Select a logo</option>
+                <?php foreach ($uploads as $file): ?>
+                    <?php if (in_array($file['type'], ['image/jpeg', 'image/png', 'image/gif'])): ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_logo == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
             <label for="site_favicon" class="form-label">Site Favicon:</label>
-            <input type="text" id="site_favicon" name="site_favicon" class="form-input" value="<?= $site_favicon ?>">
+            <select name="site_favicon" id="site_favicon" class="form-input">
+                <option value="">Select a favicon</option>
+                <?php foreach ($uploads as $file): ?>
+                    <?php if (in_array($file['type'], ['image/x-icon', 'image/vnd.microsoft.icon', 'image/png'])): ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_favicon == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
@@ -115,17 +151,35 @@ include '../../../templates/header-admin.php';
 
         <div class="form-group">
             <label for="timezone" class="form-label">Timezone:</label>
-            <input type="text" id="timezone" name="timezone" class="form-input" value="<?= $timezone ?>">
+            <select id="timezone" name="timezone" class="form-input">
+                <?php foreach ($timezones as $tz): ?>
+                    <option value="<?= htmlspecialchars($tz) ?>" <?= ($timezone == $tz) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($tz) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
             <label for="date_format" class="form-label">Date Format:</label>
-            <input type="text" id="date_format" name="date_format" class="form-input" value="<?= $date_format ?>">
+            <select id="date_format" name="date_format" class="form-input">
+                <?php foreach ($date_formats as $format => $example): ?>
+                    <option value="<?= htmlspecialchars($format) ?>" <?= ($date_format == $format) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($example) ?> (<?= htmlspecialchars($format) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
             <label for="time_format" class="form-label">Time Format:</label>
-            <input type="text" id="time_format" name="time_format" class="form-input" value="<?= $time_format ?>">
+            <select id="time_format" name="time_format" class="form-input">
+                <?php foreach ($time_formats as $format => $example): ?>
+                    <option value="<?= htmlspecialchars($format) ?>" <?= ($time_format == $format) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($example) ?> (<?= htmlspecialchars($format) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
@@ -178,7 +232,16 @@ include '../../../templates/header-admin.php';
 
         <div class="form-group">
             <label for="default_post_thumbnail" class="form-label">Default Post Thumbnail:</label>
-            <input type="text" id="default_post_thumbnail" name="default_post_thumbnail" class="form-input" value="<?= $default_post_thumbnail ?>">
+            <select name="default_post_thumbnail" id="default_post_thumbnail" class="form-input">
+                <option value="">Select a default thumbnail</option>
+                <?php foreach ($uploads as $file): ?>
+                    <?php if (in_array($file['type'], ['image/jpeg', 'image/png', 'image/gif'])): ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($default_post_thumbnail == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">
