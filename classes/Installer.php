@@ -5,7 +5,7 @@ class Installer
 {
     private $conn;
 
-    public function install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl)
+    public function install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl, $smtpHost = '', $smtpPort = '', $smtpUser = '', $smtpPass = '', $smtpEncryption = '')
     {
         $this->writeConfigFile($host, $name, $user, $pass);
 
@@ -17,9 +17,10 @@ class Installer
         $this->setupTables();
         $this->insertDefaultContent();
         $this->setDefaultSettings();
+        $this->updateEmailSettings($adminEmail, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption);
         $this->createAdminUser($adminUser, $adminPass, $adminEmail);
         $this->flagAsInstalledIfNotSet();
-        $this->sendWelcomeEmail($adminEmail, $websiteUrl);
+        $this->sendWelcomeEmail($adminEmail, $websiteUrl, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption);
     }
 
     private function writeConfigFile($host, $name, $user, $pass)
@@ -197,7 +198,6 @@ class Installer
             ['date_format', 'Y-m-d'],
             ['time_format', 'H:i:s'],
             ['posts_per_page', '10'],
-            ['email_settings', ''],
             ['social_media_links', ''],
             ['google_analytics_code', ''],
             ['custom_css', ''],
@@ -209,6 +209,12 @@ class Installer
             ['pagination_type', 'numbered'],
             ['footer_text', 'My Site powered by AlpiCMS'],
             ['header_logo', 'path_to_logo_image.jpg'],
+            ['email_from', ''],
+            ['email_smtp_host', ''],
+            ['email_smtp_port', ''],
+            ['email_smtp_username', ''],
+            ['email_smtp_password', ''],
+            ['email_smtp_encryption', ''],
             ['installed', 'true']
         ];
 
@@ -235,6 +241,16 @@ class Installer
         }
     }
 
+    private function updateEmailSettings($adminEmail, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption)
+    {
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_from'")->execute([$adminEmail]);
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_smtp_host'")->execute([$smtpHost]);
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_smtp_port'")->execute([$smtpPort]);
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_smtp_username'")->execute([$smtpUser]);
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_smtp_password'")->execute([$smtpPass]);
+        $this->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'email_smtp_encryption'")->execute([$smtpEncryption]);
+    }
+
     private function createAdminUser($username, $password, $email)
     {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -258,17 +274,23 @@ class Installer
         }
     }
 
-    private function sendWelcomeEmail($email, $websiteUrl)
+    private function sendWelcomeEmail($email, $websiteUrl, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption)
     {
         $subject = 'Welcome to AlpiCMS';
         $message = "Dear Admin,\n\nThank you for installing AlpiCMS. Your new CMS is now ready to use.\n\nBest regards,\nThe AlpiCMS Team";
 
         $fromEmail = $this->generateFromEmail($websiteUrl);
 
-        $mail = new Email($email, $subject, $message);
-        $mail->setHeader('From', $fromEmail);
-        $mail->setHeader('Reply-To', $fromEmail);
-        $mail->setHeader('X-Mailer', 'AlpiCMS');
+        $mail = new Email();
+        $mail->setTo($email);
+        $mail->setFrom($fromEmail);
+        $mail->setSubject($subject);
+        $mail->setMessage($message);
+        $mail->setAltMessage(strip_tags($message));
+
+        if ($smtpHost) {
+            $mail->setSmtpSettings($smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption);
+        }
 
         $mail->send();
     }

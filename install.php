@@ -178,6 +178,7 @@ function isInstalled($conn)
             </div>
         <?php endif; ?>
         <form method="post" class="alpi-install-form" action="<?php echo BASE_URL; ?>/install.php">
+            <h2 class="alpi-install-subheading">Database Configuration</h2>
             <div class="alpi-install-form-group">
                 <label for="db_host" class="alpi-install-form-label">Database Host</label>
                 <input type="text" name="db_host" id="db_host" class="alpi-install-form-control" required>
@@ -194,6 +195,8 @@ function isInstalled($conn)
                 <label for="db_pass" class="alpi-install-form-label">Database Password</label>
                 <input type="password" name="db_pass" id="db_pass" class="alpi-install-form-control">
             </div>
+
+            <h2 class="alpi-install-subheading">Admin Configuration</h2>
             <div class="alpi-install-form-group">
                 <label for="admin_email" class="alpi-install-form-label">Admin Email</label>
                 <input type="email" name="admin_email" id="admin_email" class="alpi-install-form-control" required>
@@ -206,10 +209,39 @@ function isInstalled($conn)
                 <label for="admin_pass" class="alpi-install-form-label">Admin Password</label>
                 <input type="password" name="admin_pass" id="admin_pass" class="alpi-install-form-control" required>
             </div>
+
+            <h2 class="alpi-install-subheading">Site Configuration</h2>
             <div class="alpi-install-form-group">
                 <label for="website_url" class="alpi-install-form-label">Website URL</label>
                 <input type="url" name="website_url" id="website_url" class="alpi-install-form-control" required>
             </div>
+
+            <h2 class="alpi-install-subheading">Email Configuration (Optional)</h2>
+            <div class="alpi-install-form-group">
+                <label for="email_smtp_host" class="alpi-install-form-label">SMTP Host</label>
+                <input type="text" name="email_smtp_host" id="email_smtp_host" class="alpi-install-form-control">
+            </div>
+            <div class="alpi-install-form-group">
+                <label for="email_smtp_port" class="alpi-install-form-label">SMTP Port</label>
+                <input type="number" name="email_smtp_port" id="email_smtp_port" class="alpi-install-form-control">
+            </div>
+            <div class="alpi-install-form-group">
+                <label for="email_smtp_username" class="alpi-install-form-label">SMTP Username</label>
+                <input type="text" name="email_smtp_username" id="email_smtp_username" class="alpi-install-form-control">
+            </div>
+            <div class="alpi-install-form-group">
+                <label for="email_smtp_password" class="alpi-install-form-label">SMTP Password</label>
+                <input type="password" name="email_smtp_password" id="email_smtp_password" class="alpi-install-form-control">
+            </div>
+            <div class="alpi-install-form-group">
+                <label for="email_smtp_encryption" class="alpi-install-form-label">SMTP Encryption</label>
+                <select name="email_smtp_encryption" id="email_smtp_encryption" class="alpi-install-form-control">
+                    <option value="">None</option>
+                    <option value="tls">TLS</option>
+                    <option value="ssl">SSL</option>
+                </select>
+            </div>
+
             <button type="submit" class="alpi-install-btn alpi-install-btn-primary">Install</button>
         </form>
     </div>

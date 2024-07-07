@@ -16,7 +16,6 @@ VALUES
     ('date_format', 'Y-m-d'),
     ('time_format', 'H:i:s'),
     ('posts_per_page', '10'),
-    ('email_settings', ''),
     ('social_media_links', ''),
     ('google_analytics_code', ''),
     ('custom_css', ''),
@@ -25,4 +24,10 @@ VALUES
     ('header_scripts', ''),
     ('footer_scripts', ''),
     ('default_post_thumbnail', ''),
-    ('pagination_type', 'numbered');
+    ('pagination_type', 'numbered'),
+    ('email_from', ''),
+    ('email_smtp_host', ''),
+    ('email_smtp_port', ''),
+    ('email_smtp_username', ''),
+    ('email_smtp_password', ''),
+    ('email_smtp_encryption', '');
