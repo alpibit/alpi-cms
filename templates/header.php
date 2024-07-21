@@ -16,6 +16,16 @@ if (!$conn) {
 
 $settings = new Settings($conn);
 $siteName = htmlspecialchars($settings->getSetting('site_title'), ENT_QUOTES, 'UTF-8');
+$siteDescription = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
+$siteLogo = htmlspecialchars($settings->getSetting('site_logo'), ENT_QUOTES, 'UTF-8');
+$siteFavicon = htmlspecialchars($settings->getSetting('site_favicon'), ENT_QUOTES, 'UTF-8');
+$defaultLanguage = htmlspecialchars($settings->getSetting('default_language'), ENT_QUOTES, 'UTF-8');
+$timezone = htmlspecialchars($settings->getSetting('timezone'), ENT_QUOTES, 'UTF-8');
+$googleAnalyticsCode = $settings->getSetting('google_analytics_code');
+$customCss = $settings->getSetting('custom_css');
+$headerScripts = $settings->getSetting('header_scripts');
+$footerScripts = $settings->getSetting('footer_scripts');
+$footerText = htmlspecialchars($settings->getSetting('footer_text'), ENT_QUOTES, 'UTF-8');
 
 try {
     // Fetch pages
@@ -40,26 +50,44 @@ try {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $defaultLanguage ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $siteName ?></title>
+    <meta name="description" content="<?= $siteDescription ?>">
+    <?php if ($siteFavicon) : ?>
+        <link rel="icon" href="<?= $siteFavicon ?>" type="image/x-icon">
+    <?php endif; ?>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/header.css">
+    <?php if ($customCss) : ?>
+        <style>
+            <?= $customCss ?>
+        </style>
+    <?php endif; ?>
     <!-- Dynamically injected CSS files -->
-    <?php global $assetManager;
-
+    <?php
+    global $assetManager;
     if (!isset($assetManager)) {
         $assetManager = new AssetManager();
     }
-    
-    echo $assetManager->getCssLinks(); ?>
+    echo $assetManager->getCssLinks();
+    ?>
+    <?= $headerScripts ?>
+    <?php if ($googleAnalyticsCode) : ?>
+        <!-- Google Analytics -->
+        <?= $googleAnalyticsCode ?>
+    <?php endif; ?>
 </head>
 
 <body>
     <header class="header-wrap">
-        <h1><?= $siteName ?></h1>
+        <?php if ($siteLogo) : ?>
+            <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="site-logo">
+        <?php else : ?>
+            <h1><?= $siteName ?></h1>
+        <?php endif; ?>
 
         <!-- Pages Dropdown -->
         <div class="header-menu-container">

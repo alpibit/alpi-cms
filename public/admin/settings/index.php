@@ -26,17 +26,15 @@ $timezone = htmlspecialchars($settings->getSetting('timezone'), ENT_QUOTES, 'UTF
 $date_format = htmlspecialchars($settings->getSetting('date_format'), ENT_QUOTES, 'UTF-8');
 $time_format = htmlspecialchars($settings->getSetting('time_format'), ENT_QUOTES, 'UTF-8');
 $posts_per_page = htmlspecialchars($settings->getSetting('posts_per_page'), ENT_QUOTES, 'UTF-8');
-$social_media_links = htmlspecialchars($settings->getSetting('social_media_links'), ENT_QUOTES, 'UTF-8');
 $google_analytics_code = htmlspecialchars($settings->getSetting('google_analytics_code'), ENT_QUOTES, 'UTF-8');
 $custom_css = htmlspecialchars($settings->getSetting('custom_css'), ENT_QUOTES, 'UTF-8');
-$custom_js = htmlspecialchars($settings->getSetting('custom_js'), ENT_QUOTES, 'UTF-8');
 $maintenance_mode = htmlspecialchars($settings->getSetting('maintenance_mode'), ENT_QUOTES, 'UTF-8');
 $header_scripts = htmlspecialchars($settings->getSetting('header_scripts'), ENT_QUOTES, 'UTF-8');
 $footer_scripts = htmlspecialchars($settings->getSetting('footer_scripts'), ENT_QUOTES, 'UTF-8');
 $default_post_thumbnail = htmlspecialchars($settings->getSetting('default_post_thumbnail'), ENT_QUOTES, 'UTF-8');
 $pagination_type = htmlspecialchars($settings->getSetting('pagination_type'), ENT_QUOTES, 'UTF-8');
 
-// New email settings
+// Email settings
 $email_from = htmlspecialchars($settings->getSetting('email_from'), ENT_QUOTES, 'UTF-8');
 $email_smtp_host = htmlspecialchars($settings->getSetting('email_smtp_host'), ENT_QUOTES, 'UTF-8');
 $email_smtp_port = htmlspecialchars($settings->getSetting('email_smtp_port'), ENT_QUOTES, 'UTF-8');
@@ -72,10 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date_format = $_POST['date_format'];
     $time_format = $_POST['time_format'];
     $posts_per_page = $_POST['posts_per_page'];
-    $social_media_links = $_POST['social_media_links'];
     $google_analytics_code = $_POST['google_analytics_code'];
     $custom_css = $_POST['custom_css'];
-    $custom_js = $_POST['custom_js'];
     $maintenance_mode = $_POST['maintenance_mode'];
     $header_scripts = $_POST['header_scripts'];
     $footer_scripts = $_POST['footer_scripts'];
@@ -92,10 +88,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $settings->updateSetting('date_format', $date_format);
     $settings->updateSetting('time_format', $time_format);
     $settings->updateSetting('posts_per_page', $posts_per_page);
-    $settings->updateSetting('social_media_links', $social_media_links);
     $settings->updateSetting('google_analytics_code', $google_analytics_code);
     $settings->updateSetting('custom_css', $custom_css);
-    $settings->updateSetting('custom_js', $custom_js);
     $settings->updateSetting('maintenance_mode', $maintenance_mode);
     $settings->updateSetting('header_scripts', $header_scripts);
     $settings->updateSetting('footer_scripts', $footer_scripts);
@@ -112,7 +106,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $success_message = "Settings updated successfully.";
 }
-
 $uploads = $upload->listFiles();
 
 include '../../../templates/header-admin.php';
@@ -136,11 +129,13 @@ include '../../../templates/header-admin.php';
         <div class="form-group">
             <label for="site_title" class="form-label">Site Title:</label>
             <input type="text" id="site_title" name="site_title" class="form-input" value="<?= $site_title ?>">
+            <p class="form-help">The name of your website, displayed in the browser tab and various other places.</p>
         </div>
 
         <div class="form-group">
             <label for="site_description" class="form-label">Site Description:</label>
             <textarea id="site_description" name="site_description" class="form-input"><?= $site_description ?></textarea>
+            <p class="form-help">A brief description of your website, often used by search engines.</p>
         </div>
 
         <div class="form-group">
@@ -155,6 +150,7 @@ include '../../../templates/header-admin.php';
                     <?php endif; ?>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The main logo of your website, typically displayed in the header.</p>
         </div>
 
         <div class="form-group">
@@ -169,16 +165,19 @@ include '../../../templates/header-admin.php';
                     <?php endif; ?>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The small icon displayed in the browser's address bar and tabs.</p>
         </div>
 
         <div class="form-group">
             <label for="footer_text" class="form-label">Footer Text:</label>
             <input type="text" id="footer_text" name="footer_text" class="form-input" value="<?= $footer_text ?>">
+            <p class="form-help">Text displayed in the footer of your website, often used for copyright notices.</p>
         </div>
 
         <div class="form-group">
             <label for="default_language" class="form-label">Default Language:</label>
             <input type="text" id="default_language" name="default_language" class="form-input" value="<?= $default_language ?>">
+            <p class="form-help">The primary language of your website (e.g., 'en' for English).</p>
         </div>
 
         <div class="form-group">
@@ -190,6 +189,7 @@ include '../../../templates/header-admin.php';
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The timezone used for displaying dates and times on your website.</p>
         </div>
 
         <div class="form-group">
@@ -201,6 +201,7 @@ include '../../../templates/header-admin.php';
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The format used for displaying dates throughout your website.</p>
         </div>
 
         <div class="form-group">
@@ -212,31 +213,25 @@ include '../../../templates/header-admin.php';
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The format used for displaying times throughout your website.</p>
         </div>
 
         <div class="form-group">
             <label for="posts_per_page" class="form-label">Posts per Page:</label>
             <input type="number" id="posts_per_page" name="posts_per_page" class="form-input" value="<?= $posts_per_page ?>">
-        </div>
-
-        <div class="form-group">
-            <label for="social_media_links" class="form-label">Social Media Links:</label>
-            <textarea id="social_media_links" name="social_media_links" class="form-input"><?= $social_media_links ?></textarea>
+            <p class="form-help">The number of posts to display on each page.</p>
         </div>
 
         <div class="form-group">
             <label for="google_analytics_code" class="form-label">Google Analytics Code:</label>
             <textarea id="google_analytics_code" name="google_analytics_code" class="form-input"><?= $google_analytics_code ?></textarea>
+            <p class="form-help">Your Google Analytics tracking code. Paste the entire &lt;script&gt; tag provided by Google.</p>
         </div>
 
         <div class="form-group">
             <label for="custom_css" class="form-label">Custom CSS:</label>
             <textarea id="custom_css" name="custom_css" class="form-input"><?= $custom_css ?></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="custom_js" class="form-label">Custom JS:</label>
-            <textarea id="custom_js" name="custom_js" class="form-input"><?= $custom_js ?></textarea>
+            <p class="form-help">Custom CSS styles to be applied to your website. These styles will override the default theme styles.</p>
         </div>
 
         <div class="form-group">
@@ -245,18 +240,20 @@ include '../../../templates/header-admin.php';
                 <option value="false" <?= $maintenance_mode == 'false' ? 'selected' : '' ?>>Disabled</option>
                 <option value="true" <?= $maintenance_mode == 'true' ? 'selected' : '' ?>>Enabled</option>
             </select>
+            <p class="form-help">When enabled, visitors will see a maintenance message instead of your website.</p>
         </div>
 
         <div class="form-group">
             <label for="header_scripts" class="form-label">Header Scripts:</label>
             <textarea id="header_scripts" name="header_scripts" class="form-input"><?= $header_scripts ?></textarea>
+            <p class="form-help">Scripts to be included in the &lt;head&gt; section of your website. Useful for adding third-party integrations.</p>
         </div>
 
         <div class="form-group">
             <label for="footer_scripts" class="form-label">Footer Scripts:</label>
             <textarea id="footer_scripts" name="footer_scripts" class="form-input"><?= $footer_scripts ?></textarea>
+            <p class="form-help">Scripts to be included just before the closing &lt;/body&gt; tag. Useful for analytics or other tracking codes.</p>
         </div>
-
 
         <div class="form-group">
             <label for="default_post_thumbnail" class="form-label">Default Post Thumbnail:</label>
@@ -270,6 +267,7 @@ include '../../../templates/header-admin.php';
                     <?php endif; ?>
                 <?php endforeach; ?>
             </select>
+            <p class="form-help">The default image to use when a post doesn't have a specific thumbnail set.</p>
         </div>
 
         <div class="form-group">
@@ -279,33 +277,38 @@ include '../../../templates/header-admin.php';
                 <option value="load_more" <?= $pagination_type == 'load_more' ? 'selected' : '' ?>>Load More</option>
                 <option value="infinite_scroll" <?= $pagination_type == 'infinite_scroll' ? 'selected' : '' ?>>Infinite Scroll</option>
             </select>
+            <p class="form-help">Choose how you want to display multiple pages of content.</p>
         </div>
 
-        <!-- New Email Settings Fields -->
         <h2>Email Settings</h2>
         <div class="form-group">
             <label for="email_from" class="form-label">From Email:</label>
             <input type="email" id="email_from" name="email_from" class="form-input" value="<?= $email_from ?>">
+            <p class="form-help">The email address that will appear as the sender for all emails sent by the system.</p>
         </div>
 
         <div class="form-group">
             <label for="email_smtp_host" class="form-label">SMTP Host:</label>
             <input type="text" id="email_smtp_host" name="email_smtp_host" class="form-input" value="<?= $email_smtp_host ?>">
+            <p class="form-help">The hostname of your SMTP server (e.g., smtp.gmail.com).</p>
         </div>
 
         <div class="form-group">
             <label for="email_smtp_port" class="form-label">SMTP Port:</label>
             <input type="number" id="email_smtp_port" name="email_smtp_port" class="form-input" value="<?= $email_smtp_port ?>">
+            <p class="form-help">The port number for your SMTP server (common ports are 25, 465, or 587).</p>
         </div>
 
         <div class="form-group">
             <label for="email_smtp_username" class="form-label">SMTP Username:</label>
             <input type="text" id="email_smtp_username" name="email_smtp_username" class="form-input" value="<?= $email_smtp_username ?>">
+            <p class="form-help">The username for authenticating with your SMTP server.</p>
         </div>
 
         <div class="form-group">
             <label for="email_smtp_password" class="form-label">SMTP Password:</label>
             <input type="password" id="email_smtp_password" name="email_smtp_password" class="form-input" value="<?= $email_smtp_password ?>">
+            <p class="form-help">The password for authenticating with your SMTP server.</p>
         </div>
 
         <div class="form-group">
@@ -315,12 +318,13 @@ include '../../../templates/header-admin.php';
                 <option value="tls" <?= $email_smtp_encryption == 'tls' ? 'selected' : '' ?>>TLS</option>
                 <option value="ssl" <?= $email_smtp_encryption == 'ssl' ? 'selected' : '' ?>>SSL</option>
             </select>
+            <p class="form-help">The encryption method used by your SMTP server. Choose 'None' if your server doesn't use encryption.</p>
         </div>
 
-        <input type="submit" value="Update" class="form-submit">
+        <input type="submit" value="Update Settings" class="form-submit">
     </form>
 
-
+    
 
     <!-- Test Email Section -->
     <div class="form-group">
@@ -329,6 +333,7 @@ include '../../../templates/header-admin.php';
             <div class="form-group">
                 <label for="test_email" class="form-label">Send Test Email To:</label>
                 <input type="email" id="test_email" name="test_email" class="form-input" required>
+                <p class="form-help">Enter an email address to send a test email and verify your email settings.</p>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-secondary">Send Test Email</button>
@@ -336,6 +341,5 @@ include '../../../templates/header-admin.php';
         </form>
     </div>
 </div>
-
 
 <?php include '../../../templates/footer-admin.php'; ?>
