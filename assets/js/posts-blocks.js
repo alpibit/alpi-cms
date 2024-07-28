@@ -149,6 +149,7 @@ function populateBlockFields(container, data, index) {
                 Object.values(accordionData).forEach((section, sectionIndex) => {
                     insertAccordionSection(index, section);
                 });
+                updateAccordionOrder(container);
             } else if (key === 'quotes_data') {
                 const quotesData = JSON.parse(data[key]);
                 quotesData.forEach((quote, quoteIndex) => {
@@ -303,7 +304,7 @@ function insertAccordionSection(blockIndex, initialData = null) {
     const newIndex = blockContent.querySelectorAll('.alpi-accordion-section').length;
     const newSectionHtml = getAccordionSectionHTML(blockIndex, newIndex, initialData);
     blockContent.insertAdjacentHTML('beforeend', newSectionHtml);
-    updateButtonsAccordionSection();
+    updateAccordionOrder(blockContent);
 }
 
 function getBlockByIndex(blockIndex) {
@@ -334,26 +335,55 @@ function getAccordionSectionHTML(blockIndex, newIndex, initialData = null) {
 
 function removeAccordionSection(button) {
     const section = button.closest('.alpi-accordion-section');
+    const blockContent = section.closest('.alpi-block-content');
     section.remove();
-    updateButtonsAccordionSection();
+    updateAccordionOrder(blockContent);
 }
 
 function shiftAccordionSectionUp(button) {
     const section = button.closest('.alpi-accordion-section');
     const prevSection = section.previousElementSibling;
-    if (prevSection) {
+    if (prevSection && prevSection.classList.contains('alpi-accordion-section')) {
         section.parentNode.insertBefore(section, prevSection);
-        updateButtonsAccordionSection();
+        updateAccordionOrder(section.closest('.alpi-block-content'));
     }
 }
 
 function shiftAccordionSectionDown(button) {
     const section = button.closest('.alpi-accordion-section');
     const nextSection = section.nextElementSibling;
-    if (nextSection) {
+    if (nextSection && nextSection.classList.contains('alpi-accordion-section')) {
         section.parentNode.insertBefore(nextSection, section);
-        updateButtonsAccordionSection();
+        updateAccordionOrder(section.closest('.alpi-block-content'));
     }
+}
+
+function updateAccordionOrder(blockContent) {
+    const sections = blockContent.querySelectorAll('.alpi-accordion-section');
+    const blockIndex = blockContent.closest('.alpi-block').dataset.index;
+    const accordionData = {};
+
+    sections.forEach((section, index) => {
+        const titleInput = section.querySelector('input[name^="blocks["][name$="[title]"]');
+        const contentTextarea = section.querySelector('textarea[name^="blocks["][name$="[content]"]');
+
+        accordionData[index] = {
+            title: titleInput.value,
+            content: contentTextarea.value
+        };
+
+        // Update the name attributes to reflect the new order
+        titleInput.name = `blocks[${blockIndex}][accordion_data][${index}][title]`;
+        contentTextarea.name = `blocks[${blockIndex}][accordion_data][${index}][content]`;
+        section.dataset.index = index;
+    });
+
+    // Update the data-value attribute of the block content div
+    const dataValue = JSON.parse(blockContent.closest('.alpi-block').querySelector('.alpi-block-content').dataset.value);
+    dataValue.block_data.accordion_data = JSON.stringify(accordionData);
+    blockContent.closest('.alpi-block').querySelector('.alpi-block-content').dataset.value = JSON.stringify(dataValue);
+
+    updateButtonsAccordionSection();
 }
 
 function updateButtonsAccordionSection() {
