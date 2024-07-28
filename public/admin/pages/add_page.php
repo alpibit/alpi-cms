@@ -167,70 +167,97 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     exit;
 }
 
+
+include '../../../templates/header-admin.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<div class="alpi-admin-content">
+    <h1 class="alpi-text-primary alpi-mb-lg">Add New Page</h1>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Add New Page</title>
-    <link rel="stylesheet" href="/assets/css/editor.css">
-</head>
+    <form action="" method="POST" class="alpi-form">
+        <div class="alpi-card alpi-mb-lg">
+            <h2 class="alpi-card-header">Page Details</h2>
+            <div class="alpi-card-body">
+                <div class="alpi-form-group">
+                    <label for="title" class="alpi-form-label">Title:</label>
+                    <input type="text" id="title" name="title" class="alpi-form-input" placeholder="Enter page title" required>
+                </div>
 
-<body class="add-page-wrap">
-    <h1>Add New Page</h1>
-    <form action="" method="POST">
-        <fieldset>
-            <legend>Page Details</legend>
-            <label>Title: <input type="text" name="title" placeholder="Title"></label><br>
-            <label>Subtitle: <input type="text" name="subtitle" placeholder="Subtitle"></label><br>
-            <label>Featured Image:
-                <select name="main_image_path">
-                    <?php
-                    $uploads = (new Upload($conn))->listFiles();
-                    foreach ($uploads as $upload) {
-                        echo "<option value='{$upload['url']}'>{$upload['url']}</option>";
-                    }
-                    ?>
-                </select>
-            </label><br>
-            <label>Show Main Image: <input type="checkbox" name="show_main_image"></label><br>
-            <label>Is Active: <input type="checkbox" name="is_active"></label><br>
-        </fieldset>
+                <div class="alpi-form-group">
+                    <label for="subtitle" class="alpi-form-label">Subtitle:</label>
+                    <input type="text" id="subtitle" name="subtitle" class="alpi-form-input" placeholder="Enter page subtitle">
+                </div>
 
-        <fieldset id="contentBlocks">
-            <legend>Content Blocks</legend>
-            <div class='block' data-index='0'>
-                <label>Type:</label>
-                <select name='blocks[0][type]' onchange='loadSelectedBlockContent(this, 0)'>
-                    <option value='text'>Text</option>
-                    <option value='image_text'>Image + Text</option>
-                    <option value='image'>Image</option>
-                    <option value='cta'>Call to Action</option>
-                    <option value='post_picker'>Post Picker</option>
-                    <option value='video'>Video</option>
-                    <option value='slider_gallery'>Slider Gallery</option>
-                    <option value='quote'>Quote</option>
-                    <option value='accordion'>Accordion</option>
-                    <option value='audio'>Audio</option>
-                    <option value='free_code'>Free Code</option>
-                    <option value='map'>Map</option>
-                    <option value='form'>Form</option>
-                    <option value='hero'>Hero</option>
-                </select><br>
-                <div class='block-content'></div>
-                <div class='buttons'>...</div>
+                <div class="alpi-form-group">
+                    <label for="main_image_path" class="alpi-form-label">Featured Image:</label>
+                    <select id="main_image_path" name="main_image_path" class="alpi-form-input">
+                        <option value="">Select an image</option>
+                        <?php
+                        $uploads = (new Upload($conn))->listFiles();
+                        foreach ($uploads as $upload) {
+                            echo "<option value='" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label class="alpi-form-checkbox">
+                        <input type="checkbox" name="show_main_image">
+                        Show Main Image
+                    </label>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label class="alpi-form-checkbox">
+                        <input type="checkbox" name="is_active">
+                        Is Active
+                    </label>
+                </div>
             </div>
-        </fieldset>
+        </div>
 
-        <div class="form-buttons">
-            <input type="submit" value="Add Page">
-            <button type="button" onclick="addBlock()">Add Another Block</button>
+        <div class="alpi-card alpi-mb-lg">
+            <h2 class="alpi-card-header">Content Blocks</h2>
+            <div class="alpi-card-body">
+                <fieldset id="contentBlocks">
+                    <div class='alpi-block' data-index='0'>
+                        <label class="alpi-form-label">Block Type:</label>
+                        <select name='blocks[0][type]' class="alpi-form-input alpi-mb-sm" onchange='loadSelectedBlockContent(this, 0)'>
+                            <option value='text'>Text</option>
+                            <option value='image_text'>Image + Text</option>
+                            <option value='image'>Image</option>
+                            <option value='cta'>Call to Action</option>
+                            <option value='post_picker'>Post Picker</option>
+                            <option value='video'>Video</option>
+                            <option value='slider_gallery'>Slider Gallery</option>
+                            <option value='quote'>Quote</option>
+                            <option value='accordion'>Accordion</option>
+                            <option value='audio'>Audio</option>
+                            <option value='free_code'>Free Code</option>
+                            <option value='map'>Map</option>
+                            <option value='form'>Form</option>
+                            <option value='hero'>Hero</option>
+                        </select>
+                        <div class='alpi-block-content alpi-mb-md'></div>
+                        <div class='alpi-btn-group'>
+                            <!-- Buttons will be dynamically added here by JS -->
+                        </div>
+                    </div>
+                </fieldset>
+                <button type="button" onclick="addBlock()" class="alpi-btn alpi-btn-secondary alpi-mt-md">Add Another Block</button>
+            </div>
+        </div>
+
+        <div class="alpi-text-right">
+            <button type="submit" class="alpi-btn alpi-btn-primary">Add Page</button>
         </div>
     </form>
-    <script src="/assets/js/posts-blocks.js"></script>
-</body>
+</div>
 
-</html>
-<?php ob_end_flush(); ?>
+<script src="/assets/js/posts-blocks.js"></script>
+
+<?php
+include '../../../templates/footer-admin.php';
+ob_end_flush();
+?>

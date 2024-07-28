@@ -22,7 +22,7 @@ $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $password = $_POST['password'];
 
     // Validate user input
     if (empty($username) || empty($password)) {
@@ -49,32 +49,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="/assets/css/admin/login.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AlpiCMS Admin</title>
+    <link rel="stylesheet" href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/assets/css/admin/admin-global.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--alpi-background);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
 </head>
 
-<body class="login-page">
-    
-    <div class="container">
-        <h1 class="login-title">Login to Admin Panel</h1>
-        <?php if ($error) : ?>
-            <p class="error-message"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
-        <form class="login-form" action="" method="POST">
-            <div class="login-input-wrap">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <input type="submit" value="Login" class="login-button">
-            </div>
-        </form>
-    </div>
+<body>
+    <div class="login-container">
+        <div class="alpi-card">
+            <h1 class="alpi-text-center alpi-text-primary alpi-mb-lg">Login to Admin Panel</h1>
 
+            <?php if ($error) : ?>
+                <div class="alpi-alert alpi-alert-danger alpi-mb-md">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="alpi-form" action="" method="POST">
+                <div class="alpi-form-group">
+                    <label for="username" class="alpi-form-label">Username:</label>
+                    <input type="text" id="username" name="username" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="password" class="alpi-form-label">Password:</label>
+                    <input type="password" id="password" name="password" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-text-center">
+                    <button type="submit" class="alpi-btn alpi-btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

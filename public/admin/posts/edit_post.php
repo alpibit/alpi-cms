@@ -171,86 +171,106 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: " . BASE_URL . "/public/admin/index.php");
     exit;
 }
+
+
+include '../../../templates/header-admin.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<div class="alpi-admin-content">
+    <h1 class="alpi-text-primary alpi-mb-lg">Edit Post</h1>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Post</title>
-    <link rel="stylesheet" href="/assets/css/editor.css">
-</head>
+    <form action="" method="POST" class="alpi-form">
+        <div class="alpi-card alpi-mb-lg">
+            <h2 class="alpi-card-header">Post Details</h2>
+            <div class="alpi-card-body">
+                <div class="alpi-form-group">
+                    <label for="title" class="alpi-form-label">Title:</label>
+                    <input type="text" id="title" name="title" class="alpi-form-input" value="<?= isset($postData['title']) ? htmlspecialchars($postData['title'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Title" required>
+                </div>
 
-<body class="edit-post-wrap">
-    <h1>Edit Post</h1>
-    <form action="" method="POST">
-        <fieldset>
-            <legend>Post Details</legend>
-            <label>Title: <input type="text" name="title" value="<?= isset($postData['title']) ? htmlspecialchars($postData['title'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Title"></label><br>
-            <label>Subtitle: <input type="text" name="subtitle" value="<?= isset($postData['subtitle']) ? htmlspecialchars($postData['subtitle'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Subtitle"></label><br>
-            <label>Featured Image:
-                <select name="main_image_path">
+                <div class="alpi-form-group">
+                    <label for="subtitle" class="alpi-form-label">Subtitle:</label>
+                    <input type="text" id="subtitle" name="subtitle" class="alpi-form-input" value="<?= isset($postData['subtitle']) ? htmlspecialchars($postData['subtitle'], ENT_QUOTES, 'UTF-8') : '' ?>" placeholder="Subtitle">
+                </div>
+
+                <div class="alpi-form-group">
+                    <label for="main_image_path" class="alpi-form-label">Featured Image:</label>
+                    <select id="main_image_path" name="main_image_path" class="alpi-form-input">
+                        <option value="">Select an image</option>
+                        <?php
+                        $uploads = (new Upload($conn))->listFiles();
+                        foreach ($uploads as $upload) {
+                            $selected = $postData['main_image_path'] == $upload['url'] ? 'selected' : '';
+                            echo "<option value='" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "' {$selected}>" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label class="alpi-form-checkbox">
+                        <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>>
+                        Show Main Image
+                    </label>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label class="alpi-form-checkbox">
+                        <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>>
+                        Is Active
+                    </label>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label for="category_id" class="alpi-form-label">Category:</label>
+                    <select id="category_id" name="category_id" class="alpi-form-input">
+                        <?php foreach ($categories as $cat) : ?>
+                            <?php $selected = ($postData['category_id'] == $cat['id']) ? 'selected' : ''; ?>
+                            <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="alpi-card alpi-mb-lg">
+            <h2 class="alpi-card-header">Content Blocks</h2>
+            <div class="alpi-card-body">
+                <fieldset id="contentBlocks">
                     <?php
-                    $uploads = (new Upload($conn))->listFiles();
-                    foreach ($uploads as $upload) {
-                        $selected = $postData['main_image_path'] == $upload['url'] ? 'selected' : '';
-                        echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
+                    if (isset($postData['blocks']) && is_array($postData['blocks'])) {
+                        foreach ($postData['blocks'] as $index => $block) {
+                            echo "<div class='alpi-block alpi-mb-md' data-index='{$index}'>";
+                            echo "<label class='alpi-form-label'>Block Type:</label>";
+                            echo "<select name='blocks[{$index}][type]' class='alpi-form-input alpi-mb-sm' onchange='loadSelectedBlockContent(this, {$index})'>";
+                            $blockTypes = ['text', 'image_text', 'image', 'cta', 'post_picker', 'video', 'slider_gallery', 'quote', 'accordion', 'audio', 'free_code', 'map', 'form', 'hero'];
+                            foreach ($blockTypes as $type) {
+                                $selected = ($block['type'] == $type) ? 'selected' : '';
+                                echo "<option value='{$type}' {$selected}>" . ucfirst(str_replace('_', ' ', $type)) . "</option>";
+                            }
+                            echo "</select>";
+                            $blockDataJson = htmlspecialchars(json_encode($block), ENT_QUOTES, 'UTF-8');
+                            echo "<div class='alpi-block-content alpi-mb-sm' data-value='{$blockDataJson}'></div>";
+                            echo "<div class='alpi-btn-group'>";
+                            echo "</div>";
+                            echo "</div>";
+                        }
                     }
                     ?>
-                </select>
-            </label><br>
-            <label>Show Main Image: <input type="checkbox" name="show_main_image" <?= $postData['show_main_image'] ? 'checked' : '' ?>></label><br>
-            <label>Is Active: <input type="checkbox" name="is_active" <?= $postData['is_active'] ? 'checked' : '' ?>></label><br>
-            <label>Category:
-                <select name="category_id">
-                    <?php foreach ($categories as $cat) : ?>
-                        <?php $selected = ($postData['category_id'] == $cat['id']) ? 'selected' : ''; ?>
-                        <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= htmlspecialchars($cat['name'], ENT_QUOTES, 'UTF-8') ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label><br>
-        </fieldset>
+                </fieldset>
+                <button type="button" onclick="addBlock()" class="alpi-btn alpi-btn-secondary alpi-mt-md">Add Another Block</button>
+            </div>
+        </div>
 
-        <fieldset id="contentBlocks">
-            <legend>Content Blocks</legend>
-            <?php
-            if (isset($postData['blocks']) && is_array($postData['blocks'])) {
-                foreach ($postData['blocks'] as $index => $block) {
-                    echo "<div class='block' data-index='{$index}'>";
-                    echo "<label>Type:</label>";
-                    echo "<select name='blocks[$index][type]' onchange='loadSelectedBlockContent(this, $index)'>";
-                    echo "<option value='text' " . ($block['type'] == 'text' ? 'selected' : '') . ">Text</option>";
-                    echo "<option value='image_text' " . ($block['type'] == 'image_text' ? 'selected' : '') . ">Image + Text</option>";
-                    echo "<option value='image' " . ($block['type'] == 'image' ? 'selected' : '') . ">Image</option>";
-                    echo "<option value='cta' " . ($block['type'] == 'cta' ? 'selected' : '') . ">Call to Action</option>";
-                    echo "<option value='post_picker' " . ($block['type'] == 'post_picker' ? 'selected' : '') . ">Post Picker</option>";
-                    echo "<option value='video' " . ($block['type'] == 'video' ? 'selected' : '') . ">Video</option>";
-                    echo "<option value='slider_gallery' " . ($block['type'] == 'slider_gallery' ? 'selected' : '') . ">Slider Gallery</option>";
-                    echo "<option value='quote' " . ($block['type'] == 'quote' ? 'selected' : '') . ">Quotes</option>";
-                    echo "<option value='accordion' " . ($block['type'] == 'accordion' ? 'selected' : '') . ">Accordion</option>";
-                    echo "<option value='audio' " . ($block['type'] == 'audio' ? 'selected' : '') . ">Audio</option>";
-                    echo "<option value='free_code' " . ($block['type'] == 'free_code' ? 'selected' : '') . ">Free Code</option>";
-                    echo "<option value='map' " . ($block['type'] == 'map' ? 'selected' : '') . ">Map</option>";
-                    echo "<option value='form' " . ($block['type'] == 'form' ? 'selected' : '') . ">Form</option>";
-                    echo "<option value='hero' " . ($block['type'] == 'hero' ? 'selected' : '') . ">Hero</option>";
-                    echo "</select><br>";
-                    $blockDataJson = htmlspecialchars(json_encode($block['block_data']), ENT_QUOTES, 'UTF-8');
-                    echo "<div class='block-content' data-value='{$blockDataJson}'></div>";
-                    echo "<div class='buttons'>...</div>";
-                    echo "</div>";
-                }
-            }
-            ?>
-        </fieldset>
-
-        <div class="form-buttons">
-            <input type="submit" value="Update Post">
-            <button type="button" onclick="addBlock()">Add Another Block</button>
+        <div class="alpi-text-right">
+            <button type="submit" class="alpi-btn alpi-btn-primary">Update Post</button>
         </div>
     </form>
-    <script src="/assets/js/posts-blocks.js"></script>
-</body>
+</div>
 
-</html>
-<?php ob_end_flush(); ?>
+<script src="/assets/js/posts-blocks.js"></script>
+
+<?php
+include '../../../templates/footer-admin.php';
+ob_end_flush();
+?>

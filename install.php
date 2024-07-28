@@ -89,161 +89,114 @@ function isInstalled($conn)
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlpiCMS Installation</title>
+    <link rel="stylesheet" href="/assets/css/admin/admin-global.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--alpi-background);
         }
 
         .alpi-install-wrap {
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .alpi-install-wrap .alpi-install-heading {
-            color: #333;
-            margin-top: 0;
-        }
-
-        .alpi-install-wrap .alpi-install-alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .alpi-install-wrap .alpi-install-alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-form-group {
-            margin-bottom: 20px;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-form-label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-form-control {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-btn-primary {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-        }
-
-        .alpi-install-wrap .alpi-install-form .alpi-install-btn-primary:hover {
-            background-color: #0056b3;
+            max-width: 600px;
         }
     </style>
 </head>
 
 <body>
-    <div class="alpi-install-wrap">
-        <h1 class="alpi-install-heading">AlpiCMS Installation</h1>
-        <?php if (!empty($errors)) : ?>
-            <div class="alpi-install-alert alpi-install-alert-danger">
-                <ul>
-                    <?php foreach ($errors as $error) : ?>
-                        <li><?php echo $error; ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-        <form method="post" class="alpi-install-form" action="<?php echo BASE_URL; ?>/install.php">
-            <h2 class="alpi-install-subheading">Database Configuration</h2>
-            <div class="alpi-install-form-group">
-                <label for="db_host" class="alpi-install-form-label">Database Host</label>
-                <input type="text" name="db_host" id="db_host" class="alpi-install-form-control" required>
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="db_name" class="alpi-install-form-label">Database Name</label>
-                <input type="text" name="db_name" id="db_name" class="alpi-install-form-control" required>
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="db_user" class="alpi-install-form-label">Database User</label>
-                <input type="text" name="db_user" id="db_user" class="alpi-install-form-control" required>
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="db_pass" class="alpi-install-form-label">Database Password</label>
-                <input type="password" name="db_pass" id="db_pass" class="alpi-install-form-control">
-            </div>
+    <div class="alpi-container alpi-install-wrap">
+        <div class="alpi-card">
+            <h1 class="alpi-text-center alpi-mb-md">AlpiCMS Installation</h1>
 
-            <h2 class="alpi-install-subheading">Admin Configuration</h2>
-            <div class="alpi-install-form-group">
-                <label for="admin_email" class="alpi-install-form-label">Admin Email</label>
-                <input type="email" name="admin_email" id="admin_email" class="alpi-install-form-control" required>
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="admin_user" class="alpi-install-form-label">Admin Username</label>
-                <input type="text" name="admin_user" id="admin_user" class="alpi-install-form-control" required>
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="admin_pass" class="alpi-install-form-label">Admin Password</label>
-                <input type="password" name="admin_pass" id="admin_pass" class="alpi-install-form-control" required>
-            </div>
+            <?php if (!empty($errors)) : ?>
+                <div class="alpi-alert alpi-alert-danger">
+                    <ul>
+                        <?php foreach ($errors as $error) : ?>
+                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-            <h2 class="alpi-install-subheading">Site Configuration</h2>
-            <div class="alpi-install-form-group">
-                <label for="website_url" class="alpi-install-form-label">Website URL</label>
-                <input type="url" name="website_url" id="website_url" class="alpi-install-form-control" required>
-            </div>
+            <form method="post" class="alpi-form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>">
+                <h2 class="alpi-text-primary alpi-mb-md">Database Configuration</h2>
+                <div class="alpi-form-group">
+                    <label for="db_host" class="alpi-form-label">Database Host</label>
+                    <input type="text" name="db_host" id="db_host" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="db_name" class="alpi-form-label">Database Name</label>
+                    <input type="text" name="db_name" id="db_name" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="db_user" class="alpi-form-label">Database User</label>
+                    <input type="text" name="db_user" id="db_user" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="db_pass" class="alpi-form-label">Database Password</label>
+                    <input type="password" name="db_pass" id="db_pass" class="alpi-form-input">
+                </div>
 
-            <h2 class="alpi-install-subheading">Email Configuration (Optional)</h2>
-            <div class="alpi-install-form-group">
-                <label for="email_smtp_host" class="alpi-install-form-label">SMTP Host</label>
-                <input type="text" name="email_smtp_host" id="email_smtp_host" class="alpi-install-form-control">
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="email_smtp_port" class="alpi-install-form-label">SMTP Port</label>
-                <input type="number" name="email_smtp_port" id="email_smtp_port" class="alpi-install-form-control">
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="email_smtp_username" class="alpi-install-form-label">SMTP Username</label>
-                <input type="text" name="email_smtp_username" id="email_smtp_username" class="alpi-install-form-control">
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="email_smtp_password" class="alpi-install-form-label">SMTP Password</label>
-                <input type="password" name="email_smtp_password" id="email_smtp_password" class="alpi-install-form-control">
-            </div>
-            <div class="alpi-install-form-group">
-                <label for="email_smtp_encryption" class="alpi-install-form-label">SMTP Encryption</label>
-                <select name="email_smtp_encryption" id="email_smtp_encryption" class="alpi-install-form-control">
-                    <option value="">None</option>
-                    <option value="tls">TLS</option>
-                    <option value="ssl">SSL</option>
-                </select>
-            </div>
+                <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Admin Configuration</h2>
+                <div class="alpi-form-group">
+                    <label for="admin_email" class="alpi-form-label">Admin Email</label>
+                    <input type="email" name="admin_email" id="admin_email" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="admin_user" class="alpi-form-label">Admin Username</label>
+                    <input type="text" name="admin_user" id="admin_user" class="alpi-form-input" required>
+                </div>
+                <div class="alpi-form-group">
+                    <label for="admin_pass" class="alpi-form-label">Admin Password</label>
+                    <input type="password" name="admin_pass" id="admin_pass" class="alpi-form-input" required>
+                </div>
 
-            <button type="submit" class="alpi-install-btn alpi-install-btn-primary">Install</button>
-        </form>
+                <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Site Configuration</h2>
+                <div class="alpi-form-group">
+                    <label for="website_url" class="alpi-form-label">Website URL</label>
+                    <input type="url" name="website_url" id="website_url" class="alpi-form-input" required>
+                </div>
+
+                <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Email Configuration (Optional)</h2>
+                <div class="alpi-form-group">
+                    <label for="email_smtp_host" class="alpi-form-label">SMTP Host</label>
+                    <input type="text" name="email_smtp_host" id="email_smtp_host" class="alpi-form-input">
+                </div>
+                <div class="alpi-form-group">
+                    <label for="email_smtp_port" class="alpi-form-label">SMTP Port</label>
+                    <input type="number" name="email_smtp_port" id="email_smtp_port" class="alpi-form-input">
+                </div>
+                <div class="alpi-form-group">
+                    <label for="email_smtp_username" class="alpi-form-label">SMTP Username</label>
+                    <input type="text" name="email_smtp_username" id="email_smtp_username" class="alpi-form-input">
+                </div>
+                <div class="alpi-form-group">
+                    <label for="email_smtp_password" class="alpi-form-label">SMTP Password</label>
+                    <input type="password" name="email_smtp_password" id="email_smtp_password" class="alpi-form-input">
+                </div>
+                <div class="alpi-form-group">
+                    <label for="email_smtp_encryption" class="alpi-form-label">SMTP Encryption</label>
+                    <select name="email_smtp_encryption" id="email_smtp_encryption" class="alpi-form-input">
+                        <option value="">None</option>
+                        <option value="tls">TLS</option>
+                        <option value="ssl">SSL</option>
+                    </select>
+                </div>
+
+                <div class="alpi-text-center">
+                    <button type="submit" class="alpi-btn alpi-btn-primary">Install</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 

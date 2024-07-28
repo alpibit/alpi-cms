@@ -1,6 +1,5 @@
 <?php
 ob_start();
-
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
@@ -17,24 +16,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
+include '../../../templates/header-admin.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<div class="alpi-admin-content">
+    <h1 class="alpi-text-primary alpi-mb-lg">Add New Category</h1>
+    <div class="alpi-card alpi-p-lg">
+        <form action="" method="POST" class="alpi-form">
+            <div class="alpi-form-group">
+                <label for="category-name" class="alpi-form-label">Name:</label>
+                <input type="text" id="category-name" name="name" class="alpi-form-input" required>
+            </div>
+            <div class="alpi-text-right">
+                <button type="submit" class="alpi-btn alpi-btn-primary">Add Category</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Add New Category</title>
-    <link rel="stylesheet" href="/assets/css/uploads.css">
-</head>
-
-<body class="add-category-wrap">
-    <h1>Add New Category</h1>
-    <form action="" method="POST">
-        Name: <input type="text" name="name"><br>
-        <input type="submit" value="Add Category">
-    </form>
-</body>
-
-</html>
-<?php ob_end_flush(); ?>
+<?php
+include '../../../templates/footer-admin.php';
+ob_end_flush();
+?>

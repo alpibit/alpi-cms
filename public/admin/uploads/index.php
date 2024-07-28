@@ -1,5 +1,4 @@
 <?php
-
 require '../../../config/database.php';
 require '../../../config/config.php';
 require '../../../config/autoload.php';
@@ -38,49 +37,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $uploads = $upload->listFiles();
 
+include '../../../templates/header-admin.php';
 ?>
 
-<?php include '../../../templates/header-admin.php'; ?>
-
-<div class="admin-uploads-container">
-    <h1 class="admin-uploads-title">Uploads</h1>
+<div class="alpi-admin-content">
+    <h1 class="alpi-text-primary alpi-mb-lg">Uploads Management</h1>
 
     <?php if ($errorMessage) : ?>
-        <div class="admin-uploads-alert admin-uploads-alert-danger"><?= $errorMessage ?></div>
+        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?= $errorMessage ?></div>
     <?php endif; ?>
 
     <?php if ($successMessage) : ?>
-        <div class="admin-uploads-alert admin-uploads-alert-success"><?= $successMessage ?></div>
+        <div class="alpi-alert alpi-alert-success alpi-mb-md"><?= $successMessage ?></div>
     <?php endif; ?>
 
-    <form action="" method="post" enctype="multipart/form-data" class="admin-uploads-form">
-        <div class="admin-uploads-form-group">
-            <label for="fileToUpload" class="admin-uploads-label">Select file to upload:</label>
-            <input type="file" name="fileToUpload" id="fileToUpload" class="admin-uploads-file-input" required>
-        </div>
-        <button type="submit" name="submit" class="admin-uploads-btn admin-uploads-btn-primary">Upload File</button>
-    </form>
+    <div class="alpi-card alpi-p-lg alpi-mb-lg">
+        <h2 class="alpi-text-secondary alpi-mb-md">Upload New File</h2>
+        <form action="" method="post" enctype="multipart/form-data" class="alpi-form">
+            <div class="alpi-form-group">
+                <label for="fileToUpload" class="alpi-form-label">Select file to upload:</label>
+                <input type="file" name="fileToUpload" id="fileToUpload" class="alpi-form-input alpi-file-input" required>
+            </div>
+            <button type="submit" name="submit" class="alpi-btn alpi-btn-primary">Upload File</button>
+        </form>
+    </div>
 
-    <div class="admin-uploads-grid">
+    <div class="alpi-uploads-grid">
         <?php foreach ($uploads as $fileInfo) : ?>
-            <div class="admin-uploads-item">
-                <div class="admin-uploads-preview">
+            <div class="alpi-uploads-item alpi-card">
+                <div class="alpi-uploads-preview">
                     <?php if ($fileInfo['isImage']) : ?>
-                        <img src="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" alt="Image preview" class="admin-uploads-thumbnail">
+                        <img src="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" alt="Image preview" class="alpi-uploads-thumbnail">
                     <?php else : ?>
-                        <div class="admin-uploads-file-icon">
-                            <span class="admin-uploads-file-ext"><?= strtoupper(pathinfo($fileInfo['path'], PATHINFO_EXTENSION)) ?></span>
+                        <div class="alpi-uploads-file-icon">
+                            <span class="alpi-uploads-file-ext"><?= strtoupper(pathinfo($fileInfo['path'], PATHINFO_EXTENSION)) ?></span>
                         </div>
                     <?php endif; ?>
                 </div>
-                <div class="admin-uploads-details">
-                    <h4 class="admin-uploads-filename"><a href="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank"><?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?></a></h4>
-                    <p class="admin-uploads-filetype"><?= htmlspecialchars(mime_content_type($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?></p>
-                    <p class="admin-uploads-filesize"><?= round(filesize($fileInfo['path']) / (1024 * 1024), 2) ?> MB</p>
-                    <p class="admin-uploads-filedate"><?= htmlspecialchars(date("F d, Y", filemtime($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?></p>
-                    <form method="post" class="admin-uploads-delete-form">
+                <div class="alpi-uploads-details">
+                    <h4 class="alpi-uploads-filename">
+                        <a href="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="alpi-link">
+                            <?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                    </h4>
+                    <p class="alpi-uploads-filetype"><?= htmlspecialchars(mime_content_type($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?></p>
+                    <p class="alpi-uploads-filesize"><?= round(filesize($fileInfo['path']) / (1024 * 1024), 2) ?> MB</p>
+                    <p class="alpi-uploads-filedate"><?= htmlspecialchars(date("F d, Y", filemtime($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?></p>
+                    <form method="post" class="alpi-uploads-delete-form">
                         <input type="hidden" name="delete" value="<?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?>">
-                        <button type="submit" class="admin-uploads-delete-btn">Delete</button>
+                        <button type="submit" class="alpi-btn alpi-btn-danger alpi-btn-sm">Delete</button>
                     </form>
                 </div>
             </div>
@@ -91,104 +96,38 @@ $uploads = $upload->listFiles();
 <?php include '../../../templates/footer-admin.php'; ?>
 
 <style>
-    .admin-uploads-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .admin-uploads-title {
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-
-    .admin-uploads-alert {
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-    }
-
-    .admin-uploads-alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    .admin-uploads-alert-success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .admin-uploads-form {
-        margin-bottom: 20px;
-    }
-
-    .admin-uploads-form-group {
-        margin-bottom: 10px;
-    }
-
-    .admin-uploads-label {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    .admin-uploads-file-input {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    .admin-uploads-btn {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .admin-uploads-btn-primary {
-        background-color: #007bff;
-        color: #fff;
-    }
-
-    .admin-uploads-grid {
+    .alpi-uploads-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        grid-gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
     }
 
-    .admin-uploads-item {
-        background-color: #fff;
-        border-radius: 6px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .alpi-uploads-item {
         overflow: hidden;
         transition: transform 0.3s ease;
     }
 
-    .admin-uploads-item:hover {
+    .alpi-uploads-item:hover {
         transform: translateY(-5px);
     }
 
-    .admin-uploads-preview {
+    .alpi-uploads-preview {
         height: 150px;
         display: flex;
         justify-content: center;
         align-items: center;
-        background-color: #f8f9fa;
+        background-color: var(--alpi-background);
     }
 
-    .admin-uploads-thumbnail {
+    .alpi-uploads-thumbnail {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
     }
 
-    .admin-uploads-file-icon {
+    .alpi-uploads-file-icon {
         font-size: 48px;
-        color: #6c757d;
+        color: var(--alpi-text);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -196,43 +135,35 @@ $uploads = $upload->listFiles();
         height: 100%;
     }
 
-    .admin-uploads-file-ext {
+    .alpi-uploads-file-ext {
         font-size: 24px;
         font-weight: bold;
     }
 
-    .admin-uploads-details {
+    .alpi-uploads-details {
         padding: 15px;
-        background-color: #f8f9fa;
     }
 
-    .admin-uploads-filename {
+    .alpi-uploads-filename {
         margin-bottom: 10px;
     }
 
-    .admin-uploads-filetype,
-    .admin-uploads-filesize,
-    .admin-uploads-filedate {
+    .alpi-uploads-filetype,
+    .alpi-uploads-filesize,
+    .alpi-uploads-filedate {
         margin-bottom: 5px;
-        color: #6c757d;
+        color: var(--alpi-text);
+        font-size: 0.9em;
     }
 
-    .admin-uploads-delete-form {
+    .alpi-uploads-delete-form {
         text-align: right;
         margin-top: 10px;
     }
 
-    .admin-uploads-delete-btn {
-        background-color: #dc3545;
-        color: #fff;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .admin-uploads-delete-btn:hover {
-        background-color: #c82333;
+    .alpi-file-input {
+        border: 1px solid var(--alpi-border);
+        padding: 10px;
+        border-radius: var(--alpi-radius-sm);
     }
 </style>
