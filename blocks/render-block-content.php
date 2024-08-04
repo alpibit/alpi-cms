@@ -68,23 +68,30 @@ function renderBackgroundOptions($block, $index)
         echo "</select></label>";
         echo "</div>";
 
-        renderColorPicker("background_color_{$size}", $block["background_color_{$size}"] ?? '', "Background Color ({$size})", 'background');
-
-        renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
-
-        renderInput("background_video_url_{$size}", $block["background_video_url_{$size}"] ?? '', "Background Video URL ({$size})");
-
-        echo "<script>
-            function updateBackgroundTypeFields(index, size) {
-                var typeSelector = document.getElementById('background_type_' + index + '_' + size);
-                var selectedType = typeSelector.value;
-                document.getElementById('background_color_' + index + '_' + size).style.display = (selectedType == 'color') ? 'block' : 'none';
-                document.getElementById('background_image_' + index + '_' + size).style.display = (selectedType == 'image') ? 'block' : 'none';
-                document.getElementById('background_video_url_' + index + '_' + size).style.display = (selectedType == 'video') ? 'block' : 'none';
-            }
-            updateBackgroundTypeFields($index, '$size'); 
-        </script>";
+        if ($size === 'desktop') {
+            renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
+        } else {
+            renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
+        }
     }
+
+    renderColorPicker("background_color", $block["background_color"] ?? '', "Background Color", 'background');
+
+    renderInput("background_video_url", $block["background_video_url"] ?? '', "Background Video URL");
+
+    echo "<script>
+        function updateBackgroundTypeFields(index, size) {
+            var typeSelector = document.getElementById('background_type_' + index + '_' + size);
+            var selectedType = typeSelector.value;
+            var imageField = document.getElementById('background_image_' + index + '_' + size);
+            if (imageField) {
+                imageField.style.display = (selectedType == 'image') ? 'block' : 'none';
+            }
+            document.getElementById('background_video_url_' + index).style.display = (selectedType == 'video') ? 'block' : 'none';
+            document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
+        }
+        " . implode('', array_map(fn ($size) => "updateBackgroundTypeFields($index, '$size');", $sizes)) . "
+    </script>";
 }
 
 function renderTextarea($name, $value, $placeholder)
