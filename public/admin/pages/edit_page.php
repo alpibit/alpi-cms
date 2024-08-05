@@ -165,8 +165,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $page->updatePage($_GET['id'], $title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
 
-    header("Location: " . BASE_URL . "/public/admin/pages/index.php");
-    exit;
+    // Instead of redirecting, set a success message
+    $updateSuccess = true;
+    $message = "Page updated successfully!";
+
+    // Refresh page data
+    $pageData = $page->getPageById($_GET['id']);
+    $blocksData = $pageData['blocks'] ?? [];
 }
 
 include '../../../templates/header-admin.php';
@@ -174,6 +179,12 @@ include '../../../templates/header-admin.php';
 
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Edit Page</h1>
+
+    <?php if (isset($updateSuccess) && $updateSuccess) : ?>
+        <div class="alpi-alert alpi-alert-success alpi-mb-md">
+            <?php echo htmlspecialchars($message); ?>
+        </div>
+    <?php endif; ?>
 
     <form action="" method="POST" class="alpi-form">
         <div class="alpi-card alpi-mb-lg">

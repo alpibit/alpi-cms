@@ -168,8 +168,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $userId = $_SESSION['user_id'] ?? 0;
     $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
 
-    header("Location: " . BASE_URL . "/public/admin/index.php");
-    exit;
+    $updateSuccess = true;
+    $message = "Post updated successfully!";
+
+    $postData = $post->getPostById($_GET['id']);
+    $postData = $postData[0];
 }
 
 
@@ -178,6 +181,12 @@ include '../../../templates/header-admin.php';
 
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Edit Post</h1>
+
+    <?php if (isset($updateSuccess) && $updateSuccess) : ?>
+        <div class="alpi-alert alpi-alert-success alpi-mb-md">
+            <?php echo htmlspecialchars($message); ?>
+        </div>
+    <?php endif; ?>
 
     <form action="" method="POST" class="alpi-form">
         <div class="alpi-card alpi-mb-lg">
