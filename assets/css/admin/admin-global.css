@@ -18,22 +18,23 @@
     --alpi-font-heading: 'Poppins', var(--alpi-font-main);
 
     /* Spacing */
-    --alpi-spacing-xs: 0.25rem;
-    --alpi-spacing-sm: 0.5rem;
-    --alpi-spacing-md: 1rem;
-    --alpi-spacing-lg: 1.5rem;
-    --alpi-spacing-xl: 2rem;
+    --alpi-spacing-xs: 4px;
+    --alpi-spacing-sm: 8px;
+    --alpi-spacing-md: 16px;
+    --alpi-spacing-lg: 24px;
+    --alpi-spacing-xl: 32px;
 
     /* Container Widths */
     --alpi-container-sm: 640px;
     --alpi-container-md: 768px;
     --alpi-container-lg: 1024px;
     --alpi-container-xl: 1280px;
+    --alpi-container-2xl: 1400px;
 
     /* Border Radius */
-    --alpi-radius-sm: 0.25rem;
-    --alpi-radius-md: 0.5rem;
-    --alpi-radius-lg: 1rem;
+    --alpi-radius-sm: 4px;
+    --alpi-radius-md: 8px;
+    --alpi-radius-lg: 16px;
     --alpi-radius-full: 9999px;
 
     /* Transitions */
@@ -79,27 +80,27 @@ h6 {
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 40px;
 }
 
 h2 {
-    font-size: 2rem;
+    font-size: 32px;
 }
 
 h3 {
-    font-size: 1.75rem;
+    font-size: 28px;
 }
 
 h4 {
-    font-size: 1.5rem;
+    font-size: 24px;
 }
 
 h5 {
-    font-size: 1.25rem;
+    font-size: 20px;
 }
 
 h6 {
-    font-size: 1rem;
+    font-size: 16px;
 }
 
 /* Layout */
@@ -107,6 +108,7 @@ h6 {
     width: 100%;
     margin-inline: auto;
     padding-inline: var(--alpi-spacing-md);
+    container-type: inline-size;
 }
 
 @container (min-width: 640px) {
@@ -130,6 +132,12 @@ h6 {
 @container (min-width: 1280px) {
     .alpi-container {
         max-width: var(--alpi-container-xl);
+    }
+}
+
+@container (min-width: 1400px) {
+    .alpi-container {
+        max-width: var(--alpi-container-2xl);
     }
 }
 
@@ -413,24 +421,128 @@ h6 {
     background-color: var(--alpi-secondary);
 }
 
+
+
+/* Margin Utilities */
+.alpi-m-sm {
+    margin: var(--alpi-spacing-sm);
+}
+
+.alpi-m-md {
+    margin: var(--alpi-spacing-md);
+}
+
+.alpi-m-lg {
+    margin: var(--alpi-spacing-lg);
+}
+
+.alpi-mt-sm {
+    margin-top: var(--alpi-spacing-sm);
+}
+
 .alpi-mt-md {
     margin-top: var(--alpi-spacing-md);
+}
+
+.alpi-mt-lg {
+    margin-top: var(--alpi-spacing-lg);
+}
+
+.alpi-mb-sm {
+    margin-bottom: var(--alpi-spacing-sm);
 }
 
 .alpi-mb-md {
     margin-bottom: var(--alpi-spacing-md);
 }
 
+.alpi-mb-lg {
+    margin-bottom: var(--alpi-spacing-lg);
+}
+
+.alpi-ml-sm {
+    margin-left: var(--alpi-spacing-sm);
+}
+
 .alpi-ml-md {
     margin-left: var(--alpi-spacing-md);
+}
+
+.alpi-ml-lg {
+    margin-left: var(--alpi-spacing-lg);
+}
+
+.alpi-mr-sm {
+    margin-right: var(--alpi-spacing-sm);
 }
 
 .alpi-mr-md {
     margin-right: var(--alpi-spacing-md);
 }
 
+.alpi-mr-lg {
+    margin-right: var(--alpi-spacing-lg);
+}
+
+/* Padding Utilities */
+.alpi-p-sm {
+    padding: var(--alpi-spacing-sm);
+}
+
 .alpi-p-md {
     padding: var(--alpi-spacing-md);
+}
+
+.alpi-p-lg {
+    padding: var(--alpi-spacing-lg);
+}
+
+.alpi-pt-sm {
+    padding-top: var(--alpi-spacing-sm);
+}
+
+.alpi-pt-md {
+    padding-top: var(--alpi-spacing-md);
+}
+
+.alpi-pt-lg {
+    padding-top: var(--alpi-spacing-lg);
+}
+
+.alpi-pb-sm {
+    padding-bottom: var(--alpi-spacing-sm);
+}
+
+.alpi-pb-md {
+    padding-bottom: var(--alpi-spacing-md);
+}
+
+.alpi-pb-lg {
+    padding-bottom: var(--alpi-spacing-lg);
+}
+
+.alpi-pl-sm {
+    padding-left: var(--alpi-spacing-sm);
+}
+
+.alpi-pl-md {
+    padding-left: var(--alpi-spacing-md);
+}
+
+.alpi-pl-lg {
+    padding-left: var(--alpi-spacing-lg);
+}
+
+.alpi-pr-sm {
+    padding-right: var(--alpi-spacing-sm);
+}
+
+.alpi-pr-md {
+    padding-right: var(--alpi-spacing-md);
+}
+
+.alpi-pr-lg {
+    padding-right: var(--alpi-spacing-lg);
 }
 
 .alpi-rounded {
@@ -446,7 +558,93 @@ h6 {
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+    h1 {
+        font-size: 36px;
+    }
+
+    h2 {
+        font-size: 30px;
+    }
+
+    h3 {
+        font-size: 26px;
+    }
+
+    h4 {
+        font-size: 22px;
+    }
+
+    h5 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 1280px) {
+    h1 {
+        font-size: 34px;
+    }
+
+    h2 {
+        font-size: 28px;
+    }
+
+    h3 {
+        font-size: 24px;
+    }
+
+    h4 {
+        font-size: 20px;
+    }
+
+    h5 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 1024px) {
+    h1 {
+        font-size: 32px;
+    }
+
+    h2 {
+        font-size: 26px;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    h4 {
+        font-size: 20px;
+    }
+
+    h5 {
+        font-size: 18px;
+    }
+}
+
 @media (max-width: 768px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    h4 {
+        font-size: 18px;
+    }
+
+    h5 {
+        font-size: 16px;
+    }
+
     .alpi-hidden-sm {
         display: none;
     }
@@ -458,6 +656,84 @@ h6 {
     .alpi-nav-link {
         width: 100%;
         text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    h4 {
+        font-size: 18px;
+    }
+
+    h5 {
+        font-size: 16px;
+    }
+
+    h6 {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 26px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    h4 {
+        font-size: 18px;
+    }
+
+    h5 {
+        font-size: 16px;
+    }
+
+    h6 {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 320px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    h4 {
+        font-size: 16px;
+    }
+
+    h5 {
+        font-size: 14px;
+    }
+
+    h6 {
+        font-size: 12px;
     }
 }
 
@@ -531,13 +807,13 @@ h6 {
 }
 
 .alpi-admin-widget-title {
-    font-size: 1.25rem;
+    font-size: 20px;
     font-weight: 600;
     margin-bottom: var(--alpi-spacing-sm);
 }
 
 .alpi-admin-widget-content {
-    font-size: 2rem;
+    font-size: 32px;
     font-weight: bold;
     color: var(--alpi-primary);
 }
@@ -556,7 +832,7 @@ h6 {
 
 .alpi-admin-footer {
     text-align: center;
-    font-size: 0.875rem;
+    font-size: 14px;
 }
 
 /* Admin Navigation */
@@ -684,7 +960,7 @@ h6 {
 
 .alpi-media-info {
     padding: var(--alpi-spacing-sm);
-    font-size: 0.875rem;
+    font-size: 14px;
 }
 
 /* Pagination */
@@ -718,7 +994,7 @@ h6 {
     }
 
     .alpi-admin-table {
-        font-size: 0.875rem;
+        font-size: 14px;
     }
 
     .alpi-admin-form {
