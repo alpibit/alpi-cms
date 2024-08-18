@@ -34,8 +34,12 @@ if (!$pageData) {
 }
 
 $singlePage = $pageObj->getPageById($pageData['id']);
-
 $blocks = $pageObj->getBlocksByPageId($pageData['id']);
+
+$assetManager = new AssetManager();
+
+$assetManager->addCss('global.css');
+$assetManager->addJs('global.js');
 
 function renderBlock($block, $page, $conn, $assetManager)
 {
@@ -161,6 +165,7 @@ function renderBlock($block, $page, $conn, $assetManager)
     $blockMetafield10 = $block['metafield10'] ?? '';
     $blockStatus = 'active';
 
+    $assetManager->addCss("blocks/{$blockType}.css");
     $assetManager->addJs("blocks/{$blockType}.js");
 
     $blockPath = __DIR__ . '/../blocks/types/' . $blockType . '.php';
@@ -177,6 +182,7 @@ include __DIR__ . '/../templates/header.php';
 ?>
 
 <main class="content">
+    <h1><?php echo htmlspecialchars($singlePage['title']); ?></h1>
     <?php foreach ($blocks as $block) {
         renderBlock($block, $singlePage, $conn, $assetManager);
     } ?>

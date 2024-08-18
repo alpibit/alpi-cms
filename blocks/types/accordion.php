@@ -1,67 +1,85 @@
-<div class="accordion-block">
-    <?php
-    $blockAccordionData = json_decode($block['accordion_data'] ?? '[]', true);
-    $accordionId = uniqid("accordion_");
-    ?>
-    <?php foreach ($blockAccordionData as $sectionIndex => $section): ?>
-        <div class="accordion-item">
-            <button class="accordion-toggle" id="accordion-toggle-<?= $accordionId ?>-<?= $sectionIndex ?>" onclick="toggleAccordion('<?= $accordionId ?>', <?= $sectionIndex ?>)">
-                <?= htmlspecialchars($section['title'], ENT_QUOTES, 'UTF-8') ?>
-            </button>
-            <div class="accordion-content" id="accordion-content-<?= $accordionId ?>-<?= $sectionIndex ?>" style="display: none;">
-                <p><?= htmlspecialchars($section['content'], ENT_QUOTES, 'UTF-8') ?></p>
+<?php
+if (!defined('CONFIG_INCLUDED')) {
+    die();
+}
+
+// Unique identifier for this accordion instance
+$accordionId = 'alpi-cms-content-accordion-' . uniqid();
+
+// Parse accordion data
+$accordionData = json_decode($blockAccordionData, true);
+
+// Check if we have valid accordion data
+if (!is_array($accordionData) || empty($accordionData)) {
+    return; // Exit silently if no valid data
+}
+
+// Prepare spacing styles
+$spacingStyles = [];
+$devices = ['desktop', 'tablet', 'mobile'];
+$properties = ['padding', 'margin'];
+$directions = ['top', 'right', 'bottom', 'left'];
+
+foreach ($devices as $device) {
+    foreach ($properties as $property) {
+        foreach ($directions as $direction) {
+            $key_hyphen = "{$property}-{$direction}-{$device}";
+            $key_underscore = "{$property}_{$direction}_{$device}";
+
+            if (isset($block[$key_hyphen]) && $block[$key_hyphen] !== '') {
+                $value = is_numeric($block[$key_hyphen]) ? $block[$key_hyphen] . 'px' : $block[$key_hyphen];
+                $spacingStyles[] = "--alpi-accordion-{$key_hyphen}: {$value};";
+            } elseif (isset($block[$key_underscore]) && $block[$key_underscore] !== '') {
+                $value = is_numeric($block[$key_underscore]) ? $block[$key_underscore] . 'px' : $block[$key_underscore];
+                $spacingStyles[] = "--alpi-accordion-{$key_hyphen}: {$value};";
+            }
+        }
+    }
+}
+
+$spacingStyle = !empty($spacingStyles) ? ' style="' . implode(' ', $spacingStyles) . '"' : '';
+
+
+// Start output buffering
+ob_start();
+?>
+
+<div id="<?php echo $accordionId; ?>" class="alpi-cms-content-accordion" <?php echo $spacingStyle; ?>>
+    <?php foreach ($accordionData as $index => $section): ?>
+        <?php
+        $sectionId = $accordionId . '-section-' . $index;
+        $headerId = $sectionId . '-header';
+        $contentId = $sectionId . '-content';
+
+        // Skip this section if title or content is missing
+        if (empty($section['title']) || empty($section['content'])) {
+            continue;
+        }
+
+        // Sanitize inputs
+        $title = htmlspecialchars($section['title'], ENT_QUOTES, 'UTF-8');
+        $content = htmlspecialchars($section['content'], ENT_QUOTES, 'UTF-8');
+        ?>
+        <div class="alpi-cms-content-accordion-section" id="<?php echo $sectionId; ?>">
+            <h3 id="<?php echo $headerId; ?>" class="alpi-cms-content-accordion-header">
+                <button class="alpi-cms-content-accordion-trigger" aria-expanded="false" aria-controls="<?php echo $contentId; ?>">
+                    <?php echo $title; ?>
+                </button>
+            </h3>
+            <div id="<?php echo $contentId; ?>" class="alpi-cms-content-accordion-content" aria-labelledby="<?php echo $headerId; ?>" role="region" hidden>
+                <div class="alpi-cms-content-accordion-content-inner">
+                    <?php echo $content; ?>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>
 </div>
 
-<script>
-    function toggleAccordion(accordionId, index) {
-        var content = document.getElementById("accordion-content-" + accordionId + "-" + index);
-        if (content.style.display === "block") {
-            content.style.display = "none";
-        } else {
-            content.style.display = "block";
-        }
-    }
-</script>
+<?php
+// Get the buffered content
+$accordionHtml = ob_get_clean();
 
-<style>
-    .accordion-block {
-        margin-bottom: 20px;
-    }
+// Output the accordion HTML
+echo $accordionHtml;
 
-    .accordion-item {
-        margin-bottom: 10px;
-    }
-
-    .accordion-toggle {
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-        padding: 18px;
-        width: 100%;
-        border: none;
-        text-align: left;
-        outline: none;
-        font-size: 15px;
-        transition: 0.4s;
-    }
-
-    .accordion-toggle:hover {
-        background-color: #0056b3;
-    }
-
-    .accordion-content {
-        padding: 0 18px;
-        background-color: white;
-        display: none;
-        overflow: hidden;
-        transition: max-height 0.2s ease-out;
-        border: 1px solid #ccc;
-    }
-
-    .accordion-content p {
-        margin: 10px 0;
-    }
-</style>
+?>

@@ -1,7 +1,11 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/autoload.php';
+if (!defined('CONFIG_INCLUDED')) {
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/../config/autoload.php';
+    require_once __DIR__ . '/../utils/helpers.php';
+    define('CONFIG_INCLUDED', true);
+}
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = trim($path, '/');
@@ -21,15 +25,16 @@ if (!($conn instanceof PDO)) {
 
 $postObj = new Post($conn);
 
-$singlePost = $postObj->getPostBySlug($postSlug);
+$postData = $postObj->getPostBySlug($postSlug);
 
-if (!$singlePost) {
+if (!$postData) {
     header("HTTP/1.0 404 Not Found");
     echo "Post not found.";
     exit;
 }
 
-$blocks = $postObj->getBlocksByPostId($singlePost['id']) ?? [];
+$singlePost = $postObj->getPostById($postData['id']);
+$blocks = $postObj->getBlocksByPostId($postData['id']);
 
 $assetManager = new AssetManager();
 
@@ -39,7 +44,7 @@ foreach ($blocks as $block) {
     $assetManager->addCss("blocks/{$blockType}.css");
 }
 
-function renderBlock($block, $page, $conn, $assetManager)
+function renderBlock($block, $post, $conn, $assetManager)
 {
     $blockType = $block['type'];
     $blockTitle = $block['title'] ?? '';
@@ -174,14 +179,32 @@ function renderBlock($block, $page, $conn, $assetManager)
     }
 }
 
+ob_start();
 
 include __DIR__ . '/../templates/header.php';
 ?>
 
 <main class="content">
-    <?php foreach ($blocks as $block) {
-        renderBlock($block, $singlePost, $conn, $assetManager);
-    } ?>
+    <article class="post">
+        <header class="post-header">
+            <h1><?php echo htmlspecialchars($singlePost[0]['title']); ?></h1>
+            <?php if (!empty($singlePost[0]['subtitle'])): ?>
+                <h2><?php echo htmlspecialchars($singlePost[0]['subtitle']); ?></h2>
+            <?php endif; ?>
+        </header>
+
+        <?php if ($singlePost[0]['show_main_image'] && !empty($singlePost[0]['main_image_path'])): ?>
+            <div class="post-featured-image">
+                <img src="<?php echo htmlspecialchars($singlePost[0]['main_image_path']); ?>" alt="<?php echo htmlspecialchars($singlePost[0]['title']); ?>">
+            </div>
+        <?php endif; ?>
+
+        <div class="post-content">
+            <?php foreach ($blocks as $block) {
+                renderBlock($block, $singlePost[0], $conn, $assetManager);
+            } ?>
+        </div>
+    </article>
 </main>
 
 <?php include __DIR__ . '/../templates/footer.php'; ?>

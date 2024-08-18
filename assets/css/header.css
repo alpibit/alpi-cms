@@ -1,3 +1,12 @@
+.content {
+    /* TODO: Move this to a global style */
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
 .header-wrap {
     background-color: #f8f8f8;
     padding: 10px;

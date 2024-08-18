@@ -1,0 +1,106 @@
+/* Accordion Container */
+.alpi-cms-content-accordion {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-top: var(--alpi-accordion-padding-top-desktop, 0);
+    padding-right: var(--alpi-accordion-padding-right-desktop, 0);
+    padding-bottom: var(--alpi-accordion-padding-bottom-desktop, 0);
+    padding-left: var(--alpi-accordion-padding-left-desktop, 0);
+    margin-top: var(--alpi-accordion-margin-top-desktop, 0);
+    margin-right: var(--alpi-accordion-margin-right-desktop, 0);
+    margin-bottom: var(--alpi-accordion-margin-bottom-desktop, 0);
+    margin-left: var(--alpi-accordion-margin-left-desktop, 0);
+    overflow-x: hidden;
+}
+
+/* Accordion Section */
+.alpi-cms-content-accordion-section {
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+/* Accordion Header */
+.alpi-cms-content-accordion-header {
+    margin: 0;
+    padding: 0;
+}
+
+/* Accordion Trigger (Button) */
+.alpi-cms-content-accordion-trigger {
+    width: 100%;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.alpi-cms-content-accordion-trigger:hover,
+.alpi-cms-content-accordion-trigger[aria-expanded="true"] {
+    background-color: #e5e5e5;
+}
+
+/* Accordion Content */
+.alpi-cms-content-accordion-content {
+    padding: 15px;
+    background-color: #ffffff;
+}
+
+/* Accordion Content Inner */
+.alpi-cms-content-accordion-content-inner {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Tablet Styles */
+@media (max-width: 768px) {
+    .alpi-cms-content-accordion {
+        padding-top: var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0));
+        padding-right: var(--alpi-accordion-padding-right-tablet, var(--alpi-accordion-padding-right-desktop, 0));
+        padding-bottom: var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0));
+        padding-left: var(--alpi-accordion-padding-left-tablet, var(--alpi-accordion-padding-left-desktop, 0));
+        margin-top: var(--alpi-accordion-margin-top-tablet, var(--alpi-accordion-margin-top-desktop, 0));
+        margin-right: var(--alpi-accordion-margin-right-tablet, var(--alpi-accordion-margin-right-desktop, 0));
+        margin-bottom: var(--alpi-accordion-margin-bottom-tablet, var(--alpi-accordion-margin-bottom-desktop, 0));
+        margin-left: var(--alpi-accordion-margin-left-tablet, var(--alpi-accordion-margin-left-desktop, 0));
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        font-size: 14px;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 480px) {
+    .alpi-cms-content-accordion {
+        padding-top: var(--alpi-accordion-padding-top-mobile, var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0)));
+        padding-right: var(--alpi-accordion-padding-right-mobile, var(--alpi-accordion-padding-right-tablet, var(--alpi-accordion-padding-right-desktop, 0)));
+        padding-bottom: var(--alpi-accordion-padding-bottom-mobile, var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0)));
+        padding-left: var(--alpi-accordion-padding-left-mobile, var(--alpi-accordion-padding-left-tablet, var(--alpi-accordion-padding-left-desktop, 0)));
+        margin-top: var(--alpi-accordion-margin-top-mobile, var(--alpi-accordion-margin-top-tablet, var(--alpi-accordion-margin-top-desktop, 0)));
+        margin-right: var(--alpi-accordion-margin-right-mobile, var(--alpi-accordion-margin-right-tablet, var(--alpi-accordion-margin-right-desktop, 0)));
+        margin-bottom: var(--alpi-accordion-margin-bottom-mobile, var(--alpi-accordion-margin-bottom-tablet, var(--alpi-accordion-margin-bottom-desktop, 0)));
+        margin-left: var(--alpi-accordion-margin-left-mobile, var(--alpi-accordion-margin-left-tablet, var(--alpi-accordion-margin-left-desktop, 0)));
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        font-size: 13px;
+        padding: 12px;
+    }
+
+    .alpi-cms-content-accordion-content {
+        padding: 12px;
+    }
+}
+
+/* Accessibility: Hide accordion content when JavaScript is disabled */
+.alpi-cms-content-accordion-content[hidden] {
+    display: none;
+}
