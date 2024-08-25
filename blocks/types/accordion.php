@@ -18,7 +18,7 @@ if (!is_array($accordionData) || empty($accordionData)) {
 $spacingStyles = [];
 $devices = ['desktop', 'tablet', 'mobile'];
 $properties = ['padding', 'margin'];
-$directions = ['top', 'right', 'bottom', 'left'];
+$directions = ['top', 'bottom'];
 
 foreach ($devices as $device) {
     foreach ($properties as $property) {
@@ -45,34 +45,36 @@ ob_start();
 ?>
 
 <div id="<?php echo $accordionId; ?>" class="alpi-cms-content-accordion" <?php echo $spacingStyle; ?>>
-    <?php foreach ($accordionData as $index => $section): ?>
-        <?php
-        $sectionId = $accordionId . '-section-' . $index;
-        $headerId = $sectionId . '-header';
-        $contentId = $sectionId . '-content';
+    <div class="alpi-cms-content-container">
+        <?php foreach ($accordionData as $index => $section): ?>
+            <?php
+            $sectionId = $accordionId . '-section-' . $index;
+            $headerId = $sectionId . '-header';
+            $contentId = $sectionId . '-content';
 
-        // Skip this section if title or content is missing
-        if (empty($section['title']) || empty($section['content'])) {
-            continue;
-        }
+            // Skip this section if title or content is missing
+            if (empty($section['title']) || empty($section['content'])) {
+                continue;
+            }
 
-        // Sanitize inputs
-        $title = htmlspecialchars($section['title'], ENT_QUOTES, 'UTF-8');
-        $content = htmlspecialchars($section['content'], ENT_QUOTES, 'UTF-8');
-        ?>
-        <div class="alpi-cms-content-accordion-section" id="<?php echo $sectionId; ?>">
-            <h3 id="<?php echo $headerId; ?>" class="alpi-cms-content-accordion-header">
-                <button class="alpi-cms-content-accordion-trigger" aria-expanded="false" aria-controls="<?php echo $contentId; ?>">
-                    <?php echo $title; ?>
-                </button>
-            </h3>
-            <div id="<?php echo $contentId; ?>" class="alpi-cms-content-accordion-content" aria-labelledby="<?php echo $headerId; ?>" role="region" hidden>
-                <div class="alpi-cms-content-accordion-content-inner">
-                    <?php echo $content; ?>
+            // Sanitize inputs
+            $title = htmlspecialchars($section['title'], ENT_QUOTES, 'UTF-8');
+            $content = htmlspecialchars($section['content'], ENT_QUOTES, 'UTF-8');
+            ?>
+            <div class="alpi-cms-content-accordion-section" id="<?php echo $sectionId; ?>">
+                <h3 id="<?php echo $headerId; ?>" class="alpi-cms-content-accordion-header">
+                    <button class="alpi-cms-content-accordion-trigger" aria-expanded="false" aria-controls="<?php echo $contentId; ?>">
+                        <?php echo $title; ?>
+                    </button>
+                </h3>
+                <div id="<?php echo $contentId; ?>" class="alpi-cms-content-accordion-content" aria-labelledby="<?php echo $headerId; ?>" role="region" hidden>
+                    <div class="alpi-cms-content-accordion-content-inner">
+                        <?php echo $content; ?>
+                    </div>
                 </div>
             </div>
-        </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <?php

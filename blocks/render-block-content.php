@@ -27,7 +27,7 @@ function renderSpacingControls($block, $type)
 {
     $sizes = ['desktop', 'tablet', 'mobile'];
     $properties = ['padding', 'margin'];
-    $directions = ['top', 'right', 'bottom', 'left'];
+    $directions = ['top', 'bottom'];
 
     $uniqueId = uniqid($type . '-tabs-');
 
@@ -90,7 +90,7 @@ function renderBackgroundOptions($block, $index)
             document.getElementById('background_video_url_' + index).style.display = (selectedType == 'video') ? 'block' : 'none';
             document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
         }
-        " . implode('', array_map(fn ($size) => "updateBackgroundTypeFields($index, '$size');", $sizes)) . "
+        " . implode('', array_map(fn($size) => "updateBackgroundTypeFields($index, '$size');", $sizes)) . "
     </script>";
 }
 

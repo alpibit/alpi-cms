@@ -1,9 +1,22 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .content {
-    /* TODO: Move this to a global style */
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+
+.alpi-cms-content-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
     box-sizing: border-box;
 }
 

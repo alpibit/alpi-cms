@@ -4,13 +4,9 @@
     max-width: 100%;
     box-sizing: border-box;
     padding-top: var(--alpi-accordion-padding-top-desktop, 0);
-    padding-right: var(--alpi-accordion-padding-right-desktop, 0);
     padding-bottom: var(--alpi-accordion-padding-bottom-desktop, 0);
-    padding-left: var(--alpi-accordion-padding-left-desktop, 0);
     margin-top: var(--alpi-accordion-margin-top-desktop, 0);
-    margin-right: var(--alpi-accordion-margin-right-desktop, 0);
     margin-bottom: var(--alpi-accordion-margin-bottom-desktop, 0);
-    margin-left: var(--alpi-accordion-margin-left-desktop, 0);
     overflow-x: hidden;
 }
 
@@ -63,13 +59,9 @@
 @media (max-width: 768px) {
     .alpi-cms-content-accordion {
         padding-top: var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0));
-        padding-right: var(--alpi-accordion-padding-right-tablet, var(--alpi-accordion-padding-right-desktop, 0));
         padding-bottom: var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0));
-        padding-left: var(--alpi-accordion-padding-left-tablet, var(--alpi-accordion-padding-left-desktop, 0));
         margin-top: var(--alpi-accordion-margin-top-tablet, var(--alpi-accordion-margin-top-desktop, 0));
-        margin-right: var(--alpi-accordion-margin-right-tablet, var(--alpi-accordion-margin-right-desktop, 0));
         margin-bottom: var(--alpi-accordion-margin-bottom-tablet, var(--alpi-accordion-margin-bottom-desktop, 0));
-        margin-left: var(--alpi-accordion-margin-left-tablet, var(--alpi-accordion-margin-left-desktop, 0));
     }
 
     .alpi-cms-content-accordion-trigger {
@@ -81,13 +73,9 @@
 @media (max-width: 480px) {
     .alpi-cms-content-accordion {
         padding-top: var(--alpi-accordion-padding-top-mobile, var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0)));
-        padding-right: var(--alpi-accordion-padding-right-mobile, var(--alpi-accordion-padding-right-tablet, var(--alpi-accordion-padding-right-desktop, 0)));
         padding-bottom: var(--alpi-accordion-padding-bottom-mobile, var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0)));
-        padding-left: var(--alpi-accordion-padding-left-mobile, var(--alpi-accordion-padding-left-tablet, var(--alpi-accordion-padding-left-desktop, 0)));
         margin-top: var(--alpi-accordion-margin-top-mobile, var(--alpi-accordion-margin-top-tablet, var(--alpi-accordion-margin-top-desktop, 0)));
-        margin-right: var(--alpi-accordion-margin-right-mobile, var(--alpi-accordion-margin-right-tablet, var(--alpi-accordion-margin-right-desktop, 0)));
         margin-bottom: var(--alpi-accordion-margin-bottom-mobile, var(--alpi-accordion-margin-bottom-tablet, var(--alpi-accordion-margin-bottom-desktop, 0)));
-        margin-left: var(--alpi-accordion-margin-left-mobile, var(--alpi-accordion-margin-left-tablet, var(--alpi-accordion-margin-left-desktop, 0)));
     }
 
     .alpi-cms-content-accordion-trigger {

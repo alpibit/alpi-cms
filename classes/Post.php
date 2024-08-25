@@ -105,12 +105,12 @@ class Post
                     background_image_mobile, background_video_url, background_color, background_opacity_desktop, 
                     background_opacity_tablet, background_opacity_mobile, background_style, hero_layout, overlay_color, 
                     text_color, text_size_desktop, text_size_tablet, text_size_mobile, padding_top_desktop, 
-                    padding_right_desktop, padding_bottom_desktop, padding_left_desktop, padding_top_tablet, 
-                    padding_right_tablet, padding_bottom_tablet, padding_left_tablet, padding_top_mobile, 
-                    padding_right_mobile, padding_bottom_mobile, padding_left_mobile, margin_top_desktop, 
-                    margin_right_desktop, margin_bottom_desktop, margin_left_desktop, margin_top_tablet, 
-                    margin_right_tablet, margin_bottom_tablet, margin_left_tablet, margin_top_mobile, 
-                    margin_right_mobile, margin_bottom_mobile, margin_left_mobile, layout1, layout2, layout3, 
+                    padding_bottom_desktop, padding_top_tablet, 
+                    padding_bottom_tablet, padding_top_mobile, 
+                    padding_bottom_mobile, margin_top_desktop, 
+                    margin_bottom_desktop, margin_top_tablet, 
+                    margin_bottom_tablet, margin_top_mobile, 
+                    margin_bottom_mobile, layout1, layout2, layout3, 
                     layout4, layout5, layout6, layout7, layout8, layout9, layout10, style1, style2, style3, 
                     style4, style5, style6, style7, style8, style9, style10, responsive_class, responsive_style, 
                     border_style, border_color, border_width, animation_type, animation_duration, custom_css, 
@@ -127,12 +127,12 @@ class Post
                     :backgroundImageMobile, :backgroundVideoUrl, :backgroundColor, :backgroundOpacityDesktop, 
                     :backgroundOpacityTablet, :backgroundOpacityMobile, :backgroundStyle, :heroLayout, :overlayColor, 
                     :textColor, :textSizeDesktop, :textSizeTablet, :textSizeMobile, :paddingTopDesktop, 
-                    :paddingRightDesktop, :paddingBottomDesktop, :paddingLeftDesktop, :paddingTopTablet, 
-                    :paddingRightTablet, :paddingBottomTablet, :paddingLeftTablet, :paddingTopMobile, 
-                    :paddingRightMobile, :paddingBottomMobile, :paddingLeftMobile, :marginTopDesktop, 
-                    :marginRightDesktop, :marginBottomDesktop, :marginLeftDesktop, :marginTopTablet, 
-                    :marginRightTablet, :marginBottomTablet, :marginLeftTablet, :marginTopMobile, 
-                    :marginRightMobile, :marginBottomMobile, :marginLeftMobile, :layout1, :layout2, :layout3, 
+                    :paddingBottomDesktop, :paddingTopTablet, 
+                    :paddingBottomTablet, :paddingTopMobile, 
+                    :paddingBottomMobile, :marginTopDesktop, 
+                    :marginBottomDesktop, :marginTopTablet, 
+                    :marginBottomTablet, :marginTopMobile, 
+                    :marginBottomMobile, :layout1, :layout2, :layout3, 
                     :layout4, :layout5, :layout6, :layout7, :layout8, :layout9, :layout10, :style1, :style2, :style3, 
                     :style4, :style5, :style6, :style7, :style8, :style9, :style10, :responsiveClass, :responsiveStyle, 
                     :borderStyle, :borderColor, :borderWidth, :animationType, :animationDuration, :customCss, 
@@ -198,29 +198,17 @@ class Post
             $stmtBlock->bindValue(':textSizeTablet', $block['text_size_tablet'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':textSizeMobile', $block['text_size_mobile'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingTopDesktop', $block['padding_top_desktop'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingRightDesktop', $block['padding_right_desktop'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingBottomDesktop', $block['padding_bottom_desktop'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingLeftDesktop', $block['padding_left_desktop'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingTopTablet', $block['padding_top_tablet'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingRightTablet', $block['padding_right_tablet'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingBottomTablet', $block['padding_bottom_tablet'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingLeftTablet', $block['padding_left_tablet'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingTopMobile', $block['padding_top_mobile'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingRightMobile', $block['padding_right_mobile'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':paddingBottomMobile', $block['padding_bottom_mobile'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':paddingLeftMobile', $block['padding_left_mobile'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginTopDesktop', $block['margin_top_desktop'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginRightDesktop', $block['margin_right_desktop'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginBottomDesktop', $block['margin_bottom_desktop'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginLeftDesktop', $block['margin_left_desktop'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginTopTablet', $block['margin_top_tablet'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginRightTablet', $block['margin_right_tablet'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginBottomTablet', $block['margin_bottom_tablet'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginLeftTablet', $block['margin_left_tablet'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginTopMobile', $block['margin_top_mobile'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginRightMobile', $block['margin_right_mobile'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':marginBottomMobile', $block['margin_bottom_mobile'] ?? '', PDO::PARAM_STR);
-            $stmtBlock->bindValue(':marginLeftMobile', $block['margin_left_mobile'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':layout1', $block['layout1'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':layout2', $block['layout2'] ?? '', PDO::PARAM_STR);
             $stmtBlock->bindValue(':layout3', $block['layout3'] ?? '', PDO::PARAM_STR);
@@ -360,12 +348,12 @@ class Post
                     background_image_mobile, background_video_url, background_color, background_opacity_desktop, 
                     background_opacity_tablet, background_opacity_mobile, background_style, hero_layout, overlay_color, 
                     text_color, text_size_desktop, text_size_tablet, text_size_mobile, padding_top_desktop, 
-                    padding_right_desktop, padding_bottom_desktop, padding_left_desktop, padding_top_tablet, 
-                    padding_right_tablet, padding_bottom_tablet, padding_left_tablet, padding_top_mobile, 
-                    padding_right_mobile, padding_bottom_mobile, padding_left_mobile, margin_top_desktop, 
-                    margin_right_desktop, margin_bottom_desktop, margin_left_desktop, margin_top_tablet, 
-                    margin_right_tablet, margin_bottom_tablet, margin_left_tablet, margin_top_mobile, 
-                    margin_right_mobile, margin_bottom_mobile, margin_left_mobile, layout1, layout2, layout3, 
+                    padding_bottom_desktop, padding_top_tablet, 
+                    padding_bottom_tablet, padding_top_mobile, 
+                    padding_bottom_mobile, margin_top_desktop, 
+                    margin_bottom_desktop, margin_top_tablet, 
+                    margin_bottom_tablet, margin_top_mobile, 
+                    margin_bottom_mobile, layout1, layout2, layout3, 
                     layout4, layout5, layout6, layout7, layout8, layout9, layout10, style1, style2, style3, 
                     style4, style5, style6, style7, style8, style9, style10, responsive_class, responsive_style, 
                     border_style, border_color, border_width, animation_type, animation_duration, custom_css, 
@@ -382,12 +370,12 @@ class Post
                     :backgroundImageMobile, :backgroundVideoUrl, :backgroundColor, :backgroundOpacityDesktop, 
                     :backgroundOpacityTablet, :backgroundOpacityMobile, :backgroundStyle, :heroLayout, :overlayColor, 
                     :textColor, :textSizeDesktop, :textSizeTablet, :textSizeMobile, :paddingTopDesktop, 
-                    :paddingRightDesktop, :paddingBottomDesktop, :paddingLeftDesktop, :paddingTopTablet, 
-                    :paddingRightTablet, :paddingBottomTablet, :paddingLeftTablet, :paddingTopMobile, 
-                    :paddingRightMobile, :paddingBottomMobile, :paddingLeftMobile, :marginTopDesktop, 
-                    :marginRightDesktop, :marginBottomDesktop, :marginLeftDesktop, :marginTopTablet, 
-                    :marginRightTablet, :marginBottomTablet, :marginLeftTablet, :marginTopMobile, 
-                    :marginRightMobile, :marginBottomMobile, :marginLeftMobile, :layout1, :layout2, :layout3, 
+                    :paddingBottomDesktop, :paddingTopTablet, 
+                    :paddingBottomTablet, :paddingTopMobile, 
+                    :paddingBottomMobile, :marginTopDesktop, 
+                    :marginBottomDesktop, :marginTopTablet, 
+                    :marginBottomTablet, :marginTopMobile, 
+                    :marginBottomMobile, :layout1, :layout2, :layout3, 
                     :layout4, :layout5, :layout6, :layout7, :layout8, :layout9, :layout10, :style1, :style2, :style3, 
                     :style4, :style5, :style6, :style7, :style8, :style9, :style10, :responsiveClass, :responsiveStyle, 
                     :borderStyle, :borderColor, :borderWidth, :animationType, :animationDuration, :customCss, 
@@ -463,29 +451,17 @@ class Post
                 $stmtBlock->bindValue(':textSizeTablet', $block['text_size_tablet'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':textSizeMobile', $block['text_size_mobile'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingTopDesktop', $block['padding_top_desktop'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingRightDesktop', $block['padding_right_desktop'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingBottomDesktop', $block['padding_bottom_desktop'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingLeftDesktop', $block['padding_left_desktop'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingTopTablet', $block['padding_top_tablet'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingRightTablet', $block['padding_right_tablet'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingBottomTablet', $block['padding_bottom_tablet'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingLeftTablet', $block['padding_left_tablet'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingTopMobile', $block['padding_top_mobile'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingRightMobile', $block['padding_right_mobile'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':paddingBottomMobile', $block['padding_bottom_mobile'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':paddingLeftMobile', $block['padding_left_mobile'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginTopDesktop', $block['margin_top_desktop'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginRightDesktop', $block['margin_right_desktop'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginBottomDesktop', $block['margin_bottom_desktop'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginLeftDesktop', $block['margin_left_desktop'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginTopTablet', $block['margin_top_tablet'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginRightTablet', $block['margin_right_tablet'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginBottomTablet', $block['margin_bottom_tablet'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginLeftTablet', $block['margin_left_tablet'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginTopMobile', $block['margin_top_mobile'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginRightMobile', $block['margin_right_mobile'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':marginBottomMobile', $block['margin_bottom_mobile'] ?? '', PDO::PARAM_STR);
-                $stmtBlock->bindValue(':marginLeftMobile', $block['margin_left_mobile'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':layout1', $block['layout1'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':layout2', $block['layout2'] ?? '', PDO::PARAM_STR);
                 $stmtBlock->bindValue(':layout3', $block['layout3'] ?? '', PDO::PARAM_STR);
