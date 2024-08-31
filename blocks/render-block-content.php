@@ -53,7 +53,7 @@ function renderSpacingControls($block, $type)
 
 function renderBackgroundOptions($block, $index)
 {
-    $backgroundTypes = ['image' => 'Image', 'video' => 'Video', 'color' => 'Color'];
+    $backgroundTypes = ['image' => 'Image', 'color' => 'Color'];
     $sizes = ['desktop', 'tablet', 'mobile'];
 
     foreach ($sizes as $size) {
@@ -68,16 +68,10 @@ function renderBackgroundOptions($block, $index)
         echo "</select></label>";
         echo "</div>";
 
-        if ($size === 'desktop') {
-            renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
-        } else {
-            renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
-        }
+        renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
     }
 
     renderColorPicker("background_color", $block["background_color"] ?? '', "Background Color", 'background');
-
-    renderInput("background_video_url", $block["background_video_url"] ?? '', "Background Video URL");
 
     echo "<script>
         function updateBackgroundTypeFields(index, size) {
@@ -87,7 +81,6 @@ function renderBackgroundOptions($block, $index)
             if (imageField) {
                 imageField.style.display = (selectedType == 'image') ? 'block' : 'none';
             }
-            document.getElementById('background_video_url_' + index).style.display = (selectedType == 'video') ? 'block' : 'none';
             document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
         }
         " . implode('', array_map(fn($size) => "updateBackgroundTypeFields($index, '$size');", $sizes)) . "

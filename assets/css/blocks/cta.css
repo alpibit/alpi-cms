@@ -8,15 +8,20 @@
     margin-bottom: var(--alpi-cta-margin-bottom-desktop, 0);
     color: var(--alpi-cta-text-color, #000);
     overflow: hidden;
+    background: var(--alpi-cta-background-desktop);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.alpi-cms-content-cta-background {
+.alpi-cms-content-cta::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: -1;
+    background-color: var(--alpi-cta-overlay-color, transparent);
 }
 
 .alpi-cms-content-cta-inner {
@@ -56,6 +61,7 @@
 
 @media (max-width: 768px) {
     .alpi-cms-content-cta {
+        background: var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop));
         padding-top: var(--alpi-cta-padding-top-tablet, var(--alpi-cta-padding-top-desktop, 20px));
         padding-bottom: var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px));
         margin-top: var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0));
@@ -73,6 +79,7 @@
 
 @media (max-width: 480px) {
     .alpi-cms-content-cta {
+        background: var(--alpi-cta-background-mobile, var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop)));
         padding-top: var(--alpi-cta-padding-top-mobile, var(--alpi-cta-padding-top-tablet, var(--alpi-cta-padding-top-desktop, 20px)));
         padding-bottom: var(--alpi-cta-padding-bottom-mobile, var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px)));
         margin-top: var(--alpi-cta-margin-top-mobile, var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0)));
