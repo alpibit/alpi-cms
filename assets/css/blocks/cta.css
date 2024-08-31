@@ -6,21 +6,16 @@
     padding-bottom: var(--alpi-cta-padding-bottom-desktop, 20px);
     margin-top: var(--alpi-cta-margin-top-desktop, 0);
     margin-bottom: var(--alpi-cta-margin-bottom-desktop, 0);
-    background: var(--alpi-cta-background-desktop, none);
-    background-size: cover;
-    background-position: center;
     color: var(--alpi-cta-text-color, #000);
+    overflow: hidden;
 }
 
-.alpi-cms-content-cta::before {
-    content: '';
+.alpi-cms-content-cta-background {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: inherit;
-    opacity: var(--alpi-cta-background-opacity-desktop, 1);
     z-index: -1;
 }
 
@@ -30,7 +25,7 @@
 }
 
 .alpi-cms-content-cta-title {
-    font-size: var(--alpi-cta-title-size-desktop, 24px);
+    font-size: var(--alpi-cta-text-size-desktop, 24px);
     margin-bottom: 15px;
 }
 
@@ -65,15 +60,10 @@
         padding-bottom: var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px));
         margin-top: var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0));
         margin-bottom: var(--alpi-cta-margin-bottom-tablet, var(--alpi-cta-margin-bottom-desktop, 0));
-        background: var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop, none));
-    }
-
-    .alpi-cms-content-cta::before {
-        opacity: var(--alpi-cta-background-opacity-tablet, var(--alpi-cta-background-opacity-desktop, 1));
     }
 
     .alpi-cms-content-cta-title {
-        font-size: var(--alpi-cta-title-size-tablet, var(--alpi-cta-title-size-desktop, 22px));
+        font-size: var(--alpi-cta-text-size-tablet, var(--alpi-cta-text-size-desktop, 22px));
     }
 
     .alpi-cms-content-cta-content {
@@ -87,15 +77,10 @@
         padding-bottom: var(--alpi-cta-padding-bottom-mobile, var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px)));
         margin-top: var(--alpi-cta-margin-top-mobile, var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0)));
         margin-bottom: var(--alpi-cta-margin-bottom-mobile, var(--alpi-cta-margin-bottom-tablet, var(--alpi-cta-margin-bottom-desktop, 0)));
-        background: var(--alpi-cta-background-mobile, var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop, none)));
-    }
-
-    .alpi-cms-content-cta::before {
-        opacity: var(--alpi-cta-background-opacity-mobile, var(--alpi-cta-background-opacity-tablet, var(--alpi-cta-background-opacity-desktop, 1)));
     }
 
     .alpi-cms-content-cta-title {
-        font-size: var(--alpi-cta-title-size-mobile, var(--alpi-cta-title-size-tablet, var(--alpi-cta-title-size-desktop, 20px)));
+        font-size: var(--alpi-cta-text-size-mobile, var(--alpi-cta-text-size-tablet, var(--alpi-cta-text-size-desktop, 20px)));
     }
 
     .alpi-cms-content-cta-content {
