@@ -1,0 +1,95 @@
+.alpi-cms-content-image-text {
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: var(--alpi-image-text-padding-top-desktop, 20px);
+    padding-bottom: var(--alpi-image-text-padding-bottom-desktop, 20px);
+    margin-top: var(--alpi-image-text-margin-top-desktop, 0);
+    margin-bottom: var(--alpi-image-text-margin-bottom-desktop, 0);
+    background-color: var(--alpi-image-text-background-color, transparent);
+}
+
+.alpi-cms-content-image-text-inner {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.alpi-cms-content-image-text-image {
+    flex: 0 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+}
+
+.alpi-cms-content-image-text-content {
+    flex: 0 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+}
+
+.alpi-cms-content-image-text-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.alpi-cms-content-image-text-caption {
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+}
+
+.alpi-cms-content-image-text-title {
+    font-size: var(--alpi-image-text-title-size-desktop, 24px);
+    margin-bottom: 15px;
+}
+
+.alpi-cms-content-image-text-body {
+    font-size: var(--alpi-image-text-content-size-desktop, 16px);
+}
+
+@media (max-width: 768px) {
+    .alpi-cms-content-image-text {
+        padding-top: var(--alpi-image-text-padding-top-tablet, var(--alpi-image-text-padding-top-desktop, 20px));
+        padding-bottom: var(--alpi-image-text-padding-bottom-tablet, var(--alpi-image-text-padding-bottom-desktop, 20px));
+        margin-top: var(--alpi-image-text-margin-top-tablet, var(--alpi-image-text-margin-top-desktop, 0));
+        margin-bottom: var(--alpi-image-text-margin-bottom-tablet, var(--alpi-image-text-margin-bottom-desktop, 0));
+    }
+
+    .alpi-cms-content-image-text-title {
+        font-size: var(--alpi-image-text-title-size-tablet, var(--alpi-image-text-title-size-desktop, 22px));
+    }
+
+    .alpi-cms-content-image-text-body {
+        font-size: var(--alpi-image-text-content-size-tablet, var(--alpi-image-text-content-size-desktop, 14px));
+    }
+}
+
+@media (max-width: 480px) {
+    .alpi-cms-content-image-text {
+        padding-top: var(--alpi-image-text-padding-top-mobile, var(--alpi-image-text-padding-top-tablet, var(--alpi-image-text-padding-top-desktop, 20px)));
+        padding-bottom: var(--alpi-image-text-padding-bottom-mobile, var(--alpi-image-text-padding-bottom-tablet, var(--alpi-image-text-padding-bottom-desktop, 20px)));
+        margin-top: var(--alpi-image-text-margin-top-mobile, var(--alpi-image-text-margin-top-tablet, var(--alpi-image-text-margin-top-desktop, 0)));
+        margin-bottom: var(--alpi-image-text-margin-bottom-mobile, var(--alpi-image-text-margin-bottom-tablet, var(--alpi-image-text-margin-bottom-desktop, 0)));
+    }
+
+    .alpi-cms-content-image-text-inner {
+        flex-direction: column;
+    }
+
+    .alpi-cms-content-image-text-image,
+    .alpi-cms-content-image-text-content {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .alpi-cms-content-image-text-image {
+        margin-bottom: 20px;
+    }
+
+    .alpi-cms-content-image-text-title {
+        font-size: var(--alpi-image-text-title-size-mobile, var(--alpi-image-text-title-size-tablet, var(--alpi-image-text-title-size-desktop, 20px)));
+    }
+
+    .alpi-cms-content-image-text-body {
+        font-size: var(--alpi-image-text-content-size-mobile, var(--alpi-image-text-content-size-tablet, var(--alpi-image-text-content-size-desktop, 13px)));
+    }
+}
