@@ -1,0 +1,65 @@
+.alpi-cms-content-quote-slider {
+    width: 100%;
+    overflow: hidden;
+    padding-top: var(--alpi-quote-padding-top-desktop, 20px);
+    padding-bottom: var(--alpi-quote-padding-bottom-desktop, 20px);
+    margin-top: var(--alpi-quote-margin-top-desktop, 0);
+    margin-bottom: var(--alpi-quote-margin-bottom-desktop, 0);
+}
+
+.quote-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.quote-slide {
+    flex: 0 0 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.quote-content {
+    font-size: 24px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.quote-author {
+    font-size: 18px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .alpi-cms-content-quote-slider {
+        padding-top: var(--alpi-quote-padding-top-tablet, var(--alpi-quote-padding-top-desktop, 15px));
+        padding-bottom: var(--alpi-quote-padding-bottom-tablet, var(--alpi-quote-padding-bottom-desktop, 15px));
+        margin-top: var(--alpi-quote-margin-top-tablet, var(--alpi-quote-margin-top-desktop, 0));
+        margin-bottom: var(--alpi-quote-margin-bottom-tablet, var(--alpi-quote-margin-bottom-desktop, 0));
+    }
+
+    .quote-content {
+        font-size: 20px;
+    }
+
+    .quote-author {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .alpi-cms-content-quote-slider {
+        padding-top: var(--alpi-quote-padding-top-mobile, var(--alpi-quote-padding-top-tablet, var(--alpi-quote-padding-top-desktop, 10px)));
+        padding-bottom: var(--alpi-quote-padding-bottom-mobile, var(--alpi-quote-padding-bottom-tablet, var(--alpi-quote-padding-bottom-desktop, 10px)));
+        margin-top: var(--alpi-quote-margin-top-mobile, var(--alpi-quote-margin-top-tablet, var(--alpi-quote-margin-top-desktop, 0)));
+        margin-bottom: var(--alpi-quote-margin-bottom-mobile, var(--alpi-quote-margin-bottom-tablet, var(--alpi-quote-margin-bottom-desktop, 0)));
+    }
+
+    .quote-content {
+        font-size: 18px;
+    }
+
+    .quote-author {
+        font-size: 14px;
+    }
+}
