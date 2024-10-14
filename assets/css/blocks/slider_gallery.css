@@ -1,0 +1,66 @@
+.alpi-cms-content-slider-gallery {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
+    padding-top: var(--alpi-slider-gallery-padding-top-desktop, 20px);
+    padding-bottom: var(--alpi-slider-gallery-padding-bottom-desktop, 20px);
+    margin-top: var(--alpi-slider-gallery-margin-top-desktop, 0);
+    margin-bottom: var(--alpi-slider-gallery-margin-bottom-desktop, 0);
+}
+
+.alpi-cms-content-container {
+    width: 100%;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.slider-gallery {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.slider-slide {
+    flex: 0 0 100%;
+    position: relative;
+}
+
+.slider-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.slider-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .alpi-cms-content-slider-gallery {
+        padding-top: var(--alpi-slider-gallery-padding-top-tablet, var(--alpi-slider-gallery-padding-top-desktop, 15px));
+        padding-bottom: var(--alpi-slider-gallery-padding-bottom-tablet, var(--alpi-slider-gallery-padding-bottom-desktop, 15px));
+        margin-top: var(--alpi-slider-gallery-margin-top-tablet, var(--alpi-slider-gallery-margin-top-desktop, 0));
+        margin-bottom: var(--alpi-slider-gallery-margin-bottom-tablet, var(--alpi-slider-gallery-margin-bottom-desktop, 0));
+    }
+}
+
+@media (max-width: 480px) {
+    .alpi-cms-content-slider-gallery {
+        padding-top: var(--alpi-slider-gallery-padding-top-mobile, var(--alpi-slider-gallery-padding-top-tablet, var(--alpi-slider-gallery-padding-top-desktop, 10px)));
+        padding-bottom: var(--alpi-slider-gallery-padding-bottom-mobile, var(--alpi-slider-gallery-padding-bottom-tablet, var(--alpi-slider-gallery-padding-bottom-desktop, 10px)));
+        margin-top: var(--alpi-slider-gallery-margin-top-mobile, var(--alpi-slider-gallery-margin-top-tablet, var(--alpi-slider-gallery-margin-top-desktop, 0)));
+        margin-bottom: var(--alpi-slider-gallery-margin-bottom-mobile, var(--alpi-slider-gallery-margin-bottom-tablet, var(--alpi-slider-gallery-margin-bottom-desktop, 0)));
+    }
+}
