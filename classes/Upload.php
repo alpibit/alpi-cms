@@ -5,7 +5,7 @@ class Upload
     protected $uploadDir;
     protected $uploadUrl;
     protected $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    protected $allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mpeg'];
+    protected $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/mpeg'];
     protected $maxFileSize = 10485760; // 10MB
 
     public function __construct(PDO $db, $uploadDir = null, $uploadUrl = BASE_URL . '/uploads/')
