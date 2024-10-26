@@ -12,12 +12,6 @@
     margin-bottom: var(--alpi-slider-gallery-margin-bottom-desktop, 0);
 }
 
-.alpi-cms-content-container {
-    width: 100%;
-    max-width: none;
-    padding-left: 0;
-    padding-right: 0;
-}
 
 .slider-gallery {
     display: flex;

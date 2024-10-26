@@ -1,19 +1,19 @@
+/* CTA Container */
 .alpi-cms-content-cta {
     position: relative;
     width: 100%;
-    box-sizing: border-box;
-    padding-top: var(--alpi-cta-padding-top-desktop, 20px);
-    padding-bottom: var(--alpi-cta-padding-bottom-desktop, 20px);
+    padding-top: var(--alpi-cta-padding-top-desktop, 80px);
+    padding-bottom: var(--alpi-cta-padding-bottom-desktop, 80px);
     margin-top: var(--alpi-cta-margin-top-desktop, 0);
     margin-bottom: var(--alpi-cta-margin-bottom-desktop, 0);
-    color: var(--alpi-cta-text-color, #000);
-    overflow: hidden;
     background: var(--alpi-cta-background-desktop);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    color: var(--alpi-cta-text-color, var(--color-dark));
 }
 
+/* Overlay */
 .alpi-cms-content-cta::before {
     content: '';
     position: absolute;
@@ -21,80 +21,193 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--alpi-cta-overlay-color, transparent);
+    background-color: var(--alpi-cta-overlay-color);
+    pointer-events: none;
 }
 
+/* CTA Inner Container */
 .alpi-cms-content-cta-inner {
     position: relative;
     z-index: 1;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
+/* CTA Title */
 .alpi-cms-content-cta-title {
-    font-size: var(--alpi-cta-text-size-desktop, 24px);
-    margin-bottom: 15px;
-}
-
-.alpi-cms-content-cta-content {
-    font-size: var(--alpi-cta-content-size-desktop, 16px);
+    font-size: var(--alpi-cta-text-size-desktop, 36px);
+    font-weight: 700;
     margin-bottom: 20px;
+    line-height: 1.2;
 }
 
+/* CTA Content */
+.alpi-cms-content-cta-content {
+    font-size: var(--alpi-cta-text-size-desktop, 18px);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* CTA Buttons Container */
 .alpi-cms-content-cta-buttons {
     display: flex;
+    gap: 20px;
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
 }
 
+/* CTA Button Base Styles */
 .alpi-cms-content-cta-button {
-    display: inline-block;
-    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
     text-decoration: none;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease;
+    min-width: 200px;
 }
 
-.alpi-cms-content-cta-button:hover {
+/* Primary CTA Button */
+.alpi-cms-content-cta-button-1 {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.alpi-cms-content-cta-button-1:hover {
     background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
+/* Secondary CTA Button */
+.alpi-cms-content-cta-button-2 {
+    background-color: var(--color-light);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.alpi-cms-content-cta-button-2:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+}
+
+/* 4K screens (≥2560px) */
+@media screen and (min-width: 2560px) {
     .alpi-cms-content-cta {
-        background: var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop));
-        padding-top: var(--alpi-cta-padding-top-tablet, var(--alpi-cta-padding-top-desktop, 20px));
-        padding-bottom: var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px));
+        padding-top: var(--alpi-cta-padding-top-desktop, 120px);
+        padding-bottom: var(--alpi-cta-padding-bottom-desktop, 120px);
+    }
+
+    .alpi-cms-content-cta-inner {
+        max-width: 1200px;
+    }
+
+    .alpi-cms-content-cta-title {
+        font-size: var(--alpi-cta-text-size-desktop, 48px);
+    }
+
+    .alpi-cms-content-cta-content {
+        font-size: var(--alpi-cta-text-size-desktop, 24px);
+    }
+
+    .alpi-cms-content-cta-button {
+        padding: 20px 40px;
+        font-size: 20px;
+        min-width: 240px;
+    }
+}
+
+/* Desktop screens (1200px to 2559px) */
+@media screen and (min-width: 1200px) and (max-width: 2559px) {
+    .alpi-cms-content-cta {
+        padding-top: var(--alpi-cta-padding-top-desktop, 80px);
+        padding-bottom: var(--alpi-cta-padding-bottom-desktop, 80px);
+        margin-top: var(--alpi-cta-margin-top-desktop, 0);
+        margin-bottom: var(--alpi-cta-margin-bottom-desktop, 0);
+    }
+}
+
+/* Tablet screens (768px to 1199px) */
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .alpi-cms-content-cta {
+        padding-top: var(--alpi-cta-padding-top-tablet, var(--alpi-cta-padding-top-desktop, 60px));
+        padding-bottom: var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 60px));
         margin-top: var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0));
         margin-bottom: var(--alpi-cta-margin-bottom-tablet, var(--alpi-cta-margin-bottom-desktop, 0));
+        background: var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop));
     }
 
     .alpi-cms-content-cta-title {
-        font-size: var(--alpi-cta-text-size-tablet, var(--alpi-cta-text-size-desktop, 22px));
+        font-size: var(--alpi-cta-text-size-tablet, 32px);
     }
 
     .alpi-cms-content-cta-content {
-        font-size: var(--alpi-cta-content-size-tablet, var(--alpi-cta-content-size-desktop, 14px));
+        font-size: var(--alpi-cta-text-size-tablet, 16px);
     }
 }
 
-@media (max-width: 480px) {
+/* Mobile screens (481px to 767px) */
+@media screen and (min-width: 481px) and (max-width: 767px) {
     .alpi-cms-content-cta {
+        padding-top: var(--alpi-cta-padding-top-mobile, var(--alpi-cta-padding-top-tablet, 40px));
+        padding-bottom: var(--alpi-cta-padding-bottom-mobile, var(--alpi-cta-padding-bottom-tablet, 40px));
+        margin-top: var(--alpi-cta-margin-top-mobile, var(--alpi-cta-margin-top-tablet, 0));
+        margin-bottom: var(--alpi-cta-margin-bottom-mobile, var(--alpi-cta-margin-bottom-tablet, 0));
         background: var(--alpi-cta-background-mobile, var(--alpi-cta-background-tablet, var(--alpi-cta-background-desktop)));
-        padding-top: var(--alpi-cta-padding-top-mobile, var(--alpi-cta-padding-top-tablet, var(--alpi-cta-padding-top-desktop, 20px)));
-        padding-bottom: var(--alpi-cta-padding-bottom-mobile, var(--alpi-cta-padding-bottom-tablet, var(--alpi-cta-padding-bottom-desktop, 20px)));
-        margin-top: var(--alpi-cta-margin-top-mobile, var(--alpi-cta-margin-top-tablet, var(--alpi-cta-margin-top-desktop, 0)));
-        margin-bottom: var(--alpi-cta-margin-bottom-mobile, var(--alpi-cta-margin-bottom-tablet, var(--alpi-cta-margin-bottom-desktop, 0)));
     }
 
     .alpi-cms-content-cta-title {
-        font-size: var(--alpi-cta-text-size-mobile, var(--alpi-cta-text-size-tablet, var(--alpi-cta-text-size-desktop, 20px)));
+        font-size: var(--alpi-cta-text-size-mobile, 28px);
     }
 
     .alpi-cms-content-cta-content {
-        font-size: var(--alpi-cta-content-size-mobile, var(--alpi-cta-content-size-tablet, var(--alpi-cta-content-size-desktop, 13px)));
+        font-size: var(--alpi-cta-text-size-mobile, 15px);
+    }
+
+    .alpi-cms-content-cta-button {
+        padding: 12px 24px;
+        font-size: 14px;
+        min-width: 160px;
+    }
+}
+
+/* Small mobile screens (≤480px) */
+@media screen and (max-width: 480px) {
+    .alpi-cms-content-cta {
+        padding-top: var(--alpi-cta-padding-top-mobile, 30px);
+        padding-bottom: var(--alpi-cta-padding-bottom-mobile, 30px);
+        margin-top: var(--alpi-cta-margin-top-mobile, 0);
+        margin-bottom: var(--alpi-cta-margin-bottom-mobile, 0);
+        background: var(--alpi-cta-background-mobile);
+    }
+
+    .alpi-cms-content-cta-title {
+        font-size: var(--alpi-cta-text-size-mobile, 24px);
+    }
+
+    .alpi-cms-content-cta-content {
+        font-size: var(--alpi-cta-text-size-mobile, 14px);
     }
 
     .alpi-cms-content-cta-buttons {
         flex-direction: column;
+        gap: 12px;
+    }
+
+    .alpi-cms-content-cta-button {
+        width: 100%;
+        min-width: unset;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .alpi-cms-content-cta-button {
+        transition: none;
     }
 }

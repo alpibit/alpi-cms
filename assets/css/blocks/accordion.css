@@ -1,20 +1,24 @@
 /* Accordion Container */
 .alpi-cms-content-accordion {
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+    background-color: var(--color-white);
     padding-top: var(--alpi-accordion-padding-top-desktop, 0);
     padding-bottom: var(--alpi-accordion-padding-bottom-desktop, 0);
     margin-top: var(--alpi-accordion-margin-top-desktop, 0);
     margin-bottom: var(--alpi-accordion-margin-bottom-desktop, 0);
-    overflow-x: hidden;
 }
 
 /* Accordion Section */
 .alpi-cms-content-accordion-section {
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     overflow: hidden;
+    background-color: var(--color-white);
+}
+
+.alpi-cms-content-accordion-section:last-child {
+    margin-bottom: 0;
 }
 
 /* Accordion Header */
@@ -26,37 +30,123 @@
 /* Accordion Trigger (Button) */
 .alpi-cms-content-accordion-trigger {
     width: 100%;
-    padding: 15px;
-    background-color: #f5f5f5;
+    padding: 20px;
+    background-color: var(--color-white);
     border: none;
     text-align: left;
     cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-dark);
     transition: background-color 0.3s ease;
-    font-size: 16px;
-    font-weight: bold;
 }
 
-.alpi-cms-content-accordion-trigger:hover,
-.alpi-cms-content-accordion-trigger[aria-expanded="true"] {
-    background-color: #e5e5e5;
+.alpi-cms-content-accordion-trigger:after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 16px;
+}
+
+.alpi-cms-content-accordion-trigger[aria-expanded="true"]:after {
+    transform: rotate(-135deg) translateY(2px);
+}
+
+.alpi-cms-content-accordion-trigger:hover {
+    background-color: #f8f9fa;
+}
+
+.alpi-cms-content-accordion-trigger:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary);
 }
 
 /* Accordion Content */
 .alpi-cms-content-accordion-content {
-    padding: 15px;
-    background-color: #ffffff;
+    overflow: hidden;
+    will-change: max-height;
 }
 
-/* Accordion Content Inner */
+.alpi-cms-content-accordion-content[hidden] {
+    display: none;
+}
+
+/* Content Inner */
 .alpi-cms-content-accordion-content-inner {
-    max-width: 100%;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
+    padding: 20px;
+    color: var(--color-dark);
+    font-size: 16px;
+    line-height: 1.6;
 }
 
-/* Tablet Styles */
-@media (max-width: 768px) {
+/* 4K screens (≥2560px) */
+@media screen and (min-width: 2560px) {
+    .alpi-cms-content-accordion {
+        padding-top: var(--alpi-accordion-padding-top-desktop, 0);
+        padding-bottom: var(--alpi-accordion-padding-bottom-desktop, 0);
+        margin-top: var(--alpi-accordion-margin-top-desktop, 0);
+        margin-bottom: var(--alpi-accordion-margin-bottom-desktop, 0);
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        padding: 32px;
+        font-size: 24px;
+    }
+
+    .alpi-cms-content-accordion-content-inner {
+        padding: 32px;
+        font-size: 20px;
+    }
+
+    .alpi-cms-content-accordion-trigger:after {
+        width: 14px;
+        height: 14px;
+        margin-left: 20px;
+    }
+
+    .alpi-cms-content-accordion-section {
+        margin-bottom: 24px;
+        border-radius: 12px;
+    }
+}
+
+/* Desktop screens (1200px to 2559px) */
+@media screen and (min-width: 1200px) and (max-width: 2559px) {
+    .alpi-cms-content-accordion {
+        padding-top: var(--alpi-accordion-padding-top-desktop, 0);
+        padding-bottom: var(--alpi-accordion-padding-bottom-desktop, 0);
+        margin-top: var(--alpi-accordion-margin-top-desktop, 0);
+        margin-bottom: var(--alpi-accordion-margin-bottom-desktop, 0);
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        padding: 24px;
+        font-size: 20px;
+    }
+
+    .alpi-cms-content-accordion-content-inner {
+        padding: 24px;
+        font-size: 18px;
+    }
+
+    .alpi-cms-content-accordion-trigger:after {
+        width: 12px;
+        height: 12px;
+        margin-left: 18px;
+    }
+}
+
+/* Tablet screens (768px to 1199px) */
+@media screen and (min-width: 768px) and (max-width: 1199px) {
     .alpi-cms-content-accordion {
         padding-top: var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0));
         padding-bottom: var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0));
@@ -65,30 +155,102 @@
     }
 
     .alpi-cms-content-accordion-trigger {
-        font-size: 14px;
+        padding: 20px;
+        font-size: 17px;
+    }
+
+    .alpi-cms-content-accordion-content-inner {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .alpi-cms-content-accordion-trigger:after {
+        width: 10px;
+        height: 10px;
+        margin-left: 16px;
     }
 }
 
-/* Mobile Styles */
-@media (max-width: 480px) {
+/* Mobile screens (481px to 767px) */
+@media screen and (min-width: 481px) and (max-width: 767px) {
     .alpi-cms-content-accordion {
-        padding-top: var(--alpi-accordion-padding-top-mobile, var(--alpi-accordion-padding-top-tablet, var(--alpi-accordion-padding-top-desktop, 0)));
-        padding-bottom: var(--alpi-accordion-padding-bottom-mobile, var(--alpi-accordion-padding-bottom-tablet, var(--alpi-accordion-padding-bottom-desktop, 0)));
-        margin-top: var(--alpi-accordion-margin-top-mobile, var(--alpi-accordion-margin-top-tablet, var(--alpi-accordion-margin-top-desktop, 0)));
-        margin-bottom: var(--alpi-accordion-margin-bottom-mobile, var(--alpi-accordion-margin-bottom-tablet, var(--alpi-accordion-margin-bottom-desktop, 0)));
+        padding-top: var(--alpi-accordion-padding-top-mobile, var(--alpi-accordion-padding-top-tablet, 0));
+        padding-bottom: var(--alpi-accordion-padding-bottom-mobile, var(--alpi-accordion-padding-bottom-tablet, 0));
+        margin-top: var(--alpi-accordion-margin-top-mobile, var(--alpi-accordion-margin-top-tablet, 0));
+        margin-bottom: var(--alpi-accordion-margin-bottom-mobile, var(--alpi-accordion-margin-bottom-tablet, 0));
+    }
+
+    .alpi-cms-content-accordion-section {
+        margin-bottom: 12px;
+        border-radius: 6px;
     }
 
     .alpi-cms-content-accordion-trigger {
-        font-size: 13px;
-        padding: 12px;
+        padding: 16px;
+        font-size: 16px;
     }
 
-    .alpi-cms-content-accordion-content {
-        padding: 12px;
+    .alpi-cms-content-accordion-content-inner {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .alpi-cms-content-accordion-trigger:after {
+        width: 9px;
+        height: 9px;
+        margin-left: 14px;
     }
 }
 
-/* Accessibility: Hide accordion content when JavaScript is disabled */
-.alpi-cms-content-accordion-content[hidden] {
-    display: none;
+/* Small mobile screens (≤480px) */
+@media screen and (max-width: 480px) {
+    .alpi-cms-content-accordion {
+        padding-top: var(--alpi-accordion-padding-top-mobile, 0);
+        padding-bottom: var(--alpi-accordion-padding-bottom-mobile, 0);
+        margin-top: var(--alpi-accordion-margin-top-mobile, 0);
+        margin-bottom: var(--alpi-accordion-margin-bottom-mobile, 0);
+    }
+
+    .alpi-cms-content-accordion-section {
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .alpi-cms-content-accordion-content-inner {
+        padding: 14px;
+        font-size: 13px;
+    }
+
+    .alpi-cms-content-accordion-trigger:after {
+        width: 8px;
+        height: 8px;
+        margin-left: 12px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .alpi-cms-content-accordion-trigger,
+    .alpi-cms-content-accordion-trigger:after,
+    .alpi-cms-content-accordion-content {
+        transition: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (forced-colors: active) {
+    .alpi-cms-content-accordion-trigger {
+        border: 1px solid ButtonBorder;
+    }
+
+    .alpi-cms-content-accordion-trigger:focus {
+        outline: 2px solid ButtonText;
+        outline-offset: -2px;
+    }
 }
