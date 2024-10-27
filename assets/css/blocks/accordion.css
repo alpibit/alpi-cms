@@ -233,24 +233,84 @@
     }
 }
 
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
+/* Accordion Accessibility Enhancements */
+/* Increased contrast mode */
+@media (prefers-contrast: more) {
+    .alpi-cms-content-accordion-trigger {
+        border: 2px solid currentColor;
+    }
 
-    .alpi-cms-content-accordion-trigger,
-    .alpi-cms-content-accordion-trigger:after,
-    .alpi-cms-content-accordion-content {
-        transition: none;
+    .alpi-cms-content-accordion-trigger[aria-expanded="true"] {
+        background-color: var(--color-primary);
+        color: var(--color-white);
     }
 }
 
-/* High Contrast Mode */
+/* Print styles for accordion */
+@media print {
+    .alpi-cms-content-accordion-content {
+        display: block !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .alpi-cms-content-accordion-trigger {
+        display: none;
+    }
+
+    .alpi-cms-content-accordion-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #000;
+        margin-bottom: 20px;
+    }
+
+    .alpi-cms-content-accordion-content-inner {
+        padding: 15px;
+    }
+}
+
+/* Windows High Contrast Mode */
 @media (forced-colors: active) {
     .alpi-cms-content-accordion-trigger {
         border: 1px solid ButtonBorder;
+        background-color: ButtonFace;
+        color: ButtonText;
+        forced-color-adjust: none;
     }
 
+    .alpi-cms-content-accordion-trigger:hover,
     .alpi-cms-content-accordion-trigger:focus {
-        outline: 2px solid ButtonText;
-        outline-offset: -2px;
+        border-color: Highlight;
     }
+
+    .alpi-cms-content-accordion-trigger[aria-expanded="true"] {
+        background-color: Highlight;
+        color: HighlightText;
+    }
+
+    .alpi-cms-content-accordion-section {
+        border-color: ButtonBorder;
+    }
+}
+
+/* Screen reader only text for accordion */
+.alpi-cms-content-accordion .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible polyfill support */
+.alpi-cms-content-accordion-trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    box-shadow: none;
 }

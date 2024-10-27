@@ -205,9 +205,126 @@
     }
 }
 
-/* Reduced Motion */
+/* CTA Accessibility Enhancements */
+/* Increased contrast mode */
+@media (prefers-contrast: more) {
+    .alpi-cms-content-cta::before {
+        /* Increase overlay opacity for better contrast with background */
+        opacity: 0.85;
+    }
+
+    .alpi-cms-content-cta-button {
+        border: 2px solid currentColor;
+    }
+
+    .alpi-cms-content-cta-button-1 {
+        background-color: #005299;
+        /* Darker blue for better contrast */
+    }
+
+    .alpi-cms-content-cta-button-2 {
+        background-color: var(--color-white);
+        color: #005299;
+        border-color: #005299;
+    }
+}
+
+/* Print styles for CTA */
+@media print {
+    .alpi-cms-content-cta {
+        background: none !important;
+        color: black !important;
+        padding: 20px 0 !important;
+    }
+
+    .alpi-cms-content-cta::before {
+        display: none;
+    }
+
+    .alpi-cms-content-cta-buttons {
+        display: block;
+    }
+
+    .alpi-cms-content-cta-button {
+        display: block;
+        text-align: center;
+        color: black !important;
+        background: none !important;
+        border: 1px solid black;
+        margin: 10px 0;
+        text-decoration: underline;
+    }
+
+    .alpi-cms-content-cta-button::after {
+        content: " (" attr(href) ")";
+        font-size: 0.9em;
+    }
+}
+
+/* Windows High Contrast Mode */
+@media (forced-colors: active) {
+    .alpi-cms-content-cta {
+        border: 1px solid ButtonBorder;
+        forced-color-adjust: none;
+    }
+
+    .alpi-cms-content-cta::before {
+        background-color: Canvas;
+        opacity: 0.9;
+    }
+
+    .alpi-cms-content-cta-button-1 {
+        background-color: Highlight;
+        color: HighlightText;
+        border: 1px solid ButtonBorder;
+    }
+
+    .alpi-cms-content-cta-button-2 {
+        background-color: ButtonFace;
+        color: ButtonText;
+        border: 1px solid CurrentColor;
+    }
+
+    .alpi-cms-content-cta-button:focus {
+        outline: 2px solid SelectedItem;
+        outline-offset: 2px;
+    }
+}
+
+/* Focus visible polyfill support */
+.alpi-cms-content-cta-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    box-shadow: none;
+}
+
+/* Screen reader enhancements */
+.alpi-cms-content-cta-button {
+    position: relative;
+}
+
+/* Add screen reader context for multiple CTAs */
+.alpi-cms-content-cta-button .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Keyboard focus indicator */
+.alpi-cms-content-cta *:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Motion sensitivity */
 @media (prefers-reduced-motion: reduce) {
     .alpi-cms-content-cta-button {
-        transition: none;
+        transform: none !important;
     }
 }

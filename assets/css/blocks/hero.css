@@ -1,48 +1,53 @@
+/* Hero Container */
 .alpi-cms-content-hero {
     position: relative;
     width: 100%;
-    box-sizing: border-box;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
     padding-top: var(--alpi-hero-padding-top-desktop, 60px);
     padding-bottom: var(--alpi-hero-padding-bottom-desktop, 60px);
     margin-top: var(--alpi-hero-margin-top-desktop, 0);
     margin-bottom: var(--alpi-hero-margin-bottom-desktop, 0);
-    color: var(--alpi-hero-text-color, #ffffff);
-    overflow: hidden;
+    color: var(--alpi-hero-text-color, var(--color-white));
     background: var(--alpi-hero-background-desktop);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    min-height: 400px;
-    display: flex;
-    align-items: center;
+    overflow: hidden;
 }
 
+/* Hero Overlay */
 .alpi-cms-content-hero-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--alpi-hero-overlay-color, rgba(0, 0, 0, 0.5));
+    inset: 0;
+    background-color: var(--alpi-hero-overlay-color);
+    z-index: 1;
 }
 
+/* Hero Inner Container */
 .alpi-cms-content-hero-inner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
 }
 
+/* Hero Title */
 .alpi-cms-content-hero-title {
+    margin: 0 0 20px;
     font-size: var(--alpi-hero-title-size-desktop, 48px);
-    margin-bottom: 20px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
+/* Hero Content */
 .alpi-cms-content-hero-content {
     font-size: var(--alpi-hero-content-size-desktop, 18px);
-    max-width: 600px;
+    line-height: 1.6;
+    max-width: 800px;
 }
 
-/* Layout variations */
+/* Layout Variations */
 .alpi-cms-content-hero-left .alpi-cms-content-hero-inner {
     text-align: left;
 }
@@ -64,40 +69,164 @@
     margin-left: auto;
 }
 
-@media (max-width: 768px) {
+/* 4K screens (≥2560px) */
+@media screen and (min-width: 2560px) {
     .alpi-cms-content-hero {
-        background: var(--alpi-hero-background-tablet, var(--alpi-hero-background-desktop));
-        padding-top: var(--alpi-hero-padding-top-tablet, var(--alpi-hero-padding-top-desktop, 40px));
-        padding-bottom: var(--alpi-hero-padding-bottom-tablet, var(--alpi-hero-padding-bottom-desktop, 40px));
-        margin-top: var(--alpi-hero-margin-top-tablet, var(--alpi-hero-margin-top-desktop, 0));
-        margin-bottom: var(--alpi-hero-margin-bottom-tablet, var(--alpi-hero-margin-bottom-desktop, 0));
-        min-height: 300px;
+        min-height: 600px;
+        padding-top: var(--alpi-hero-padding-top-desktop, 120px);
+        padding-bottom: var(--alpi-hero-padding-bottom-desktop, 120px);
     }
 
     .alpi-cms-content-hero-title {
-        font-size: var(--alpi-hero-title-size-tablet, var(--alpi-hero-title-size-desktop, 36px));
+        font-size: var(--alpi-hero-title-size-desktop, 72px);
+        margin-bottom: 30px;
     }
 
     .alpi-cms-content-hero-content {
-        font-size: var(--alpi-hero-content-size-tablet, var(--alpi-hero-content-size-desktop, 16px));
+        font-size: var(--alpi-hero-content-size-desktop, 24px);
+        max-width: 1200px;
     }
 }
 
-@media (max-width: 480px) {
+/* Desktop screens (1200px to 2559px) */
+@media screen and (min-width: 1200px) and (max-width: 2559px) {
     .alpi-cms-content-hero {
-        background: var(--alpi-hero-background-mobile, var(--alpi-hero-background-tablet, var(--alpi-hero-background-desktop)));
-        padding-top: var(--alpi-hero-padding-top-mobile, var(--alpi-hero-padding-top-tablet, var(--alpi-hero-padding-top-desktop, 30px)));
-        padding-bottom: var(--alpi-hero-padding-bottom-mobile, var(--alpi-hero-padding-bottom-tablet, var(--alpi-hero-padding-bottom-desktop, 30px)));
-        margin-top: var(--alpi-hero-margin-top-mobile, var(--alpi-hero-margin-top-tablet, var(--alpi-hero-margin-top-desktop, 0)));
-        margin-bottom: var(--alpi-hero-margin-bottom-mobile, var(--alpi-hero-margin-bottom-tablet, var(--alpi-hero-margin-bottom-desktop, 0)));
-        min-height: 200px;
+        min-height: 500px;
+    }
+}
+
+/* Tablet screens (768px to 1199px) */
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .alpi-cms-content-hero {
+        min-height: 400px;
+        padding-top: var(--alpi-hero-padding-top-tablet, var(--alpi-hero-padding-top-desktop, 50px));
+        padding-bottom: var(--alpi-hero-padding-bottom-tablet, var(--alpi-hero-padding-bottom-desktop, 50px));
+        margin-top: var(--alpi-hero-margin-top-tablet, var(--alpi-hero-margin-top-desktop, 0));
+        margin-bottom: var(--alpi-hero-margin-bottom-tablet, var(--alpi-hero-margin-bottom-desktop, 0));
+        background: var(--alpi-hero-background-tablet, var(--alpi-hero-background-desktop));
     }
 
     .alpi-cms-content-hero-title {
-        font-size: var(--alpi-hero-title-size-mobile, var(--alpi-hero-title-size-tablet, var(--alpi-hero-title-size-desktop, 28px)));
+        font-size: var(--alpi-hero-title-size-tablet, 36px);
     }
 
     .alpi-cms-content-hero-content {
-        font-size: var(--alpi-hero-content-size-mobile, var(--alpi-hero-content-size-tablet, var(--alpi-hero-content-size-desktop, 14px)));
+        font-size: var(--alpi-hero-content-size-tablet, 16px);
+        max-width: 600px;
     }
+}
+
+/* Mobile screens (481px to 767px) */
+@media screen and (min-width: 481px) and (max-width: 767px) {
+    .alpi-cms-content-hero {
+        min-height: 300px;
+        padding-top: var(--alpi-hero-padding-top-mobile, var(--alpi-hero-padding-top-tablet, 40px));
+        padding-bottom: var(--alpi-hero-padding-bottom-mobile, var(--alpi-hero-padding-bottom-tablet, 40px));
+        margin-top: var(--alpi-hero-margin-top-mobile, var(--alpi-hero-margin-top-tablet, 0));
+        margin-bottom: var(--alpi-hero-margin-bottom-mobile, var(--alpi-hero-margin-bottom-tablet, 0));
+        background: var(--alpi-hero-background-mobile, var(--alpi-hero-background-tablet));
+    }
+
+    .alpi-cms-content-hero-title {
+        font-size: var(--alpi-hero-title-size-mobile, 32px);
+    }
+
+    .alpi-cms-content-hero-content {
+        font-size: var(--alpi-hero-content-size-mobile, 15px);
+        max-width: 100%;
+    }
+}
+
+/* Small mobile screens (≤480px) */
+@media screen and (max-width: 480px) {
+    .alpi-cms-content-hero {
+        min-height: 250px;
+        padding-top: var(--alpi-hero-padding-top-mobile, 30px);
+        padding-bottom: var(--alpi-hero-padding-bottom-mobile, 30px);
+        margin-top: var(--alpi-hero-margin-top-mobile, 0);
+        margin-bottom: var(--alpi-hero-margin-bottom-mobile, 0);
+        background: var(--alpi-hero-background-mobile);
+    }
+
+    .alpi-cms-content-hero-title {
+        font-size: var(--alpi-hero-title-size-mobile, 28px);
+        margin-bottom: 15px;
+    }
+
+    .alpi-cms-content-hero-content {
+        font-size: var(--alpi-hero-content-size-mobile, 14px);
+    }
+
+    /* Stack alignment on mobile */
+    .alpi-cms-content-hero-right .alpi-cms-content-hero-inner,
+    .alpi-cms-content-hero-left .alpi-cms-content-hero-inner {
+        text-align: center;
+    }
+
+    .alpi-cms-content-hero-right .alpi-cms-content-hero-content,
+    .alpi-cms-content-hero-left .alpi-cms-content-hero-content {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .alpi-cms-content-hero {
+        /* Remove any transitions if they're added in the future */
+        transition: none !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    .alpi-cms-content-hero-overlay {
+        /* Increase overlay opacity for better contrast */
+        opacity: 0.75;
+    }
+}
+
+@media (forced-colors: active) {
+    .alpi-cms-content-hero {
+        /* Ensure visibility in high contrast mode */
+        border: 1px solid ButtonBorder;
+    }
+
+    .alpi-cms-content-hero-overlay {
+        /* Maintain overlay visibility in high contrast */
+        background-color: Canvas;
+        opacity: 0.8;
+    }
+}
+
+/* Print styles */
+@media print {
+    .alpi-cms-content-hero {
+        /* Ensure content is readable when printed */
+        background: none !important;
+        color: black !important;
+        min-height: auto;
+    }
+
+    .alpi-cms-content-hero-overlay {
+        display: none;
+    }
+}
+
+/* Focus styles for interactive elements if added later */
+.alpi-cms-content-hero :focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Screen reader only text for background images */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
