@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/autoload.php';
+
 SecurityHeaders::apply();
 
 $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
@@ -11,4 +11,3 @@ $appBase = str_replace('index.php', '', $appBase);
 if (!defined('BASE_URL')) {
     define('BASE_URL', $scheme . '://' . $host . $appBase);
 }
-?>

@@ -1,9 +1,9 @@
 <?php
 ob_start();
 
+require '../../../config/autoload.php';
 require '../../../config/database.php';
 require '../../../config/config.php';
-require '../../../config/autoload.php';
 require '../auth_check.php';
 
 

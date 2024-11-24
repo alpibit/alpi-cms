@@ -1,8 +1,8 @@
 <?php
 
+require '../../../config/autoload.php';
 require '../../../config/database.php';
 require '../../../config/config.php';
-require '../../../config/autoload.php';
 require '../auth_check.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
