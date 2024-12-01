@@ -1,7 +1,10 @@
 <?php
-require_once 'config/config.php';
-require_once 'classes/Database.php';
-require_once 'classes/Installer.php';
+if (!defined('CONFIG_INCLUDED')) {
+    require_once __DIR__ . '/config/autoload.php';
+    require_once __DIR__ . '/utils/helpers.php';
+    require_once __DIR__ . '/config/config.php';
+    define('CONFIG_INCLUDED', true);
+}
 
 $errors = [];
 
@@ -35,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $adminEmail = trim($_POST['admin_email']);
     $websiteUrl = trim($_POST['website_url']);
 
+    $errors = [];
+
     if (empty($host)) {
         $errors[] = "Please enter the database host.";
     }
@@ -59,9 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (strlen($adminUser) < 5) {
         $errors[] = "Admin username should be at least 5 characters long.";
     }
-    if (strlen($adminPass) < 8) {
-        $errors[] = "Admin password should be at least 8 characters long.";
+
+    // Use the new password validation
+    $tempUser = new User(null);
+    try {
+        if (!$tempUser->validatePassword($adminPass)) {
+            $errors = array_merge($errors, $tempUser->getPasswordErrors());
+        }
+    } catch (Exception $e) {
+        $errors[] = $e->getMessage();
     }
+
     if (empty($websiteUrl)) {
         $errors[] = "Please enter the website URL.";
     }
@@ -75,6 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         } catch (PDOException $e) {
             $errors[] = "Database connection failed. Error: " . $e->getMessage();
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
         }
     }
 }
@@ -156,8 +171,22 @@ function isInstalled($conn)
                     <input type="text" name="admin_user" id="admin_user" class="alpi-form-input" required>
                 </div>
                 <div class="alpi-form-group">
-                    <label for="admin_pass" class="alpi-form-label">Admin Password</label>
-                    <input type="password" name="admin_pass" id="admin_pass" class="alpi-form-input" required>
+                    <label for="admin_pass" class="alpi-form-label">Admin Password:</label>
+                    <input type="password"
+                        id="admin_pass"
+                        name="admin_pass"
+                        class="alpi-form-input"
+                        required
+                        autocomplete="new-password">
+                    <div class="password-requirements">
+                        Password must be at least 12 characters long and contain:
+                        <ul>
+                            <li>At least one uppercase letter</li>
+                            <li>At least one lowercase letter</li>
+                            <li>At least one number</li>
+                            <li>At least one special character</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Site Configuration</h2>
