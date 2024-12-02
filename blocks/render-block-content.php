@@ -1,9 +1,9 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 
+require '../config/autoload.php';
 require '../config/database.php';
 require '../config/config.php';
-require '../config/autoload.php';
 
 $blockType = $_GET['type'] ?? '';
 $index = $_GET['index'] ?? 0;
