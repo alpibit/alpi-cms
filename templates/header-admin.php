@@ -29,6 +29,7 @@ $adminSiteName = $settingsAdmin->getSetting('site_title') . ' Admin';
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/categories/index.php" class="alpi-nav-link">Manage Categories</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/settings/index.php" class="alpi-nav-link">Settings</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/settings/change_password.php" class="alpi-nav-link">Change Password</a>
+                <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/settings/data-management.php" class="alpi-nav-link">Data Management</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/uploads/index.php" class="alpi-nav-link">Uploads</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/logout.php" class="alpi-nav-link">Logout</a>
             </nav>
