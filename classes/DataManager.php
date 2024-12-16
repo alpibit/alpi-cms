@@ -157,6 +157,185 @@ class DataManager
         return $data;
     }
 
+    protected function exportPosts()
+    {
+        $map = $this->relationshipMaps['posts'];
+        $query = $this->buildExportQuery($map);
+        $stmt = $this->db->query($query);
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($posts as &$post) {
+            foreach ($map['relationships'] as $relation => $config) {
+                if ($config['type'] === 'one_to_many') {
+                    $post[$relation] = $this->fetchRelatedRecords(
+                        $config['table'],
+                        $config['foreign_key'],
+                        $post['id']
+                    );
+                }
+            }
+        }
+
+        return $posts;
+    }
+
+    protected function exportPages()
+    {
+        $map = $this->relationshipMaps['pages'];
+        $query = $this->buildExportQuery($map);
+        $stmt = $this->db->query($query);
+        $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($pages as &$page) {
+            foreach ($map['relationships'] as $relation => $config) {
+                if ($config['type'] === 'one_to_many') {
+                    $page[$relation] = $this->fetchRelatedRecords(
+                        $config['table'],
+                        $config['foreign_key'],
+                        $page['id']
+                    );
+                }
+            }
+        }
+
+        return $pages;
+    }
+
+    protected function exportCategories()
+    {
+        $stmt = $this->db->query("SELECT * FROM categories");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    protected function exportSettings()
+    {
+        $stmt = $this->db->query("SELECT * FROM settings");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    protected function importCategories($categories)
+    {
+        foreach ($categories as $category) {
+            $slug = $category['slug'];
+
+            $stmt = $this->db->prepare("SELECT id FROM categories WHERE slug = ?");
+            $stmt->execute([$slug]);
+            $existingId = $stmt->fetchColumn();
+
+            if ($existingId) {
+                $stmt = $this->db->prepare("UPDATE categories SET name = ? WHERE id = ?");
+                $stmt->execute([$category['name'], $existingId]);
+                $this->idMaps['categories'][$category['id']] = $existingId;
+                $this->warnings[] = "Updated existing category: {$category['name']}";
+            } else {
+                $stmt = $this->db->prepare("INSERT INTO categories (name, slug) VALUES (?, ?)");
+                $stmt->execute([$category['name'], $slug]);
+                $newId = $this->db->lastInsertId();
+                $this->idMaps['categories'][$category['id']] = $newId;
+            }
+        }
+    }
+
+    protected function importPosts($posts)
+    {
+        foreach ($posts as $post) {
+            $slug = $post['slug'];
+
+            $stmt = $this->db->prepare("SELECT id FROM contents WHERE slug = ? AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')");
+            $stmt->execute([$slug]);
+            $existingId = $stmt->fetchColumn();
+
+            $categoryId = isset($this->idMaps['categories'][$post['category_id']])
+                ? $this->idMaps['categories'][$post['category_id']]
+                : null;
+
+            $postData = $this->mapFields($post, 'contents');
+            $postData['content_type_id'] = $this->getContentTypeId('post');
+            $postData['category_id'] = $categoryId;
+
+            if ($existingId) {
+                $this->updateRecord('contents', $postData, $existingId);
+                $this->idMaps['contents'][$post['id']] = $existingId;
+                $this->warnings[] = "Updated existing post: {$post['title']}";
+
+                $stmt = $this->db->prepare("DELETE FROM blocks WHERE content_id = ?");
+                $stmt->execute([$existingId]);
+            } else {
+                $this->insertRecord('contents', $postData);
+                $newId = $this->db->lastInsertId();
+                $this->idMaps['contents'][$post['id']] = $newId;
+            }
+
+            if (isset($post['blocks'])) {
+                foreach ($post['blocks'] as $block) {
+                    $blockData = $this->mapFields($block, 'blocks');
+                    $blockData['content_id'] = $this->idMaps['contents'][$post['id']];
+                    $this->insertRecord('blocks', $blockData);
+                }
+            }
+        }
+    }
+
+    protected function importPages($pages)
+    {
+        foreach ($pages as $page) {
+            $slug = $page['slug'];
+
+            $stmt = $this->db->prepare("SELECT id FROM contents WHERE slug = ? AND content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
+            $stmt->execute([$slug]);
+            $existingId = $stmt->fetchColumn();
+
+            $pageData = $this->mapFields($page, 'contents');
+            $pageData['content_type_id'] = $this->getContentTypeId('page');
+
+            if ($existingId) {
+                $this->updateRecord('contents', $pageData, $existingId);
+                $this->idMaps['contents'][$page['id']] = $existingId;
+                $this->warnings[] = "Updated existing page: {$page['title']}";
+
+                $stmt = $this->db->prepare("DELETE FROM blocks WHERE content_id = ?");
+                $stmt->execute([$existingId]);
+            } else {
+                $this->insertRecord('contents', $pageData);
+                $newId = $this->db->lastInsertId();
+                $this->idMaps['contents'][$page['id']] = $newId;
+            }
+
+            if (isset($page['blocks'])) {
+                foreach ($page['blocks'] as $block) {
+                    $blockData = $this->mapFields($block, 'blocks');
+                    $blockData['content_id'] = $this->idMaps['contents'][$page['id']];
+                    $this->insertRecord('blocks', $blockData);
+                }
+            }
+        }
+    }
+
+    protected function importSettings($settings)
+    {
+        foreach ($settings as $setting) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM settings WHERE setting_key = ?");
+            $stmt->execute([$setting['setting_key']]);
+            $exists = $stmt->fetchColumn();
+
+            if ($exists) {
+                $stmt = $this->db->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = ?");
+                $stmt->execute([$setting['setting_value'], $setting['setting_key']]);
+                $this->warnings[] = "Updated existing setting: {$setting['setting_key']}";
+            } else {
+                $settingData = $this->mapFields($setting, 'settings');
+                $this->insertRecord('settings', $settingData);
+            }
+        }
+    }
+
+    protected function getContentTypeId($type)
+    {
+        $stmt = $this->db->prepare("SELECT id FROM content_types WHERE name = ?");
+        $stmt->execute([$type]);
+        return $stmt->fetchColumn();
+    }
+
     protected function mapFields($data, $table)
     {
         $schema = $this->tableSchemas[$table];
@@ -200,195 +379,29 @@ class DataManager
         return $value;
     }
 
-    protected function generateUniqueSlug($table, $slug)
+    protected function updateRecord($table, $data, $id)
     {
-        $originalSlug = $slug;
-        $counter = 1;
+        $fields = array_keys($data);
+        $sets = array_map(function ($field) {
+            return "{$field} = ?";
+        }, $fields);
+        $query = "UPDATE {$table} SET " . implode(', ', $sets) . " WHERE id = ?";
 
-        while ($this->slugExists($table, $slug)) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
+        $values = array_values($data);
+        $values[] = $id;
 
-        return $slug;
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($values);
     }
 
-    protected function slugExists($table, $slug)
+    protected function insertRecord($table, $data)
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$table} WHERE slug = ?");
-        $stmt->execute([$slug]);
-        return $stmt->fetchColumn() > 0;
-    }
+        $fields = array_keys($data);
+        $placeholders = array_fill(0, count($fields), '?');
+        $query = "INSERT INTO {$table} (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
-    protected function exportPosts()
-    {
-        $map = $this->relationshipMaps['posts'];
-        $query = $this->buildExportQuery($map);
-        $stmt = $this->db->query($query);
-        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($posts as &$post) {
-            foreach ($map['relationships'] as $relation => $config) {
-                if ($config['type'] === 'one_to_many') {
-                    $post[$relation] = $this->fetchRelatedRecords(
-                        $config['table'],
-                        $config['foreign_key'],
-                        $post['id']
-                    );
-                }
-            }
-        }
-
-        return $posts;
-    }
-
-    protected function importPosts($posts)
-    {
-        foreach ($posts as $post) {
-            $oldId = $post['id'] ?? null;
-            unset($post['id']);
-
-            $postData = $this->mapFields($post, 'contents');
-
-            $stmt = $this->db->prepare("SELECT id FROM content_types WHERE name = 'post'");
-            $stmt->execute();
-            $postData['content_type_id'] = $stmt->fetchColumn();
-
-            if (isset($postData['category_id']) && isset($this->idMaps['categories'][$postData['category_id']])) {
-                $postData['category_id'] = $this->idMaps['categories'][$postData['category_id']];
-            }
-
-            $postData['slug'] = $this->generateUniqueSlug('contents', $postData['slug']);
-
-            $this->insertRecord('contents', $postData);
-            $newId = $this->db->lastInsertId();
-
-            if ($oldId) {
-                $this->idMaps['contents'][$oldId] = $newId;
-            }
-
-            if (isset($post['blocks'])) {
-                foreach ($post['blocks'] as $block) {
-                    unset($block['id']);
-                    $blockData = $this->mapFields($block, 'blocks');
-                    $blockData['content_id'] = $newId;
-                    $this->insertRecord('blocks', $blockData);
-                }
-            }
-        }
-    }
-
-    protected function exportPages()
-    {
-        $map = $this->relationshipMaps['pages'];
-        $query = $this->buildExportQuery($map);
-        $stmt = $this->db->query($query);
-        $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($pages as &$page) {
-            foreach ($map['relationships'] as $relation => $config) {
-                if ($config['type'] === 'one_to_many') {
-                    $page[$relation] = $this->fetchRelatedRecords(
-                        $config['table'],
-                        $config['foreign_key'],
-                        $page['id']
-                    );
-                }
-            }
-        }
-
-        return $pages;
-    }
-
-    protected function importPages($pages)
-    {
-        foreach ($pages as $page) {
-            $oldId = $page['id'] ?? null;
-            unset($page['id']);
-
-            $pageData = $this->mapFields($page, 'contents');
-
-            $stmt = $this->db->prepare("SELECT id FROM content_types WHERE name = 'page'");
-            $stmt->execute();
-            $pageData['content_type_id'] = $stmt->fetchColumn();
-
-            $pageData['slug'] = $this->generateUniqueSlug('contents', $pageData['slug']);
-
-            $this->insertRecord('contents', $pageData);
-            $newId = $this->db->lastInsertId();
-
-            if ($oldId) {
-                $this->idMaps['contents'][$oldId] = $newId;
-            }
-
-            if (isset($page['blocks'])) {
-                foreach ($page['blocks'] as $block) {
-                    unset($block['id']);
-                    $blockData = $this->mapFields($block, 'blocks');
-                    $blockData['content_id'] = $newId;
-                    $this->insertRecord('blocks', $blockData);
-                }
-            }
-        }
-    }
-
-    protected function exportCategories()
-    {
-        $stmt = $this->db->query("SELECT * FROM categories");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    protected function importCategories($categories)
-    {
-        foreach ($categories as $category) {
-            $oldId = $category['id'] ?? null;
-            unset($category['id']);
-
-            $stmt = $this->db->prepare("SELECT id FROM categories WHERE slug = ?");
-            $stmt->execute([$category['slug']]);
-            $existingId = $stmt->fetchColumn();
-
-            if ($existingId) {
-                $this->idMaps['categories'][$oldId] = $existingId;
-                $this->warnings[] = "Category with slug '{$category['slug']}' already exists. Mapped to existing category.";
-            } else {
-                $categoryData = $this->mapFields($category, 'categories');
-                $this->insertRecord('categories', $categoryData);
-                $newId = $this->db->lastInsertId();
-
-                if ($oldId) {
-                    $this->idMaps['categories'][$oldId] = $newId;
-                }
-            }
-        }
-    }
-
-    protected function exportSettings()
-    {
-        $stmt = $this->db->query("SELECT * FROM settings");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    protected function importSettings($settings)
-    {
-        foreach ($settings as $setting) {
-            unset($setting['id']);
-
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM settings WHERE setting_key = ?");
-            $stmt->execute([$setting['setting_key']]);
-            $exists = $stmt->fetchColumn();
-
-            $settingData = $this->mapFields($setting, 'settings');
-
-            if ($exists) {
-                $updateQuery = "UPDATE settings SET setting_value = ? WHERE setting_key = ?";
-                $stmt = $this->db->prepare($updateQuery);
-                $stmt->execute([$settingData['setting_value'], $settingData['setting_key']]);
-                $this->warnings[] = "Updated existing setting: {$settingData['setting_key']}";
-            } else {
-                $this->insertRecord('settings', $settingData);
-            }
-        }
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array_values($data));
     }
 
     protected function buildExportQuery($map)
@@ -421,23 +434,6 @@ class DataManager
         $stmt = $this->db->prepare("SELECT * FROM {$table} WHERE {$foreignKey} = ?");
         $stmt->execute([$id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    protected function insertRecord($table, $data)
-    {
-        $fields = array_keys($data);
-        $placeholders = array_fill(0, count($fields), '?');
-
-        $query = "INSERT INTO {$table} (" . implode(', ', $fields) . ") 
-                 VALUES (" . implode(', ', $placeholders) . ")";
-
-        try {
-            $stmt = $this->db->prepare($query);
-            $stmt->execute(array_values($data));
-        } catch (PDOException $e) {
-            throw new Exception("Error inserting into {$table}: " . $e->getMessage() .
-                "\nData: " . print_r($data, true));
-        }
     }
 
     protected function formatData($data, $format)
