@@ -25,12 +25,32 @@ $user = new User($conn);
 $error = '';
 $username = '';
 
+// Generate a simple math captcha
+function generateMathCaptcha()
+{
+    $num1 = rand(1, 10);
+    $num2 = rand(1, 10);
+    $_SESSION['captcha_answer'] = $num1 + $num2;
+    return "What is $num1 + $num2?";
+}
+
+// Initialize captcha if it doesn't exist
+if (!isset($_SESSION['captcha_question']) || !isset($_SESSION['captcha_answer'])) {
+    $_SESSION['captcha_question'] = generateMathCaptcha();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $password = $_POST['password'] ?? '';
+    $captcha_answer = isset($_POST['captcha_answer']) ? intval($_POST['captcha_answer']) : 0;
+    $expected_answer = $_SESSION['captcha_answer']; // Store current answer before generating new one
 
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password';
+        $_SESSION['captcha_question'] = generateMathCaptcha();
+    } elseif ($captcha_answer !== $expected_answer) {
+        $error = 'Incorrect captcha answer';
+        $_SESSION['captcha_question'] = generateMathCaptcha();
     } else {
         try {
             if ($user->authenticate($username, $password)) {
@@ -46,9 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             } else {
                 $error = 'Invalid credentials';
+                $_SESSION['captcha_question'] = generateMathCaptcha();
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
+            $_SESSION['captcha_question'] = generateMathCaptcha();
         }
     }
 }
@@ -112,6 +134,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         class="alpi-form-input"
                         required
                         autocomplete="current-password">
+                </div>
+                <div class="alpi-form-group">
+                    <label for="captcha_answer" class="alpi-form-label"><?= htmlspecialchars($_SESSION['captcha_question'], ENT_QUOTES, 'UTF-8') ?></label>
+                    <input type="text"
+                        id="captcha_answer"
+                        name="captcha_answer"
+                        class="alpi-form-input"
+                        required
+                        autocomplete="off">
                 </div>
                 <div class="alpi-text-center">
                     <button type="submit" class="alpi-btn alpi-btn-primary">Login</button>
