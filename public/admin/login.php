@@ -10,8 +10,13 @@ if (session_status() == PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.cookie_secure', 1);
     ini_set('session.cookie_samesite', 'Strict');
-    session_regenerate_id(true);
 }
+
+// Generate CSRF token if one doesn't exist
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
 
 if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true) {
     header("Location: /public/admin/index.php");
@@ -40,38 +45,56 @@ if (!isset($_SESSION['captcha_question']) || !isset($_SESSION['captcha_answer'])
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $password = $_POST['password'] ?? '';
-    $captcha_answer = isset($_POST['captcha_answer']) ? intval($_POST['captcha_answer']) : 0;
-    $expected_answer = $_SESSION['captcha_answer']; // Store current answer before generating new one
-
-    if (empty($username) || empty($password)) {
-        $error = 'Please enter both username and password';
-        $_SESSION['captcha_question'] = generateMathCaptcha();
-    } elseif ($captcha_answer !== $expected_answer) {
-        $error = 'Incorrect captcha answer';
-        $_SESSION['captcha_question'] = generateMathCaptcha();
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $error = 'Invalid CSRF token. Please try again.';
+        // Regenerate token on failure
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $csrf_token = $_SESSION['csrf_token']; // Update token for the form redisplay
+        $_SESSION['captcha_question'] = generateMathCaptcha(); // Also refresh captcha
     } else {
-        try {
-            if ($user->authenticate($username, $password)) {
-                session_regenerate_id(true);
-                $userData = $user->getUserData($username);
-                $_SESSION['loggedIn'] = true;
-                $_SESSION['username'] = $username;
-                $_SESSION['role'] = $user->getRole($username);
-                $_SESSION['user_id'] = $userData['id'];
-                $_SESSION['last_activity'] = time();
+        // CSRF token is valid, proceed with login logic
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $password = $_POST['password'] ?? '';
+        $captcha_answer = isset($_POST['captcha_answer']) ? intval($_POST['captcha_answer']) : 0;
+        $expected_answer = $_SESSION['captcha_answer']; // Store current answer before generating new one
 
-                header("Location: /public/admin/index.php");
-                exit();
-            } else {
-                $error = 'Invalid credentials';
+        if (empty($username) || empty($password)) {
+            $error = 'Please enter both username and password';
+            $_SESSION['captcha_question'] = generateMathCaptcha();
+        } elseif ($captcha_answer !== $expected_answer) {
+            $error = 'Incorrect captcha answer';
+            $_SESSION['captcha_question'] = generateMathCaptcha();
+        } else {
+            try {
+                if ($user->authenticate($username, $password)) {
+                    // Regenerate session ID *after* successful authentication
+                    session_regenerate_id(true);
+                    // Regenerate CSRF token after successful login
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+                    $userData = $user->getUserData($username);
+                    $_SESSION['loggedIn'] = true;
+                    $_SESSION['username'] = $username;
+                    $_SESSION['role'] = $user->getRole($username);
+                    $_SESSION['user_id'] = $userData['id'];
+                    $_SESSION['last_activity'] = time();
+
+                    header("Location: /public/admin/index.php");
+                    exit();
+                } else {
+                    sleep(1);
+                    $error = 'Invalid credentials';
+                    $_SESSION['captcha_question'] = generateMathCaptcha();
+                }
+            } catch (Exception $e) {
+                $error = $e->getMessage();
                 $_SESSION['captcha_question'] = generateMathCaptcha();
             }
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            $_SESSION['captcha_question'] = generateMathCaptcha();
         }
+        // Regenerate CSRF token after processing POST, even on failure, for the next attempt
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $csrf_token = $_SESSION['csrf_token'];
     }
 }
 ?>
@@ -118,6 +141,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
 
             <form class="alpi-form" action="" method="POST">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+
                 <div class="alpi-form-group">
                     <label for="username" class="alpi-form-label">Username:</label>
                     <input type="text" id="username" name="username"
