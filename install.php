@@ -60,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($user)) {
         $errors[] = "Please enter the database user.";
     }
+    if (empty($pass)) {
+        $errors[] = "Please enter the database password.";
+    }
     if (empty($adminUser)) {
         $errors[] = "Please enter the admin username.";
     }
@@ -169,7 +172,7 @@ function isInstalled($conn)
                 </div>
                 <div class="alpi-form-group">
                     <label for="db_pass" class="alpi-form-label">Database Password</label>
-                    <input type="password" name="db_pass" id="db_pass" class="alpi-form-input">
+                    <input type="password" name="db_pass" id="db_pass" class="alpi-form-input" required>
                 </div>
 
                 <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Admin Configuration</h2>
