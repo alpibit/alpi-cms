@@ -47,10 +47,18 @@ try {
 
         case '404':
         default:
-            header("HTTP/1.0 404 Not Found");
             require __DIR__ . '/404.php';
             break;
     }
+} catch (PDOException $e) {
+    // Check if the error is about a missing table
+    if ($e->getCode() === '42S02') {
+        echo "Sorry, currently we are experiencing small issues. (Error: DB_TABLE_MIA)";
+    } else {
+        error_log("PDOException: " . $e->getMessage());
+        echo "Sorry, we are currently experiencing technical difficulties. Please try again later.";
+    }
 } catch (Exception $e) {
-    die($e->getMessage());
+    error_log("Exception: " . $e->getMessage());
+    echo "An unexpected error occurred. We are working to fix it. Please try again later.";
 }
