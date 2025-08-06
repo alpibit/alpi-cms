@@ -15,7 +15,11 @@ if (!$conn) {
 }
 
 $settings = new Settings($conn);
-$siteName = htmlspecialchars($settings->getSetting('site_title'), ENT_QUOTES, 'UTF-8');
+$rawSiteTitle = $settings->getSetting('site_title');
+if (mb_strlen($rawSiteTitle) > 30) {
+    $rawSiteTitle = mb_substr($rawSiteTitle, 0, 30) . '...';
+}
+$siteName = htmlspecialchars($rawSiteTitle, ENT_QUOTES, 'UTF-8');
 $siteDescription = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
 $siteLogo = htmlspecialchars($settings->getSetting('site_logo'), ENT_QUOTES, 'UTF-8');
 $siteFavicon = htmlspecialchars($settings->getSetting('site_favicon'), ENT_QUOTES, 'UTF-8');
@@ -83,11 +87,13 @@ try {
 
 <body>
     <header class="header-wrap">
-        <?php if ($siteLogo) : ?>
-            <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="site-logo">
-        <?php else : ?>
-            <h1><?= $siteName ?></h1>
-        <?php endif; ?>
+        <a href="<?= BASE_URL ?>" class="site-branding">
+            <?php if ($siteLogo) : ?>
+                <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="site-logo">
+            <?php else : ?>
+                <h1><?= $siteName ?></h1>
+            <?php endif; ?>
+        </a>
 
         <!-- Pages Dropdown -->
         <div class="header-menu-container">

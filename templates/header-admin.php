@@ -3,7 +3,11 @@
 // Admin Header
 
 $settingsAdmin = new Settings($conn);
-$adminSiteName = $settingsAdmin->getSetting('site_title') . ' Admin';
+$siteTitle = $settingsAdmin->getSetting('site_title');
+if (mb_strlen($siteTitle) > 30) {
+    $siteTitle = mb_substr($siteTitle, 0, 30) . '...';
+}
+$adminSiteName = $siteTitle . ' Admin';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,8 +25,13 @@ $adminSiteName = $settingsAdmin->getSetting('site_title') . ' Admin';
 <body class="alpi-admin-body">
     <header class="alpi-admin-header">
         <div class="alpi-container alpi-flex alpi-items-center alpi-justify-between">
-            <h1 class="alpi-admin-title"><?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?></h1>
+            <h1 class="alpi-admin-title">
+                <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/index.php" class="alpi-admin-title-link">
+                    <?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?>
+                </a>
+            </h1>
             <nav class="alpi-admin-nav">
+                <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>" class="alpi-nav-link" target="_blank">View Site</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/index.php" class="alpi-nav-link">Dashboard</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/posts/index.php" class="alpi-nav-link">Manage Posts</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/pages/index.php" class="alpi-nav-link">Manage Pages</a>
