@@ -83,9 +83,25 @@ try {
         <!-- Google Analytics -->
         <?= $googleAnalyticsCode ?>
     <?php endif; ?>
+
+    <?php
+    if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true) {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/assets/css/admin-overlay.css">';
+    }
+    ?>
 </head>
 
 <body>
+    <?php
+    if (isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true) {
+        $username = htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8');
+        echo '<div class="admin-overlay-container">
+                <span>Welcome, ' . $username . '!</span>
+                <a href="' . BASE_URL . '/public/admin/index.php">Dashboard</a>
+                <a href="' . BASE_URL . '/public/admin/logout.php">Logout</a>
+              </div>';
+    }
+    ?>
     <header class="header-wrap">
         <a href="<?= BASE_URL ?>" class="site-branding">
             <?php if ($siteLogo) : ?>

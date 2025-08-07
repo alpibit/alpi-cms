@@ -1,0 +1,23 @@
+/* Admin overlay styles */
+.admin-overlay-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1200;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 14px;
+}
+
+.admin-overlay-container a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.admin-overlay-container a:hover {
+    text-decoration: underline;
+}
