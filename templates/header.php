@@ -51,6 +51,12 @@ try {
 } catch (PDOException $e) {
     die("Error fetching data from the database.");
 }
+
+if (!isset($pageTitle) || !is_string($pageTitle) || trim($pageTitle) === '') {
+    $pageTitle = $siteName;
+}
+
+$pageTitle = htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8');
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +65,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $siteName ?></title>
+    <title><?= $pageTitle ?> - <?= $siteName ?></title>
     <meta name="description" content="<?= $siteDescription ?>">
     <?php if ($siteFavicon) : ?>
         <link rel="icon" href="<?= $siteFavicon ?>" type="image/x-icon">
@@ -102,38 +108,41 @@ try {
               </div>';
     }
     ?>
-    <header class="header-wrap">
-        <a href="<?= BASE_URL ?>" class="site-branding">
+    <header class="header-wrap" role="banner">
+        <div class="site-branding">
             <?php if ($siteLogo) : ?>
-                <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="site-logo">
-            <?php else : ?>
-                <h1><?= $siteName ?></h1>
+                <a href="<?= BASE_URL ?>" class="site-logo-link" aria-label="Go to homepage">
+                    <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="site-logo">
+                </a>
             <?php endif; ?>
-        </a>
-
-        <!-- Pages Dropdown -->
-        <div class="header-menu-container">
-            <button>Pages</button>
-            <div class="header-dropdown-content">
-                <?php foreach ($pages as $page) : ?>
-                    <a href="/<?= htmlspecialchars($page['slug'], ENT_QUOTES, 'UTF-8') ?>">
-                        <?= htmlspecialchars($page['title'], ENT_QUOTES, 'UTF-8') ?>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+            <span class="site-title" title="<?= $pageTitle ?>"><?= $pageTitle ?></span>
         </div>
 
-        <!-- Categories and Posts Dropdown -->
-        <?php foreach ($categories as $category) : ?>
+        <nav class="header-nav" aria-label="Main navigation">
+            <!-- Pages Dropdown -->
             <div class="header-menu-container">
-                <button><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></button>
-                <div class="header-dropdown-content">
-                    <?php foreach ($postsByCategory[$category['slug']] as $post) : ?>
-                        <a href="/<?= htmlspecialchars($category['slug'], ENT_QUOTES, 'UTF-8') ?>/<?= htmlspecialchars($post['slug'], ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>
+                <button type="button" aria-haspopup="true" aria-expanded="false">Pages</button>
+                <div class="header-dropdown-content" role="menu">
+                    <?php foreach ($pages as $page) : ?>
+                        <a role="menuitem" href="/<?= htmlspecialchars($page['slug'], ENT_QUOTES, 'UTF-8') ?>">
+                            <?= htmlspecialchars($page['title'], ENT_QUOTES, 'UTF-8') ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
             </div>
-        <?php endforeach; ?>
+
+            <!-- Categories and Posts Dropdown -->
+            <?php foreach ($categories as $category) : ?>
+                <div class="header-menu-container">
+                    <button type="button" aria-haspopup="true" aria-expanded="false"><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></button>
+                    <div class="header-dropdown-content" role="menu">
+                        <?php foreach ($postsByCategory[$category['slug']] as $post) : ?>
+                            <a role="menuitem" href="/<?= htmlspecialchars($category['slug'], ENT_QUOTES, 'UTF-8') ?>/<?= htmlspecialchars($post['slug'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </nav>
     </header>

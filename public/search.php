@@ -28,6 +28,8 @@ try {
     error_log('Search Query Error: ' . $e->getMessage());
 }
 
+$pageTitle = 'Search: ' . $query;
+
 include __DIR__ . '/../templates/header.php';
 ?>
 

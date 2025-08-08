@@ -38,6 +38,8 @@ $blocks = $postObj->getBlocksByPostId($postData['id']);
 
 $assetManager = new AssetManager();
 
+$pageTitle = isset($singlePost[0]['title']) ? $singlePost[0]['title'] : '';
+
 // Preload CSS files for all blocks
 foreach ($blocks as $block) {
     $blockType = $block['type'];

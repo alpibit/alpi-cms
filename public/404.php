@@ -8,6 +8,7 @@ if (!defined('CONFIG_INCLUDED')) {
     define('CONFIG_INCLUDED', true);
 }
 
+$pageTitle = 'Page Not Found';
 
 include __DIR__ . '/../templates/header.php';
 ?>

@@ -39,6 +39,8 @@ try {
 
     $router = new Router($conn);
 
+    $pageTitle = isset($category['name']) ? ('Category: ' . $category['name']) : '';
+
 ?>
     <?php include __DIR__ . '/../templates/header.php'; ?>
 

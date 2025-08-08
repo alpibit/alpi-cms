@@ -38,6 +38,8 @@ $blocks = $pageObj->getBlocksByPageId($pageData['id']);
 
 $assetManager = new AssetManager();
 
+$pageTitle = isset($singlePage['title']) ? $singlePage['title'] : '';
+
 $assetManager->addCss('global.css');
 $assetManager->addJs('global.js');
 

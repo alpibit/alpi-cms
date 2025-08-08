@@ -20,6 +20,8 @@ $blocks = $pageObj->getBlocksByPageId($homeContentId) ?? [];
 
 $assetManager = new AssetManager();
 
+$pageTitle = isset($homePage['title']) ? $homePage['title'] : '';
+
 // Preload CSS files for all blocks
 foreach ($blocks as $block) {
     $blockType = $block['type'];
