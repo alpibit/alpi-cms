@@ -243,13 +243,24 @@ switch ($blockType) {
 
         echo "<div class='alpi-slider-gallery' data-index='{$index}'>";
         foreach ($galleryData as $imageIndex => $image) {
-            echo "<div class='alpi-gallery-image' data-index='{$imageIndex}'>";
-            renderFileUpload("gallery_data][{$imageIndex}][url", $uploads, $image['url'] ?? '');
-            renderInput("gallery_data][{$imageIndex}][alt_text", $image['alt_text'] ?? '', 'Alt Text', 'text');
-            renderInput("gallery_data][{$imageIndex}][caption", $image['caption'] ?? '', 'Caption', 'text');
+            echo "<div class='alpi-gallery-image alpi-card alpi-mb-md' data-index='{$imageIndex}'>";
+            echo "<div class='alpi-form-group'>";
+            echo "<label class='alpi-form-label'>Image: <select class='alpi-form-input' name='blocks[{$index}][gallery_data][{$imageIndex}][url]'>";
+            foreach ($uploads as $upload) {
+                $selected = ($upload['url'] == ($image['url'] ?? '')) ? 'selected' : '';
+                echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
+            }
+            echo "</select></label>";
+            echo "</div>";
+            echo "<div class='alpi-form-group'>";
+            echo "<label class='alpi-form-label'>Alt Text: <input class='alpi-form-input' type='text' name='blocks[{$index}][gallery_data][{$imageIndex}][alt_text]' value='" . htmlspecialchars($image['alt_text'] ?? '') . "' placeholder='Alt Text'></label>";
+            echo "</div>";
+            echo "<div class='alpi-form-group'>";
+            echo "<label class='alpi-form-label'>Caption: <input class='alpi-form-input' type='text' name='blocks[{$index}][gallery_data][{$imageIndex}][caption]' value='" . htmlspecialchars($image['caption'] ?? '') . "' placeholder='Caption'></label>";
+            echo "</div>";
             echo "<div class='alpi-btn-group'>";
-            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageUpward({$index}, {$imageIndex})'>Move Up</button>";
-            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageDownward({$index}, {$imageIndex})'>Move Down</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageUpward(this)'>Move Up</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageDownward(this)'>Move Down</button>";
             echo "<button type='button' class='alpi-btn alpi-btn-danger' onclick='removeGalleryImage({$index}, {$imageIndex})'>Delete Image</button>";
             echo "</div>";
             echo "</div>";

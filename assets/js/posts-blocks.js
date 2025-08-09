@@ -122,43 +122,65 @@ function loadSelectedBlockContent(selectElement, index) {
         .then(response => response.text())
         .then(html => {
             contentDiv.innerHTML = html;
-            populateBlockFields(contentDiv, blockData.block_data || {}, index);
+            populateBlockFields(contentDiv, blockData, index);
         })
         .catch(error => console.error('Error:', error));
 }
 
 function populateBlockFields(container, data, index) {
     console.log('Populating fields with data:', data);
-    Object.keys(data).forEach(key => {
+    
+    const blockData = data.block_data || data;
+    
+    Object.keys(blockData).forEach(key => {
         try {
             const input = container.querySelector(`[name="blocks[${index}][${key}]"]`);
             if (input) {
-                console.log(`Setting ${key} to ${data[key]}`);
+                console.log(`Setting ${key} to ${blockData[key]}`);
                 if (input.type === 'checkbox') {
-                    input.checked = !!data[key];
+                    input.checked = !!blockData[key];
                 } else if (input.type === 'select-multiple') {
-                    const selectedValues = data[key].split(',');
+                    const selectedValues = blockData[key].split(',');
                     Array.from(input.options).forEach(option => {
                         option.selected = selectedValues.includes(option.value);
                     });
                 } else {
-                    input.value = data[key];
+                    input.value = blockData[key];
                 }
-            } else if (key === 'accordion_data') {
-                const accordionData = JSON.parse(data[key]);
+            } else if (key === 'gallery_data' && blockData[key]) {
+                console.log('Processing gallery_data:', blockData[key]);
+                try {
+                    const galleryData = JSON.parse(blockData[key]);
+                    let galleryArray = [];
+                    
+                    if (Array.isArray(galleryData)) {
+                        galleryArray = galleryData;
+                    } else if (typeof galleryData === 'object' && galleryData !== null) {
+                        galleryArray = Object.values(galleryData);
+                    }
+                    
+                    if (galleryArray.length > 0) {
+                        console.log('Populating gallery with:', galleryArray);
+                        populateGalleryData(container, galleryArray, index);
+                    }
+                } catch (e) {
+                    console.error('Error parsing gallery_data:', e);
+                }
+            } else if (key === 'accordion_data' && blockData[key]) {
+                const accordionData = JSON.parse(blockData[key]);
                 Object.values(accordionData).forEach((section, sectionIndex) => {
                     insertAccordionSection(index, section);
                 });
                 updateAccordionOrder(container);
-            } else if (key === 'quotes_data') {
-                const quotesData = JSON.parse(data[key]);
+            } else if (key === 'quotes_data' && blockData[key]) {
+                const quotesData = JSON.parse(blockData[key]);
                 quotesData.forEach((quote, quoteIndex) => {
                     addQuote(index, quote);
                 });
             } else if (key === 'selected_post_ids') {
                 const select = container.querySelector(`[name="blocks[${index}][${key}][]"]`);
                 if (select) {
-                    const selectedValues = data[key].split(',');
+                    const selectedValues = blockData[key].split(',');
                     Array.from(select.options).forEach(option => {
                         option.selected = selectedValues.includes(option.value);
                     });
@@ -201,6 +223,89 @@ function initializeMediaSourceSelectors() {
 }
 
 // Gallery functions
+function populateGalleryData(container, galleryData, blockIndex) {
+    console.log('Populating gallery data:', galleryData);
+    
+    const galleryContainer = container.querySelector('.alpi-slider-gallery');
+    if (!galleryContainer) {
+        console.log('Gallery container not found');
+        return;
+    }
+    
+    const existingImages = galleryContainer.querySelectorAll('.alpi-gallery-image');
+    existingImages.forEach(img => img.remove());
+    
+    let loadedImages = 0;
+    galleryData.forEach((imageData, imageIndex) => {
+        addGalleryImageWithData(blockIndex, imageData, imageIndex, () => {
+            loadedImages++;
+            if (loadedImages === galleryData.length) {
+                updateButtonsImage();
+            }
+        });
+    });
+}
+
+function addGalleryImageWithData(blockIndex, imageData, imageIndex, callback) {
+    fetch('../../../utils/get-uploads.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.uploads) {
+                const block = document.querySelector(`.alpi-block[data-index="${blockIndex}"] .alpi-slider-gallery`);
+                if (!block) {
+                    console.error('Gallery block not found for index:', blockIndex);
+                    return;
+                }
+
+                const newImageHtml = getGalleryImageHTMLWithData(blockIndex, imageIndex, data.uploads, imageData);
+                const addButton = block.querySelector('.alpi-btn-primary');
+                if (addButton) {
+                    addButton.insertAdjacentHTML('beforebegin', newImageHtml);
+                } else {
+                    block.insertAdjacentHTML('beforeend', newImageHtml);
+                }
+                
+                if (callback) callback();
+            } else {
+                console.error('No upload data found');
+            }
+        })
+        .catch(error => console.error('Error loading uploads:', error));
+}
+
+function getGalleryImageHTMLWithData(blockIndex, imageIndex, uploads, imageData) {
+    const selectedUrl = imageData.url || '';
+    const altText = imageData.alt_text || '';
+    const caption = imageData.caption || '';
+    
+    return `
+        <div class='alpi-gallery-image alpi-card alpi-mb-md' data-index='${imageIndex}'>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Image:</label>
+                <select class="alpi-form-input" name='blocks[${blockIndex}][gallery_data][${imageIndex}][url]'>
+                    ${uploads.map(upload => {
+                        const selected = upload.url === selectedUrl ? 'selected' : '';
+                        return `<option value='${upload.url}' ${selected}>${upload.url}</option>`;
+                    }).join('')}
+                </select>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Alt Text:</label>
+                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][alt_text]' placeholder='Alt Text' value='${altText}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Caption:</label>
+                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][caption]' placeholder='Caption' value='${caption}'>
+            </div>
+            <div class="alpi-btn-group">
+                <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageUpward(this)'>Move Up</button>
+                <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageDownward(this)'>Move Down</button>
+                <button type='button' class="alpi-btn alpi-btn-danger" onclick='removeGalleryImage(${blockIndex}, ${imageIndex})'>Delete Image</button>
+            </div>
+        </div>
+    `;
+}
+
 function addGalleryImage(blockIndex) {
     fetch('../../../utils/get-uploads.php')
         .then(response => response.json())
@@ -276,23 +381,28 @@ function shiftImageDownward(button) {
 }
 
 function updateButtonsImage() {
-    const images = document.querySelectorAll('.alpi-gallery-image');
-    images.forEach((image, index) => {
-        const buttonsDiv = image.querySelector('.alpi-btn-group');
-        buttonsDiv.innerHTML = '';
+    const galleries = document.querySelectorAll('.alpi-slider-gallery');
+    galleries.forEach(gallery => {
+        const images = gallery.querySelectorAll('.alpi-gallery-image');
+        images.forEach((image, index) => {
+            image.dataset.index = index;
+            const buttonsDiv = image.querySelector('.alpi-btn-group');
+            buttonsDiv.innerHTML = '';
 
-        if (index > 0) {
-            const moveUpButton = generateControlButton('Move Up', () => shiftImageUpward(image), 'alpi-btn alpi-btn-secondary');
-            buttonsDiv.appendChild(moveUpButton);
-        }
+            if (index > 0) {
+                const moveUpButton = generateControlButton('Move Up', () => shiftImageUpward(image.querySelector('button')), 'alpi-btn alpi-btn-secondary');
+                buttonsDiv.appendChild(moveUpButton);
+            }
 
-        if (index < images.length - 1) {
-            const moveDownButton = generateControlButton('Move Down', () => shiftImageDownward(image), 'alpi-btn alpi-btn-secondary');
-            buttonsDiv.appendChild(moveDownButton);
-        }
+            if (index < images.length - 1) {
+                const moveDownButton = generateControlButton('Move Down', () => shiftImageDownward(image.querySelector('button')), 'alpi-btn alpi-btn-secondary');
+                buttonsDiv.appendChild(moveDownButton);
+            }
 
-        const deleteButton = generateControlButton('Delete', () => removeGalleryImage(image), 'alpi-btn alpi-btn-danger');
-        buttonsDiv.appendChild(deleteButton);
+            const blockIndex = gallery.dataset.index;
+            const deleteButton = generateControlButton('Delete Image', () => removeGalleryImage(blockIndex, index), 'alpi-btn alpi-btn-danger');
+            buttonsDiv.appendChild(deleteButton);
+        });
     });
 }
 
@@ -379,9 +489,10 @@ function updateAccordionOrder(blockContent) {
     });
 
     // Update the data-value attribute of the block content div
-    const dataValue = JSON.parse(blockContent.closest('.alpi-block').querySelector('.alpi-block-content').dataset.value);
-    dataValue.block_data.accordion_data = JSON.stringify(accordionData);
-    blockContent.closest('.alpi-block').querySelector('.alpi-block-content').dataset.value = JSON.stringify(dataValue);
+    const blockContentDiv = blockContent.closest('.alpi-block').querySelector('.alpi-block-content');
+    const dataValue = JSON.parse(blockContentDiv.dataset.value || '{}');
+    dataValue.accordion_data = JSON.stringify(accordionData);
+    blockContentDiv.dataset.value = JSON.stringify(dataValue);
 
     updateButtonsAccordionSection();
 }
