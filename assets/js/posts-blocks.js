@@ -173,10 +173,26 @@ function populateBlockFields(container, data, index) {
                 });
                 updateAccordionOrder(container);
             } else if (key === 'quotes_data' && blockData[key]) {
-                const quotesData = JSON.parse(blockData[key]);
-                quotesData.forEach((quote, quoteIndex) => {
-                    addQuote(index, quote);
-                });
+                console.log('Processing quotes_data:', blockData[key]);
+                try {
+                    const quotesData = JSON.parse(blockData[key]);
+                    let quotesArray = [];
+                    
+                    if (Array.isArray(quotesData)) {
+                        quotesArray = quotesData;
+                    } else if (typeof quotesData === 'object' && quotesData !== null) {
+                        quotesArray = Object.values(quotesData);
+                    }
+                    
+                    if (quotesArray.length > 0) {
+                        console.log('Populating quotes with:', quotesArray);
+                        quotesArray.forEach((quote, quoteIndex) => {
+                            addQuote(index, quote);
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error parsing quotes_data:', e);
+                }
             } else if (key === 'selected_post_ids') {
                 const select = container.querySelector(`[name="blocks[${index}][${key}][]"]`);
                 if (select) {
@@ -543,43 +559,54 @@ function getQuoteHTML(blockIndex, newIndex, initialData = null) {
                 <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][quotes_data][${newIndex}][author]' value="${author}" placeholder='Author'>
             </div>
             <div class="alpi-btn-group">
-                <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftQuoteUpward(${blockIndex}, ${newIndex})">Move Up</button>
-                <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftQuoteDownward(${blockIndex}, ${newIndex})">Move Down</button>
-                <button type="button" class="alpi-btn alpi-btn-danger" onclick="removeQuote(${blockIndex}, ${newIndex})">Delete Quote</button>
+                <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftQuoteUpward(this)">Move Up</button>
+                <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftQuoteDownward(this)">Move Down</button>
+                <button type="button" class="alpi-btn alpi-btn-danger" onclick="removeQuote(this)">Delete Quote</button>
             </div>
         </div>
     `;
 }
 
-function shiftQuoteUpward(blockIndex, quoteIndex) {
-    const block = getBlockByIndex(blockIndex);
-    const quotes = block.querySelectorAll('.alpi-quote');
-    const quote = quotes[quoteIndex];
+function shiftQuoteUpward(button) {
+    const quote = button.closest ? button.closest('.alpi-quote') : button.parentElement.closest('.alpi-quote');
     const prevQuote = quote.previousElementSibling;
-    if (prevQuote) {
+    if (prevQuote && prevQuote.classList.contains('alpi-quote')) {
         quote.parentNode.insertBefore(quote, prevQuote);
-        updateButtonsQuote(blockIndex);
+        updateQuoteOrder(quote.closest('.alpi-block-content'));
     }
 }
 
-function shiftQuoteDownward(blockIndex, quoteIndex) {
-    const block = getBlockByIndex(blockIndex);
-    const quotes = block.querySelectorAll('.alpi-quote');
-    const quote = quotes[quoteIndex];
+function shiftQuoteDownward(button) {
+    const quote = button.closest ? button.closest('.alpi-quote') : button.parentElement.closest('.alpi-quote');
     const nextQuote = quote.nextElementSibling;
-    if (nextQuote) {
+    if (nextQuote && nextQuote.classList.contains('alpi-quote')) {
         quote.parentNode.insertBefore(nextQuote, quote);
-        updateButtonsQuote(blockIndex);
+        updateQuoteOrder(quote.closest('.alpi-block-content'));
     }
 }
 
-function removeQuote(blockIndex, quoteIndex) {
-    const block = getBlockByIndex(blockIndex);
-    const quote = block.querySelector(`.alpi-quote[data-index="${quoteIndex}"]`);
-    if (quote) {
-        quote.remove();
-    }
-    updateButtonsQuote(blockIndex);
+function removeQuote(button) {
+    const quote = button.closest ? button.closest('.alpi-quote') : button.parentElement.closest('.alpi-quote');
+    const blockContent = quote.closest('.alpi-block-content');
+    quote.remove();
+    updateQuoteOrder(blockContent);
+}
+
+function updateQuoteOrder(blockContent) {
+    const quotes = blockContent.querySelectorAll('.alpi-quote');
+    const blockIndex = blockContent.closest('.alpi-block').dataset.index;
+    
+    quotes.forEach((quote, index) => {
+        const contentTextarea = quote.querySelector('textarea[name^="blocks["][name$="[content]"]');
+        const authorInput = quote.querySelector('input[name^="blocks["][name$="[author]"]');
+        
+        // Update the name attributes to reflect the new order
+        if (contentTextarea) contentTextarea.name = `blocks[${blockIndex}][quotes_data][${index}][content]`;
+        if (authorInput) authorInput.name = `blocks[${blockIndex}][quotes_data][${index}][author]`;
+        quote.dataset.index = index;
+    });
+    
+    updateButtonsQuote(blockContent.closest('.alpi-block').dataset.index);
 }
 
 function updateButtonsQuote(blockIndex) {
@@ -590,16 +617,16 @@ function updateButtonsQuote(blockIndex) {
         buttonsDiv.innerHTML = '';
 
         if (index > 0) {
-            const moveUpButton = generateControlButton('Move Up', () => shiftQuoteUpward(blockIndex, index), 'alpi-btn alpi-btn-secondary');
+            const moveUpButton = generateControlButton('Move Up', () => shiftQuoteUpward(quote.querySelector('button')), 'alpi-btn alpi-btn-secondary');
             buttonsDiv.appendChild(moveUpButton);
         }
 
         if (index < quotes.length - 1) {
-            const moveDownButton = generateControlButton('Move Down', () => shiftQuoteDownward(blockIndex, index), 'alpi-btn alpi-btn-secondary');
+            const moveDownButton = generateControlButton('Move Down', () => shiftQuoteDownward(quote.querySelector('button')), 'alpi-btn alpi-btn-secondary');
             buttonsDiv.appendChild(moveDownButton);
         }
 
-        const deleteButton = generateControlButton('Delete', () => removeQuote(blockIndex, index), 'alpi-btn alpi-btn-danger');
+        const deleteButton = generateControlButton('Delete', () => removeQuote(quote.querySelector('button')), 'alpi-btn alpi-btn-danger');
         buttonsDiv.appendChild(deleteButton);
     });
 }
