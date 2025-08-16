@@ -17,11 +17,13 @@ try {
 $post = new Post($conn);
 $page = new Page($conn);
 $category = new Category($conn);
+$activityFeed = new ActivityFeed($conn);
 
 try {
     $postCount = $post->countPosts();
     $pageCount = $page->countPages();
     $categoryCount = $category->countCategories();
+    $recentActivities = $activityFeed->getRecentActivities(10);
 } catch (Exception $e) {
     die("Error retrieving data: " . $e->getMessage());
 }
@@ -54,8 +56,43 @@ include '../../templates/header-admin.php';
 <div class="alpi-admin-recent-activity alpi-mt-xl alpi-mb-md ">
     <h2 class="alpi-text-primary alpi-mb-md">Recent Activity</h2>
     <div class="alpi-card">
-        <p>No recent activity to display.</p>
-        <!-- !!! Feed -->
+        <?php if (empty($recentActivities)): ?>
+            <p>No recent activity to display.</p>
+        <?php else: ?>
+            <div class="alpi-activity-feed">
+                <?php foreach ($recentActivities as $activity): ?>
+                    <div class="alpi-activity-item <?= htmlspecialchars($activityFeed->getActivityColorClass($activity['type'], $activity['status']), ENT_QUOTES, 'UTF-8') ?>" data-activity-type="<?= htmlspecialchars($activity['type'], ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="alpi-activity-icon">
+                            <?= $activityFeed->getActivityIcon($activity['type']) ?>
+                        </div>
+                        <div class="alpi-activity-content">
+                            <div class="alpi-activity-title">
+                                <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/<?= htmlspecialchars($activity['url'], ENT_QUOTES, 'UTF-8') ?>" class="alpi-activity-link">
+                                    <?= htmlspecialchars($activity['title'], ENT_QUOTES, 'UTF-8') ?>
+                                </a>
+                                <?php if (isset($activity['status']) && $activity['status'] === 'draft'): ?>
+                                    <span class="alpi-badge alpi-badge-warning alpi-badge-sm">Draft</span>
+                                <?php elseif (isset($activity['status']) && $activity['status'] === 'published'): ?>
+                                    <span class="alpi-badge alpi-badge-success alpi-badge-sm">Published</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="alpi-activity-description">
+                                <?= htmlspecialchars($activity['description'], ENT_QUOTES, 'UTF-8') ?>
+                                <?php if ($activity['author']): ?>
+                                    by <strong><?= htmlspecialchars($activity['author'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                <?php endif; ?>
+                            </div>
+                            <div class="alpi-activity-time">
+                                <?= htmlspecialchars($activityFeed->formatTimestamp($activity['timestamp']), ENT_QUOTES, 'UTF-8') ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="alpi-activity-footer alpi-mt-md">
+                <a href="#" class="alpi-btn alpi-btn-secondary alpi-btn-sm">View All Activity</a>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

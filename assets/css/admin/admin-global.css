@@ -1028,3 +1028,152 @@ h6 {
         border: 1px solid #000;
     }
 }
+
+/* Activity Feed Styles */
+.alpi-activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--alpi-spacing-md);
+}
+
+.alpi-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--alpi-spacing-md);
+    padding: var(--alpi-spacing-md);
+    border-left: 3px solid var(--alpi-border);
+    background: var(--alpi-light);
+    border-radius: var(--alpi-radius-md);
+    transition: var(--alpi-transition);
+}
+
+.alpi-activity-item:hover {
+    background: rgba(74, 144, 226, 0.05);
+    border-left-color: var(--alpi-primary);
+}
+
+.alpi-activity-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(74, 144, 226, 0.1);
+    border-radius: var(--alpi-radius-full);
+}
+
+.alpi-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.alpi-activity-title {
+    display: flex;
+    align-items: center;
+    gap: var(--alpi-spacing-sm);
+    margin-bottom: var(--alpi-spacing-xs);
+    flex-wrap: wrap;
+}
+
+.alpi-activity-link {
+    font-weight: 600;
+    color: var(--alpi-text);
+    text-decoration: none;
+    transition: var(--alpi-transition);
+}
+
+.alpi-activity-link:hover {
+    color: var(--alpi-primary);
+}
+
+.alpi-activity-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: var(--alpi-spacing-xs);
+    line-height: 1.4;
+}
+
+.alpi-activity-time {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+.alpi-activity-footer {
+    text-align: center;
+    padding-top: var(--alpi-spacing-md);
+    border-top: 1px solid var(--alpi-border);
+}
+
+/* Activity Status Colors */
+.alpi-activity-success {
+    border-left-color: var(--alpi-success);
+}
+
+.alpi-activity-success .alpi-activity-icon {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--alpi-success);
+}
+
+.alpi-activity-info {
+    border-left-color: var(--alpi-primary);
+}
+
+.alpi-activity-info .alpi-activity-icon {
+    background: rgba(74, 144, 226, 0.1);
+    color: var(--alpi-primary);
+}
+
+.alpi-activity-warning {
+    border-left-color: var(--alpi-warning);
+}
+
+.alpi-activity-warning .alpi-activity-icon {
+    background: rgba(241, 196, 15, 0.1);
+    color: var(--alpi-warning);
+}
+
+.alpi-activity-default {
+    border-left-color: var(--alpi-border);
+}
+
+.alpi-activity-default .alpi-activity-icon {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* Badge improvements for activity feed */
+.alpi-badge-sm {
+    font-size: 0.625rem;
+    padding: 2px 6px;
+}
+
+/* Additional activity type styling */
+.alpi-activity-item.alpi-activity-success .alpi-activity-icon {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--alpi-success);
+}
+
+.alpi-activity-item.alpi-activity-info .alpi-activity-icon {
+    background: rgba(74, 144, 226, 0.1);
+    color: var(--alpi-primary);
+}
+
+.alpi-activity-item.alpi-activity-warning .alpi-activity-icon {
+    background: rgba(241, 196, 15, 0.1);
+    color: var(--alpi-warning);
+}
+
+/* Special styling for different activity types */
+.alpi-activity-item[data-activity-type*="block"] {
+    border-left-color: #9b59b6;
+}
+
+.alpi-activity-item[data-activity-type*="setting"] {
+    border-left-color: #34495e;
+}
+
+.alpi-activity-item[data-activity-type*="user"] {
+    border-left-color: #e67e22;
+}
