@@ -186,41 +186,63 @@ class ActivityFeed
         $activities = [];
         foreach ($blocks as $block) {
             $timeDiff = abs(strtotime($block['updated_at']) - strtotime($block['created_at']));
-            $isNew = $timeDiff < 300;
 
             $blockTitle = $block['title'] ?: ucfirst(str_replace('_', ' ', $block['type'])) . ' block';
             $contentInfo = $block['content_title'] ? " in {$block['content_title']}" : "";
 
-            $isInstallationContent = strtotime($block['created_at']) >= strtotime('-1 hour');
-            $author = $isInstallationContent ? 'System' : 'Admin';
+            $isRecentActivity = strtotime($block['updated_at']) >= strtotime('-30 days') ||
+                strtotime($block['created_at']) >= strtotime('-30 days');
+
+            if (!$isRecentActivity) {
+                continue;
+            }
+
+            $blockAge = time() - strtotime($block['created_at']);
+            $isVeryRecent = $blockAge < 60;
+
+            $isLikelyEdit = false;
+
+            if ($block['content_title'] && $isVeryRecent) {
+                $contentAgeQuery = "SELECT created_at FROM contents WHERE id = :content_id";
+                $stmt = $this->db->prepare($contentAgeQuery);
+                $stmt->bindParam(':content_id', $block['content_id'], PDO::PARAM_INT);
+                $stmt->execute();
+                $contentData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($contentData) {
+                    $contentAge = time() - strtotime($contentData['created_at']);
+                    $isLikelyEdit = $contentAge > 300;
+                }
+            }
+
+            if ($isLikelyEdit) {
+                $activityType = 'block_updated';
+                $description = "{$block['type']} block updated{$contentInfo}";
+                $timestamp = $block['created_at'];
+                $author = 'Admin';
+            } else {
+                $activityType = 'block_created';
+                $description = "New {$block['type']} block added{$contentInfo}";
+                $timestamp = $block['created_at'];
+
+                $isInstallationContent = $blockAge < 120;
+                $author = $isInstallationContent ? 'System' : 'Admin';
+            }
 
             $editUrl = $block['content_type'] ?
                 "{$block['content_type']}s/edit_{$block['content_type']}.php?id={$block['content_id']}" :
                 "posts/index.php";
 
-            if ($isNew) {
-                $activities[] = [
-                    'type' => 'block_created',
-                    'title' => $blockTitle,
-                    'description' => "New {$block['type']} block added{$contentInfo}",
-                    'timestamp' => $block['created_at'],
-                    'status' => 'active',
-                    'url' => $editUrl,
-                    'icon' => 'block',
-                    'author' => $author
-                ];
-            } elseif (!$isNew && strtotime($block['updated_at']) >= strtotime('-30 days')) {
-                $activities[] = [
-                    'type' => 'block_updated',
-                    'title' => $blockTitle,
-                    'description' => "{$block['type']} block updated{$contentInfo}",
-                    'timestamp' => $block['updated_at'],
-                    'status' => 'active',
-                    'url' => $editUrl,
-                    'icon' => 'block',
-                    'author' => 'Admin'
-                ];
-            }
+            $activities[] = [
+                'type' => $activityType,
+                'title' => $blockTitle,
+                'description' => $description,
+                'timestamp' => $timestamp,
+                'status' => 'active',
+                'url' => $editUrl,
+                'icon' => 'block',
+                'author' => $author
+            ];
         }
 
         return $activities;
