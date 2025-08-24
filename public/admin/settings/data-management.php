@@ -80,11 +80,11 @@ include '../../../templates/header-admin.php';
     <?php endif; ?>
 
     <div class="alpi-tabs">
-        <button class="alpi-tab active" onclick="switchTab('export')">Export Data</button>
-        <button class="alpi-tab" onclick="switchTab('import')">Import Data</button>
+        <button class="alpi-tab active" onclick="switchTab(event, 'export')">Export Data</button>
+        <button class="alpi-tab" onclick="switchTab(event, 'import')">Import Data</button>
     </div>
 
-    <div class="alpi-tab-content" id="export-tab">
+    <div class="alpi-tab-content" id="export-tab" style="display: block;">
         <div class="alpi-card alpi-p-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">Export Data</h2>
             <form method="post" class="alpi-form">
@@ -243,8 +243,7 @@ include '../../../templates/header-admin.php';
 </style>
 
 <script>
-    function switchTab(tabName) {
-
+    function switchTab(event, tabName) {
         document.querySelectorAll('.alpi-tab-content').forEach(content => {
             content.style.display = 'none';
         });
@@ -253,9 +252,15 @@ include '../../../templates/header-admin.php';
             tab.classList.remove('active');
         });
 
-        document.getElementById(tabName + '-tab').style.display = 'block';
+        const targetContent = document.getElementById(tabName + '-tab');
+        if (targetContent) targetContent.style.display = 'block';
 
-        event.target.classList.add('active');
+        if (event && event.target) {
+            event.target.classList.add('active');
+        } else {
+            const btn = Array.from(document.querySelectorAll('.alpi-tab')).find(b => b.textContent.trim().toLowerCase().startsWith(tabName));
+            if (btn) btn.classList.add('active');
+        }
     }
 </script>
 
