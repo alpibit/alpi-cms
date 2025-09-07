@@ -37,6 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $uploads = $upload->listFiles();
 
+
+if (!function_exists('shorten_filename')) {
+    function shorten_filename(string $filename, int $maxLength = 20): string
+    {
+        if (strlen($filename) > $maxLength) {
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+            $basename = pathinfo($filename, PATHINFO_FILENAME);
+            $basename = substr($basename, 0, $maxLength - strlen($extension) - 3);
+            return $basename . '...' . $extension;
+        }
+        return $filename;
+    }
+}
+
 include '../../../templates/header-admin.php';
 ?>
 
@@ -76,8 +90,8 @@ include '../../../templates/header-admin.php';
                 </div>
                 <div class="alpi-uploads-details">
                     <h4 class="alpi-uploads-filename">
-                        <a href="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="alpi-link">
-                            <?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?>
+                        <a href="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="alpi-link" title="<?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?>">
+                            <?= htmlspecialchars(shorten_filename(basename($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?>
                         </a>
                     </h4>
                     <p class="alpi-uploads-filetype"><?= htmlspecialchars(mime_content_type($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?></p>
@@ -98,17 +112,20 @@ include '../../../templates/header-admin.php';
 <style>
     .alpi-uploads-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 20px;
     }
 
     .alpi-uploads-item {
         overflow: hidden;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--alpi-border);
+        border-radius: var(--alpi-radius-md);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .alpi-uploads-item:hover {
-        transform: translateY(-5px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
 
     .alpi-uploads-preview {
