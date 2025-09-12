@@ -23,7 +23,7 @@ try {
     $postCount = $post->countPosts();
     $pageCount = $page->countPages();
     $categoryCount = $category->countCategories();
-    $recentActivities = $activityFeed->getRecentActivities(10);
+    $recentActivities = $activityFeed->getRecentActivities(3);
 } catch (Exception $e) {
     die("Error retrieving data: " . $e->getMessage());
 }
@@ -90,10 +90,76 @@ include '../../templates/header-admin.php';
                 <?php endforeach; ?>
             </div>
             <div class="alpi-activity-footer alpi-mt-md">
-                <a href="#" class="alpi-btn alpi-btn-secondary alpi-btn-sm">View All Activity</a>
+                <a href="#" id="loadMoreActivity" class="alpi-btn alpi-btn-secondary alpi-btn-sm">Load More</a>
             </div>
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadMoreButton = document.getElementById('loadMoreActivity');
+        const activityFeedContainer = document.querySelector('.alpi-activity-feed');
+        let offset = 3;
+        const limit = 5;
+
+        if (loadMoreButton) {
+            loadMoreButton.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                fetch(`<?= BASE_URL ?>/public/admin/ajax/load_activities.php?offset=${offset}&limit=${limit}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.activities.length > 0) {
+                            data.activities.forEach(activity => {
+                                const activityItem = document.createElement('div');
+                                activityItem.className = `alpi-activity-item ${activity.colorClass}`;
+                                activityItem.dataset.activityType = activity.type;
+
+                                let statusBadge = '';
+                                if (activity.status === 'draft') {
+                                    statusBadge = '<span class="alpi-badge alpi-badge-warning alpi-badge-sm">Draft</span>';
+                                } else if (activity.status === 'published') {
+                                    statusBadge = '<span class="alpi-badge alpi-badge-success alpi-badge-sm">Published</span>';
+                                }
+
+                                let authorHtml = '';
+                                if (activity.author) {
+                                    authorHtml = ` by <strong>${activity.author}</strong>`;
+                                }
+
+                                activityItem.innerHTML = `
+                                <div class="alpi-activity-icon">${activity.icon}</div>
+                                <div class="alpi-activity-content">
+                                    <div class="alpi-activity-title">
+                                        <a href="<?= BASE_URL ?>/public/admin/${activity.url}" class="alpi-activity-link">${activity.title}</a>
+                                        ${statusBadge}
+                                    </div>
+                                    <div class="alpi-activity-description">
+                                        ${activity.description}
+                                        ${authorHtml}
+                                    </div>
+                                    <div class="alpi-activity-time">${activity.formattedTimestamp}</div>
+                                </div>
+                            `;
+                                activityFeedContainer.appendChild(activityItem);
+                            });
+                            offset += data.activities.length;
+
+                            if (data.activities.length < limit) {
+                                loadMoreButton.style.display = 'none';
+                            }
+                        } else {
+                            loadMoreButton.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading activities:', error);
+                        loadMoreButton.style.display = 'none';
+                    });
+            });
+        }
+    });
+</script>
 
 <?php include '../../templates/footer-admin.php'; ?>

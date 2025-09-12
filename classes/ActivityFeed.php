@@ -12,9 +12,10 @@ class ActivityFeed
     /**
      * Get recent activities from all tracked entities
      * @param int $limit Number of activities to fetch
+     * @param int $offset Number of activities to skip
      * @return array Array of recent activities
      */
-    public function getRecentActivities($limit = 15)
+    public function getRecentActivities($limit = 15, $offset = 0)
     {
         $activities = [];
 
@@ -28,7 +29,7 @@ class ActivityFeed
             return strtotime($b['timestamp']) - strtotime($a['timestamp']);
         });
 
-        return array_slice($activities, 0, $limit);
+        return array_slice($activities, $offset, $limit);
     }
 
 
