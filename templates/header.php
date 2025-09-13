@@ -118,6 +118,11 @@ $pageTitle = htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8');
             <span class="site-title" title="<?= $pageTitle ?>"><?= $pageTitle ?></span>
         </div>
 
+        <div class="search-container">
+            <input type="search" id="live-search-input" placeholder="Search..." aria-label="Search">
+            <div id="live-search-results"></div>
+        </div>
+
         <nav class="header-nav" aria-label="Main navigation">
             <!-- Pages Dropdown -->
             <div class="header-menu-container">

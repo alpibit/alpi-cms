@@ -369,17 +369,252 @@ button {
     background-color: rgba(0, 123, 255, 0.1);
 }
 
-/* Touch Device Optimizations */
-@media (hover: none) {
-    .header-menu-container>button {
-        padding-right: 24px;
-        /* Increased touch target */
-    }
+/* Live Search Styles */
+.search-container {
+    position: relative;
+    margin-left: auto;
+}
 
-    .header-dropdown-content a {
-        padding: 12px 16px;
-        /* Increased touch target */
-    }
+#live-search-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    transition: width 0.3s ease;
+}
+
+#live-search-input:focus {
+    width: 300px;
+}
+
+#live-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1001;
+}
+
+#live-search-results ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#live-search-results li a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+#live-search-results li a:hover {
+    background-color: #f5f5f5;
+}
+
+.header-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Logo Accessibility - Broken Image Handling */
+.site-logo:not([src]),
+.site-logo[src=""],
+.site-logo[src="#"] {
+    visibility: hidden;
+    position: relative;
+}
+
+.site-logo:not([src])::after,
+.site-logo[src=""]::after,
+.site-logo[src="#"]::after {
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-light);
+    border: 1px solid var(--color-secondary);
+    content: attr(alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--color-dark);
+}
+
+/* Navigation Container */
+.header-menu-container {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Navigation Button */
+.header-menu-container>button {
+    padding: 8px 16px;
+    background-color: var(--color-light);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    color: var(--color-dark);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    position: relative;
+}
+
+/* Button Arrow Indicator */
+.header-menu-container>button:after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform var(--transition-speed) ease;
+}
+
+/* Button States */
+.header-menu-container>button:hover {
+    background-color: #e9ecef;
+}
+
+.header-menu-container>button:focus-visible {
+    outline: var(--focus-outline-width) solid var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+}
+
+.header-menu-container:hover>button:after {
+    transform: rotate(-135deg) translateX(-2px);
+}
+
+/* Dropdown Menu */
+.header-dropdown-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    min-width: 220px;
+    background-color: var(--color-white);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all var(--transition-speed) ease;
+    padding: 8px 0;
+    margin-top: 4px;
+    z-index: var(--z-index-dropdown);
+}
+
+/* Dropdown Visibility */
+.header-menu-container:hover .header-dropdown-content,
+.header-menu-container:focus-within .header-dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown Links */
+.header-dropdown-content a {
+    color: var(--color-dark);
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: background-color var(--transition-speed) ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dropdown Link States */
+.header-dropdown-content a:hover {
+    background-color: var(--color-light);
+    text-decoration: none;
+}
+
+.header-dropdown-content a:focus {
+    outline: none;
+    background-color: var(--color-light);
+    text-decoration: none;
+}
+
+.header-dropdown-content a:focus-visible {
+    outline-offset: -2px;
+}
+
+/* Current Page Indicator */
+.header-dropdown-content a[aria-current="page"] {
+    font-weight: 600;
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Live Search Styles */
+.search-container {
+    position: relative;
+    margin-left: auto;
+}
+
+#live-search-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+    transition: width 0.3s ease;
+}
+
+#live-search-input:focus {
+    width: 300px;
+}
+
+#live-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1001;
+}
+
+#live-search-results ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#live-search-results li a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+#live-search-results li a:hover {
+    background-color: #f5f5f5;
 }
 
 /* Responsive Breakpoints */
@@ -518,10 +753,10 @@ button {
     }
 
     .header-dropdown-content {
-    min-width: 180px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) translateY(10px);
+        min-width: 180px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(10px);
     }
 
     .header-menu-container:hover .header-dropdown-content,
@@ -578,10 +813,10 @@ button {
     }
 
     .header-dropdown-content {
-    min-width: 160px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) translateY(10px);
+        min-width: 160px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(10px);
         max-height: 60vh;
         /* Prevent overflow on small screens */
         overflow-y: auto;
