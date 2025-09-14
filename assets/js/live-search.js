@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('live-search-input');
     const searchResults = document.getElementById('live-search-results');
+    let selectedIndex = -1;
 
     if (searchInput) {
         searchInput.addEventListener('input', function () {
             const searchTerm = this.value.trim();
+            selectedIndex = -1; // Reset selection on new input
 
             if (searchTerm.length > 2) {
                 fetch(BASE_URL + '/utils/live-search.php?term=' + encodeURIComponent(searchTerm))
@@ -42,9 +44,49 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        searchInput.addEventListener('keydown', function (e) {
+            const items = searchResults.querySelectorAll('li');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex++;
+                if (selectedIndex >= items.length) {
+                    selectedIndex = 0;
+                }
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex--;
+                if (selectedIndex < 0) {
+                    selectedIndex = items.length - 1;
+                }
+                updateSelection(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex > -1) {
+                    const selectedLink = items[selectedIndex].querySelector('a');
+                    if (selectedLink) {
+                        window.location.href = selectedLink.href;
+                    }
+                }
+            }
+        });
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
         document.addEventListener('click', function (e) {
             if (searchResults && !searchResults.contains(e.target) && e.target !== searchInput) {
                 searchResults.style.display = 'none';
+                selectedIndex = -1;
             }
         });
     }
