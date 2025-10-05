@@ -17,10 +17,10 @@ include __DIR__ . '/../templates/header.php';
     <p>We can't seem to find the page you're looking for.</p>
 
     <div class="search-bar">
-        <form action="<?= BASE_URL ?>/public/search.php" method="GET">
-            <input type="text" name="query" placeholder="Search our site..." required>
-            <button type="submit">Search</button>
-        </form>
+        <div class="search-container">
+            <input type="search" id="live-search-input-404" placeholder="Search our site..." aria-label="Search">
+            <div id="live-search-results-404"></div>
+        </div>
     </div>
 
     <div class="navigation-links">
@@ -65,26 +65,64 @@ include __DIR__ . '/../templates/header.php';
         margin: 20px 0;
     }
 
-    .search-bar input {
-        padding: 10px;
+    .search-container {
+        position: relative;
+        display: inline-block;
         width: 70%;
         max-width: 400px;
-        margin-right: 10px;
+    }
+
+    .search-bar input {
+        padding: 10px;
+        width: 100%;
         border: 1px solid #ddd;
         border-radius: 5px;
+        font-size: 16px;
     }
 
-    .search-bar button {
-        padding: 10px 20px;
-        border: none;
-        background-color: #007BFF;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
+    #live-search-results-404 {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
     }
 
-    .search-bar button:hover {
-        background-color: #0056b3;
+    #live-search-results-404 ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #live-search-results-404 li {
+        margin: 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    #live-search-results-404 li:last-child {
+        border-bottom: none;
+    }
+
+    #live-search-results-404 a {
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+        transition: background-color 0.2s;
+    }
+
+    #live-search-results-404 a:hover,
+    #live-search-results-404 li.selected a {
+        background-color: #f5f5f5;
+        color: #007BFF;
     }
 
     .navigation-links ul,

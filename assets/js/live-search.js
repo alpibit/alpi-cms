@@ -1,9 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('live-search-input');
-    const searchResults = document.getElementById('live-search-results');
-    let selectedIndex = -1;
+    initializeLiveSearch('live-search-input', 'live-search-results');
+    initializeLiveSearch('live-search-input-404', 'live-search-results-404');
 
-    if (searchInput) {
+    function initializeLiveSearch(inputId, resultsId) {
+        const searchInput = document.getElementById(inputId);
+        const searchResults = document.getElementById(resultsId);
+        let selectedIndex = -1;
+
+        if (!searchInput || !searchResults) {
+            return;
+        }
+
         searchInput.addEventListener('input', function () {
             const searchTerm = this.value.trim();
             selectedIndex = -1; // Reset selection on new input
