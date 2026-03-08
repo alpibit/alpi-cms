@@ -1,0 +1,29 @@
+.alpi-cms-content-free-code {
+    width: 100%;
+    padding-top: var(--alpi-free-code-padding-top-desktop, 40px);
+    padding-bottom: var(--alpi-free-code-padding-bottom-desktop, 40px);
+    margin-top: var(--alpi-free-code-margin-top-desktop, 0);
+    margin-bottom: var(--alpi-free-code-margin-bottom-desktop, 0);
+}
+
+.alpi-cms-content-free-code-inner {
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .alpi-cms-content-free-code {
+        padding-top: var(--alpi-free-code-padding-top-tablet, var(--alpi-free-code-padding-top-desktop, 30px));
+        padding-bottom: var(--alpi-free-code-padding-bottom-tablet, var(--alpi-free-code-padding-bottom-desktop, 30px));
+        margin-top: var(--alpi-free-code-margin-top-tablet, var(--alpi-free-code-margin-top-desktop, 0));
+        margin-bottom: var(--alpi-free-code-margin-bottom-tablet, var(--alpi-free-code-margin-bottom-desktop, 0));
+    }
+}
+
+@media (max-width: 480px) {
+    .alpi-cms-content-free-code {
+        padding-top: var(--alpi-free-code-padding-top-mobile, var(--alpi-free-code-padding-top-tablet, var(--alpi-free-code-padding-top-desktop, 20px)));
+        padding-bottom: var(--alpi-free-code-padding-bottom-mobile, var(--alpi-free-code-padding-bottom-tablet, var(--alpi-free-code-padding-bottom-desktop, 20px)));
+        margin-top: var(--alpi-free-code-margin-top-mobile, var(--alpi-free-code-margin-top-tablet, var(--alpi-free-code-margin-top-desktop, 0)));
+        margin-bottom: var(--alpi-free-code-margin-bottom-mobile, var(--alpi-free-code-margin-bottom-tablet, var(--alpi-free-code-margin-bottom-desktop, 0)));
+    }
+}

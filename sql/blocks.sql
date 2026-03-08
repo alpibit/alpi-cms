@@ -131,5 +131,6 @@ CREATE TABLE blocks (
     end_date DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_blocks_content_order (content_id, order_num),
     FOREIGN KEY (content_id) REFERENCES contents(id)
 );

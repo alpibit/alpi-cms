@@ -6,17 +6,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Block management functions
 function initializeBlocks() {
-    updateButtonsBlock();
-    document.querySelectorAll('#contentBlocks .alpi-block select').forEach(select => {
-        loadSelectedBlockContent(select, parseInt(select.name.match(/\d+/)[0], 10));
+    reindexBlocks();
+    document.querySelectorAll('#contentBlocks .alpi-block select[name$="[type]"]').forEach(select => {
+        loadSelectedBlockContent(select);
     });
 }
 
 function addBlock() {
-    const index = document.getElementById('contentBlocks').childElementCount;
+    const contentBlocks = document.getElementById('contentBlocks');
+    const index = contentBlocks.childElementCount;
     const blockHTML = getBlockHTML(index);
-    document.getElementById('contentBlocks').insertAdjacentHTML('beforeend', blockHTML);
-    updateButtonsBlock();
+    contentBlocks.insertAdjacentHTML('beforeend', blockHTML);
+    const block = contentBlocks.lastElementChild;
+    attachBlockStateListeners(block);
+    reindexBlocks();
 }
 
 function getBlockHTML(index) {
@@ -57,27 +60,39 @@ function getBlockControlButtons(index) {
     `;
 }
 
-function removeContentBlock(button) {
-    const block = button.closest('.alpi-block');
+function removeContentBlock(reference) {
+    const block = getBlockElement(reference);
+    if (!block) {
+        return;
+    }
+
     block.remove();
-    updateButtonsBlock();
+    reindexBlocks();
 }
 
-function shiftBlockUpward(button) {
-    const block = button.closest('.alpi-block');
+function shiftBlockUpward(reference) {
+    const block = getBlockElement(reference);
+    if (!block) {
+        return;
+    }
+
     const prevBlock = block.previousElementSibling;
     if (prevBlock) {
         block.parentNode.insertBefore(block, prevBlock);
-        updateButtonsBlock();
+        reindexBlocks();
     }
 }
 
-function shiftBlockDownward(button) {
-    const block = button.closest('.alpi-block');
+function shiftBlockDownward(reference) {
+    const block = getBlockElement(reference);
+    if (!block) {
+        return;
+    }
+
     const nextBlock = block.nextElementSibling;
     if (nextBlock) {
         block.parentNode.insertBefore(nextBlock, block);
-        updateButtonsBlock();
+        reindexBlocks();
     }
 }
 
@@ -111,32 +126,288 @@ function generateControlButton(text, onClick, className) {
     return button;
 }
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getBlockElement(reference) {
+    if (!reference) {
+        return null;
+    }
+
+    if (reference.classList && reference.classList.contains('alpi-block')) {
+        return reference;
+    }
+
+    if (typeof reference === 'number' || /^\d+$/.test(String(reference))) {
+        return document.querySelector(`#contentBlocks .alpi-block[data-index="${reference}"]`);
+    }
+
+    return reference.closest ? reference.closest('.alpi-block') : null;
+}
+
+function getBlockIndex(block) {
+    return parseInt(block.dataset.index, 10);
+}
+
+function attachBlockStateListeners(block) {
+    if (!block || block.dataset.stateListenersAttached === 'true') {
+        return;
+    }
+
+    block.addEventListener('input', handleBlockStateChange);
+    block.addEventListener('change', handleBlockStateChange);
+    block.dataset.stateListenersAttached = 'true';
+}
+
+function handleBlockStateChange(event) {
+    const block = getBlockElement(event.target);
+    if (!block) {
+        return;
+    }
+
+    syncBlockDataValue(block);
+}
+
+function getFieldValue(field) {
+    if (field.type === 'checkbox') {
+        return field.checked;
+    }
+
+    if (field.type === 'select-multiple') {
+        return Array.from(field.selectedOptions).map(option => option.value).join(',');
+    }
+
+    return field.value;
+}
+
+function collectCollectionData(block, itemSelector, baseKey, fieldNames) {
+    const blockIndex = getBlockIndex(block);
+
+    return Array.from(block.querySelectorAll(itemSelector)).map((item, itemIndex) => {
+        const itemData = {};
+
+        fieldNames.forEach(fieldName => {
+            const exactSelector = `[name="blocks[${blockIndex}][${baseKey}][${itemIndex}][${fieldName}]"]`;
+            const fallbackSelector = `[name$="[${fieldName}]"]`;
+            const field = item.querySelector(exactSelector) || item.querySelector(fallbackSelector);
+
+            if (field) {
+                itemData[fieldName] = getFieldValue(field);
+            }
+        });
+
+        return itemData;
+    }).filter(itemData => Object.keys(itemData).length > 0);
+}
+
+function syncBlockDataValue(block) {
+    const blockContent = block.querySelector('.alpi-block-content');
+    if (!blockContent) {
+        return;
+    }
+
+    // Preserve the server-provided block payload until the block form has been rendered.
+    if (!blockContent.querySelector('input[name], select[name], textarea[name]')) {
+        return;
+    }
+
+    const blockIndex = getBlockIndex(block);
+    const blockData = {};
+
+    block.querySelectorAll('input[name], select[name], textarea[name]').forEach(field => {
+        if (field.closest('.alpi-block') !== block) {
+            return;
+        }
+
+        const match = field.name.match(new RegExp(`^blocks\\[${blockIndex}\\]\\[([^\\]]+)\\](\\[\\])?$`));
+        if (!match) {
+            return;
+        }
+
+        const key = match[1];
+        if (['gallery_data', 'accordion_data', 'quotes_data'].includes(key)) {
+            return;
+        }
+
+        blockData[key] = getFieldValue(field);
+    });
+
+    if (block.querySelector('.alpi-slider-gallery')) {
+        const galleryData = collectCollectionData(block, '.alpi-gallery-image', 'gallery_data', ['url', 'alt_text', 'caption']);
+        blockData.gallery_data = galleryData.length > 0 ? JSON.stringify(galleryData) : '';
+    }
+
+    if (block.querySelector('.alpi-accordion-section') || block.querySelector('.alpi-accordion-wrapper')) {
+        const accordionData = collectCollectionData(block, '.alpi-accordion-section', 'accordion_data', [
+            'title',
+            'content',
+            'text_color',
+            'background_color',
+            'title_size_desktop',
+            'title_size_tablet',
+            'title_size_mobile',
+            'content_size_desktop',
+            'content_size_tablet',
+            'content_size_mobile'
+        ]);
+        blockData.accordion_data = accordionData.length > 0 ? JSON.stringify(accordionData) : '';
+    }
+
+    if (block.querySelector('.alpi-quote') || block.querySelector('.alpi-quote-wrapper')) {
+        const quotesData = collectCollectionData(block, '.alpi-quote', 'quotes_data', [
+            'content',
+            'author',
+            'text_color',
+            'background_color',
+            'text_size_desktop',
+            'text_size_tablet',
+            'text_size_mobile'
+        ]);
+        blockData.quotes_data = quotesData.length > 0 ? JSON.stringify(quotesData) : '';
+    }
+
+    blockContent.dataset.value = JSON.stringify(blockData);
+}
+
+function getBackgroundSizeFromName(name) {
+    const match = name.match(/\[background_type_(desktop|tablet|mobile)\]$/);
+    return match ? match[1] : null;
+}
+
+function updateBackgroundTypeFields(selectorOrReference, size) {
+    let selector = selectorOrReference;
+
+    if (!selector || !selector.name) {
+        const block = getBlockElement(selectorOrReference);
+        if (!block) {
+            return;
+        }
+
+        selector = block.querySelector(`[name="blocks[${getBlockIndex(block)}][background_type_${size}]"]`);
+        if (!selector) {
+            return;
+        }
+    }
+
+    const block = getBlockElement(selector);
+    if (!block) {
+        return;
+    }
+
+    const blockIndex = getBlockIndex(block);
+    const imageInput = block.querySelector(`[name="blocks[${blockIndex}][background_image_${size}]"]`);
+    const colorInput = block.querySelector(`[name="blocks[${blockIndex}][background_color]"]`);
+    const imageField = imageInput ? imageInput.closest('.alpi-form-group') : null;
+    const colorField = colorInput ? colorInput.closest('.alpi-form-group') : null;
+    const backgroundSelectors = block.querySelectorAll(`[name^="blocks[${blockIndex}][background_type_"]`);
+    const shouldShowColor = Array.from(backgroundSelectors).some(typeSelector => typeSelector.value === 'color');
+
+    if (imageField) {
+        imageField.style.display = selector.value === 'image' ? '' : 'none';
+    }
+
+    if (colorField) {
+        colorField.style.display = shouldShowColor ? '' : 'none';
+    }
+}
+
+function initializeBackgroundTypeControls(scope = document) {
+    const blocks = scope.classList && scope.classList.contains('alpi-block') ? [scope] : Array.from(scope.querySelectorAll('#contentBlocks .alpi-block'));
+
+    blocks.forEach(block => {
+        block.querySelectorAll('.alpi-background-type-selector').forEach(selector => {
+            if (selector.dataset.backgroundTypeBound !== 'true') {
+                selector.addEventListener('change', event => {
+                    const size = event.target.dataset.backgroundSize || getBackgroundSizeFromName(event.target.name);
+                    updateBackgroundTypeFields(event.target, size);
+                });
+                selector.dataset.backgroundTypeBound = 'true';
+            }
+
+            const size = selector.dataset.backgroundSize || getBackgroundSizeFromName(selector.name);
+            updateBackgroundTypeFields(selector, size);
+        });
+    });
+}
+
+function reindexBlockFieldNames(block, blockIndex) {
+    block.querySelectorAll('[name]').forEach(field => {
+        field.name = field.name.replace(/^blocks\[\d+\]/, `blocks[${blockIndex}]`);
+    });
+}
+
+function reindexBlocks() {
+    const blocks = document.querySelectorAll('#contentBlocks .alpi-block');
+
+    blocks.forEach((block, index) => {
+        block.dataset.index = index;
+        attachBlockStateListeners(block);
+        reindexBlockFieldNames(block, index);
+
+        const gallery = block.querySelector('.alpi-slider-gallery');
+        if (gallery) {
+            reindexGalleryItems(gallery);
+        }
+
+        const blockContent = block.querySelector('.alpi-block-content');
+        if (blockContent) {
+            if (blockContent.querySelector('.alpi-accordion-wrapper, .alpi-accordion-section')) {
+                updateAccordionOrder(blockContent);
+            }
+
+            if (blockContent.querySelector('.alpi-quote-wrapper, .alpi-quote')) {
+                updateQuoteOrder(blockContent);
+            }
+        }
+
+        syncBlockDataValue(block);
+    });
+
+    updateButtonsBlock();
+    initializeMediaSourceSelectors();
+    initializeBackgroundTypeControls();
+}
+
 // Content loading and population
-function loadSelectedBlockContent(selectElement, index) {
+function loadSelectedBlockContent(selectElement) {
+    const block = getBlockElement(selectElement);
+    if (!block) {
+        return;
+    }
+
+    syncBlockDataValue(block);
+
     const type = selectElement.value;
-    const contentDiv = selectElement.closest('.alpi-block').querySelector('.alpi-block-content');
+    const index = getBlockIndex(block);
+    const contentDiv = block.querySelector('.alpi-block-content');
     const blockData = JSON.parse(contentDiv.getAttribute('data-value') || '{}');
-    console.log('Block Data:', blockData);
 
     fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}`)
         .then(response => response.text())
         .then(html => {
             contentDiv.innerHTML = html;
             populateBlockFields(contentDiv, blockData, index);
+            attachBlockStateListeners(block);
+            initializeMediaSourceSelectors(block);
+            initializeBackgroundTypeControls(block);
+            syncBlockDataValue(block);
         })
         .catch(error => console.error('Error:', error));
 }
 
 function populateBlockFields(container, data, index) {
-    console.log('Populating fields with data:', data);
-    
     const blockData = data.block_data || data;
     
     Object.keys(blockData).forEach(key => {
         try {
             const input = container.querySelector(`[name="blocks[${index}][${key}]"]`);
             if (input) {
-                console.log(`Setting ${key} to ${blockData[key]}`);
                 if (input.type === 'checkbox') {
                     input.checked = !!blockData[key];
                 } else if (input.type === 'select-multiple') {
@@ -148,7 +419,6 @@ function populateBlockFields(container, data, index) {
                     input.value = blockData[key];
                 }
             } else if (key === 'gallery_data' && blockData[key]) {
-                console.log('Processing gallery_data:', blockData[key]);
                 try {
                     const galleryData = JSON.parse(blockData[key]);
                     let galleryArray = [];
@@ -160,7 +430,6 @@ function populateBlockFields(container, data, index) {
                     }
                     
                     if (galleryArray.length > 0) {
-                        console.log('Populating gallery with:', galleryArray);
                         populateGalleryData(container, galleryArray, index);
                     }
                 } catch (e) {
@@ -168,12 +437,12 @@ function populateBlockFields(container, data, index) {
                 }
             } else if (key === 'accordion_data' && blockData[key]) {
                 const accordionData = JSON.parse(blockData[key]);
-                Object.values(accordionData).forEach((section, sectionIndex) => {
-                    insertAccordionSection(index, section);
+                const block = container.closest('.alpi-block');
+                Object.values(accordionData).forEach(section => {
+                    insertAccordionSection(block || index, section);
                 });
                 updateAccordionOrder(container);
             } else if (key === 'quotes_data' && blockData[key]) {
-                console.log('Processing quotes_data:', blockData[key]);
                 try {
                     const quotesData = JSON.parse(blockData[key]);
                     let quotesArray = [];
@@ -185,9 +454,9 @@ function populateBlockFields(container, data, index) {
                     }
                     
                     if (quotesArray.length > 0) {
-                        console.log('Populating quotes with:', quotesArray);
-                        quotesArray.forEach((quote, quoteIndex) => {
-                            addQuote(index, quote);
+                        const block = container.closest('.alpi-block');
+                        quotesArray.forEach(quote => {
+                            addQuote(block || index, quote);
                         });
                     }
                 } catch (e) {
@@ -221,30 +490,35 @@ function toggleSourceField(selector, type) {
     }
 }
 
-function initializeMediaSourceSelectors() {
-    document.querySelectorAll('.alpi-block').forEach(block => {
+function initializeMediaSourceSelectors(scope = document) {
+    const blocks = scope.classList && scope.classList.contains('alpi-block') ? [scope] : Array.from(scope.querySelectorAll('.alpi-block'));
+
+    blocks.forEach(block => {
         const videoSelector = block.querySelector('.video-source-selector');
         const audioSelector = block.querySelector('.audio-source-selector');
 
         if (videoSelector) {
             toggleSourceField(videoSelector, 'video');
-            videoSelector.addEventListener('change', () => toggleSourceField(videoSelector, 'video'));
+            if (videoSelector.dataset.mediaSourceBound !== 'true') {
+                videoSelector.addEventListener('change', () => toggleSourceField(videoSelector, 'video'));
+                videoSelector.dataset.mediaSourceBound = 'true';
+            }
         }
 
         if (audioSelector) {
             toggleSourceField(audioSelector, 'audio');
-            audioSelector.addEventListener('change', () => toggleSourceField(audioSelector, 'audio'));
+            if (audioSelector.dataset.mediaSourceBound !== 'true') {
+                audioSelector.addEventListener('change', () => toggleSourceField(audioSelector, 'audio'));
+                audioSelector.dataset.mediaSourceBound = 'true';
+            }
         }
     });
 }
 
 // Gallery functions
 function populateGalleryData(container, galleryData, blockIndex) {
-    console.log('Populating gallery data:', galleryData);
-    
     const galleryContainer = container.querySelector('.alpi-slider-gallery');
     if (!galleryContainer) {
-        console.log('Gallery container not found');
         return;
     }
     
@@ -267,18 +541,19 @@ function addGalleryImageWithData(blockIndex, imageData, imageIndex, callback) {
         .then(response => response.json())
         .then(data => {
             if (data && data.uploads) {
-                const block = document.querySelector(`.alpi-block[data-index="${blockIndex}"] .alpi-slider-gallery`);
-                if (!block) {
+                const block = getBlockElement(blockIndex);
+                const gallery = block ? block.querySelector('.alpi-slider-gallery') : null;
+                if (!gallery) {
                     console.error('Gallery block not found for index:', blockIndex);
                     return;
                 }
 
                 const newImageHtml = getGalleryImageHTMLWithData(blockIndex, imageIndex, data.uploads, imageData);
-                const addButton = block.querySelector('.alpi-btn-primary');
+                const addButton = gallery.querySelector('.alpi-btn-primary');
                 if (addButton) {
                     addButton.insertAdjacentHTML('beforebegin', newImageHtml);
                 } else {
-                    block.insertAdjacentHTML('beforeend', newImageHtml);
+                    gallery.insertAdjacentHTML('beforeend', newImageHtml);
                 }
                 
                 if (callback) callback();
@@ -301,42 +576,56 @@ function getGalleryImageHTMLWithData(blockIndex, imageIndex, uploads, imageData)
                 <select class="alpi-form-input" name='blocks[${blockIndex}][gallery_data][${imageIndex}][url]'>
                     ${uploads.map(upload => {
                         const selected = upload.url === selectedUrl ? 'selected' : '';
-                        return `<option value='${upload.url}' ${selected}>${upload.url}</option>`;
+                        return `<option value='${escapeHtml(upload.url)}' ${selected}>${escapeHtml(upload.url)}</option>`;
                     }).join('')}
                 </select>
             </div>
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Alt Text:</label>
-                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][alt_text]' placeholder='Alt Text' value='${altText}'>
+                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][alt_text]' placeholder='Alt Text' value='${escapeHtml(altText)}'>
             </div>
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Caption:</label>
-                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][caption]' placeholder='Caption' value='${caption}'>
+                <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][gallery_data][${imageIndex}][caption]' placeholder='Caption' value='${escapeHtml(caption)}'>
             </div>
             <div class="alpi-btn-group">
                 <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageUpward(this)'>Move Up</button>
                 <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageDownward(this)'>Move Down</button>
-                <button type='button' class="alpi-btn alpi-btn-danger" onclick='removeGalleryImage(${blockIndex}, ${imageIndex})'>Delete Image</button>
+                <button type='button' class="alpi-btn alpi-btn-danger" onclick='removeGalleryImage(this)'>Delete Image</button>
             </div>
         </div>
     `;
 }
 
-function addGalleryImage(blockIndex) {
+function addGalleryImage(reference) {
+    const block = getBlockElement(reference);
+    if (!block) {
+        return;
+    }
+
+    const blockIndex = getBlockIndex(block);
+
     fetch('../../../utils/get-uploads.php')
         .then(response => response.json())
         .then(data => {
             if (data && data.uploads) {
-                const block = document.querySelector(`.alpi-block[data-index="${blockIndex}"] .alpi-slider-gallery`);
-                if (!block) {
+                const gallery = block.querySelector('.alpi-slider-gallery');
+                if (!gallery) {
                     console.error('Block not found');
                     return;
                 }
-                const newIndex = block.querySelectorAll('.alpi-gallery-image').length;
+                const newIndex = gallery.querySelectorAll('.alpi-gallery-image').length;
 
                 const newImageHtml = getGalleryImageHTML(blockIndex, newIndex, data.uploads);
-                block.insertAdjacentHTML('beforeend', newImageHtml);
-                updateButtonsImage();
+                const addButton = gallery.querySelector('.alpi-btn-primary');
+                if (addButton) {
+                    addButton.insertAdjacentHTML('beforebegin', newImageHtml);
+                } else {
+                    gallery.insertAdjacentHTML('beforeend', newImageHtml);
+                }
+
+                reindexGalleryItems(gallery);
+                syncBlockDataValue(block);
             } else {
                 console.error('No upload data found');
             }
@@ -350,7 +639,7 @@ function getGalleryImageHTML(blockIndex, newIndex, uploads) {
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Image:</label>
                 <select class="alpi-form-input" name='blocks[${blockIndex}][gallery_data][${newIndex}][url]'>
-                    ${uploads.map(upload => `<option value='${upload.url}'>${upload.url}</option>`).join('')}
+                    ${uploads.map(upload => `<option value='${escapeHtml(upload.url)}'>${escapeHtml(upload.url)}</option>`).join('')}
                 </select>
             </div>
             <div class="alpi-form-group">
@@ -364,17 +653,28 @@ function getGalleryImageHTML(blockIndex, newIndex, uploads) {
             <div class="alpi-btn-group">
                 <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageUpward(this)'>Move Up</button>
                 <button type='button' class="alpi-btn alpi-btn-secondary" onclick='shiftImageDownward(this)'>Move Down</button>
-                <button type='button' class="alpi-btn alpi-btn-danger" onclick='removeGalleryImage(${blockIndex}, ${newIndex})'>Delete Image</button>
+                <button type='button' class="alpi-btn alpi-btn-danger" onclick='removeGalleryImage(this)'>Delete Image</button>
             </div>
         </div>
     `;
 }
 
-function removeGalleryImage(blockIndex, imageIndex) {
-    const block = document.querySelector(`.alpi-block[data-index="${blockIndex}"] .alpi-slider-gallery`);
-    const image = block.querySelector(`.alpi-gallery-image[data-index="${imageIndex}"]`);
-    if (image) {
-        image.remove();
+function removeGalleryImage(reference) {
+    const image = reference.classList && reference.classList.contains('alpi-gallery-image') ? reference : reference.closest('.alpi-gallery-image');
+    if (!image) {
+        return;
+    }
+
+    const gallery = image.closest('.alpi-slider-gallery');
+    const block = getBlockElement(gallery);
+    image.remove();
+
+    if (gallery) {
+        reindexGalleryItems(gallery);
+    }
+
+    if (block) {
+        syncBlockDataValue(block);
     }
 }
 
@@ -383,7 +683,9 @@ function shiftImageUpward(button) {
     const prevImage = image.previousElementSibling;
     if (prevImage) {
         image.parentNode.insertBefore(image, prevImage);
-        updateButtonsImage();
+        const gallery = image.closest('.alpi-slider-gallery');
+        reindexGalleryItems(gallery);
+        syncBlockDataValue(getBlockElement(gallery));
     }
 }
 
@@ -392,45 +694,86 @@ function shiftImageDownward(button) {
     const nextImage = image.nextElementSibling;
     if (nextImage) {
         image.parentNode.insertBefore(nextImage, image);
-        updateButtonsImage();
+        const gallery = image.closest('.alpi-slider-gallery');
+        reindexGalleryItems(gallery);
+        syncBlockDataValue(getBlockElement(gallery));
     }
 }
 
-function updateButtonsImage() {
-    const galleries = document.querySelectorAll('.alpi-slider-gallery');
-    galleries.forEach(gallery => {
-        const images = gallery.querySelectorAll('.alpi-gallery-image');
-        images.forEach((image, index) => {
-            image.dataset.index = index;
-            const buttonsDiv = image.querySelector('.alpi-btn-group');
-            buttonsDiv.innerHTML = '';
+function reindexGalleryItems(gallery) {
+    if (!gallery) {
+        return;
+    }
 
-            if (index > 0) {
-                const moveUpButton = generateControlButton('Move Up', () => shiftImageUpward(image.querySelector('button')), 'alpi-btn alpi-btn-secondary');
-                buttonsDiv.appendChild(moveUpButton);
-            }
+    const block = getBlockElement(gallery);
+    if (!block) {
+        return;
+    }
 
-            if (index < images.length - 1) {
-                const moveDownButton = generateControlButton('Move Down', () => shiftImageDownward(image.querySelector('button')), 'alpi-btn alpi-btn-secondary');
-                buttonsDiv.appendChild(moveDownButton);
-            }
+    const blockIndex = getBlockIndex(block);
+    gallery.dataset.index = blockIndex;
 
-            const blockIndex = gallery.dataset.index;
-            const deleteButton = generateControlButton('Delete Image', () => removeGalleryImage(blockIndex, index), 'alpi-btn alpi-btn-danger');
-            buttonsDiv.appendChild(deleteButton);
+    const images = gallery.querySelectorAll('.alpi-gallery-image');
+    images.forEach((image, index) => {
+        image.dataset.index = index;
+        image.querySelectorAll('[name]').forEach(field => {
+            field.name = field.name.replace(/^blocks\[\d+\]\[gallery_data\]\[\d+\]/, `blocks[${blockIndex}][gallery_data][${index}]`);
         });
+
+        const buttonsDiv = image.querySelector('.alpi-btn-group');
+        buttonsDiv.innerHTML = '';
+
+        if (index > 0) {
+            const moveUpButton = generateControlButton('Move Up', () => shiftImageUpward(image), 'alpi-btn alpi-btn-secondary');
+            buttonsDiv.appendChild(moveUpButton);
+        }
+
+        if (index < images.length - 1) {
+            const moveDownButton = generateControlButton('Move Down', () => shiftImageDownward(image), 'alpi-btn alpi-btn-secondary');
+            buttonsDiv.appendChild(moveDownButton);
+        }
+
+        const deleteButton = generateControlButton('Delete Image', () => removeGalleryImage(image), 'alpi-btn alpi-btn-danger');
+        buttonsDiv.appendChild(deleteButton);
     });
 }
 
-// Accordion functions
-function insertAccordionSection(blockIndex, initialData = null) {
-    const block = getBlockByIndex(blockIndex);
-    const blockContent = block.querySelector('.alpi-block-content');
+function updateButtonsImage() {
+    document.querySelectorAll('.alpi-slider-gallery').forEach(gallery => reindexGalleryItems(gallery));
+}
 
-    const newIndex = blockContent.querySelectorAll('.alpi-accordion-section').length;
+// Accordion functions
+function insertAccordionSection(reference, initialData = null) {
+    let block = getBlockElement(reference);
+    if (!block && (typeof reference === 'number' || /^\d+$/.test(String(reference)))) {
+        block = getBlockByIndex(parseInt(reference, 10));
+    }
+
+    if (!block && reference && reference.closest) {
+        const blockContent = reference.closest('.alpi-block-content');
+        block = blockContent ? blockContent.closest('.alpi-block') : null;
+    }
+
+    if (!block) {
+        console.error('Unable to find accordion block for reference:', reference);
+        return;
+    }
+
+    const blockContent = block.querySelector('.alpi-block-content');
+    const accordionWrapper = blockContent.querySelector('.alpi-accordion-wrapper');
+    const addButton = accordionWrapper ? accordionWrapper.querySelector('.alpi-btn-primary') : null;
+    const blockIndex = getBlockIndex(block);
+
+    const newIndex = accordionWrapper ? accordionWrapper.querySelectorAll('.alpi-accordion-section').length : 0;
     const newSectionHtml = getAccordionSectionHTML(blockIndex, newIndex, initialData);
-    blockContent.insertAdjacentHTML('beforeend', newSectionHtml);
+    if (addButton) {
+        addButton.insertAdjacentHTML('beforebegin', newSectionHtml);
+    } else if (accordionWrapper) {
+        accordionWrapper.insertAdjacentHTML('beforeend', newSectionHtml);
+    }
+
     updateAccordionOrder(blockContent);
+    syncBlockDataValue(block);
 }
 
 function getBlockByIndex(blockIndex) {
@@ -438,8 +781,17 @@ function getBlockByIndex(blockIndex) {
 }
 
 function getAccordionSectionHTML(blockIndex, newIndex, initialData = null) {
-    const title = initialData ? initialData.title : '';
-    const content = initialData ? initialData.content : '';
+    const title = escapeHtml(initialData ? initialData.title : '');
+    const content = escapeHtml(initialData ? initialData.content : '');
+    const textColor = initialData ? (initialData.text_color || '#000000') : '#000000';
+    const backgroundColor = initialData ? (initialData.background_color || '#ffffff') : '#ffffff';
+    const titleSizeDesktop = escapeHtml(initialData ? initialData.title_size_desktop || '' : '');
+    const titleSizeTablet = escapeHtml(initialData ? initialData.title_size_tablet || '' : '');
+    const titleSizeMobile = escapeHtml(initialData ? initialData.title_size_mobile || '' : '');
+    const contentSizeDesktop = escapeHtml(initialData ? initialData.content_size_desktop || '' : '');
+    const contentSizeTablet = escapeHtml(initialData ? initialData.content_size_tablet || '' : '');
+    const contentSizeMobile = escapeHtml(initialData ? initialData.content_size_mobile || '' : '');
+
     return `
         <div class='alpi-accordion-section alpi-card alpi-mb-md' data-index='${newIndex}'>
             <div class="alpi-form-group">
@@ -449,6 +801,38 @@ function getAccordionSectionHTML(blockIndex, newIndex, initialData = null) {
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Section Content:</label>
                 <textarea class="alpi-form-input" name='blocks[${blockIndex}][accordion_data][${newIndex}][content]' placeholder='Section Content'>${content}</textarea>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Text Color:</label>
+                <input class="alpi-form-input" type='color' name='blocks[${blockIndex}][accordion_data][${newIndex}][text_color]' value='${escapeHtml(textColor)}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Background Color:</label>
+                <input class="alpi-form-input" type='color' name='blocks[${blockIndex}][accordion_data][${newIndex}][background_color]' value='${escapeHtml(backgroundColor)}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Title Size (Desktop):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][title_size_desktop]' value='${titleSizeDesktop}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Title Size (Tablet):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][title_size_tablet]' value='${titleSizeTablet}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Title Size (Mobile):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][title_size_mobile]' value='${titleSizeMobile}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Content Size (Desktop):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][content_size_desktop]' value='${contentSizeDesktop}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Content Size (Tablet):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][content_size_tablet]' value='${contentSizeTablet}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Content Size (Mobile):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][accordion_data][${newIndex}][content_size_mobile]' value='${contentSizeMobile}'>
             </div>
             <div class="alpi-btn-group">
                 <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftAccordionSectionUp(this)">Move Up</button>
@@ -485,36 +869,45 @@ function shiftAccordionSectionDown(button) {
 }
 
 function updateAccordionOrder(blockContent) {
+    if (!blockContent.querySelector('.alpi-accordion-wrapper, .alpi-accordion-section')) {
+        return;
+    }
+
     const sections = blockContent.querySelectorAll('.alpi-accordion-section');
     const blockIndex = blockContent.closest('.alpi-block').dataset.index;
-    const accordionData = {};
+    const accordionData = [];
 
     sections.forEach((section, index) => {
-        const titleInput = section.querySelector('input[name^="blocks["][name$="[title]"]');
-        const contentTextarea = section.querySelector('textarea[name^="blocks["][name$="[content]"]');
+        section.querySelectorAll('[name]').forEach(field => {
+            field.name = field.name.replace(/^blocks\[\d+\]\[accordion_data\]\[\d+\]/, `blocks[${blockIndex}][accordion_data][${index}]`);
+        });
+
+        section.dataset.index = index;
 
         accordionData[index] = {
-            title: titleInput.value,
-            content: contentTextarea.value
+            title: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][title]"]`)?.value || '',
+            content: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][content]"]`)?.value || '',
+            text_color: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][text_color]"]`)?.value || '',
+            background_color: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][background_color]"]`)?.value || '',
+            title_size_desktop: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][title_size_desktop]"]`)?.value || '',
+            title_size_tablet: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][title_size_tablet]"]`)?.value || '',
+            title_size_mobile: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][title_size_mobile]"]`)?.value || '',
+            content_size_desktop: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][content_size_desktop]"]`)?.value || '',
+            content_size_tablet: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][content_size_tablet]"]`)?.value || '',
+            content_size_mobile: section.querySelector(`[name="blocks[${blockIndex}][accordion_data][${index}][content_size_mobile]"]`)?.value || ''
         };
-
-        // Update the name attributes to reflect the new order
-        titleInput.name = `blocks[${blockIndex}][accordion_data][${index}][title]`;
-        contentTextarea.name = `blocks[${blockIndex}][accordion_data][${index}][content]`;
-        section.dataset.index = index;
     });
 
-    // Update the data-value attribute of the block content div
     const blockContentDiv = blockContent.closest('.alpi-block').querySelector('.alpi-block-content');
     const dataValue = JSON.parse(blockContentDiv.dataset.value || '{}');
     dataValue.accordion_data = JSON.stringify(accordionData);
     blockContentDiv.dataset.value = JSON.stringify(dataValue);
 
-    updateButtonsAccordionSection();
+    updateButtonsAccordionSection(blockContent);
 }
 
-function updateButtonsAccordionSection() {
-    const sections = document.querySelectorAll('.alpi-accordion-section');
+function updateButtonsAccordionSection(blockContent) {
+    const sections = blockContent.querySelectorAll('.alpi-accordion-section');
     sections.forEach((section, index) => {
         const buttonsDiv = section.querySelector('.alpi-btn-group');
         buttonsDiv.innerHTML = '';
@@ -535,19 +928,47 @@ function updateButtonsAccordionSection() {
 }
 
 // Quote functions
-function addQuote(blockIndex, initialData = null) {
-    const block = getBlockByIndex(blockIndex);
-    const blockContent = block.querySelector('.alpi-block-content');
+function addQuote(reference, initialData = null) {
+    let block = getBlockElement(reference);
+    if (!block && (typeof reference === 'number' || /^\d+$/.test(String(reference)))) {
+        block = getBlockByIndex(parseInt(reference, 10));
+    }
 
-    const newIndex = blockContent.querySelectorAll('.alpi-quote').length;
+    if (!block && reference && reference.closest) {
+        const blockContent = reference.closest('.alpi-block-content');
+        block = blockContent ? blockContent.closest('.alpi-block') : null;
+    }
+
+    if (!block) {
+        console.error('Unable to find quote block for reference:', reference);
+        return;
+    }
+
+    const blockContent = block.querySelector('.alpi-block-content');
+    const quoteWrapper = blockContent.querySelector('.alpi-quote-wrapper');
+    const addButton = quoteWrapper ? quoteWrapper.querySelector('.alpi-btn-primary') : null;
+    const blockIndex = getBlockIndex(block);
+    const newIndex = quoteWrapper ? quoteWrapper.querySelectorAll('.alpi-quote').length : 0;
     const newQuoteHtml = getQuoteHTML(blockIndex, newIndex, initialData);
-    blockContent.insertAdjacentHTML('beforeend', newQuoteHtml);
-    updateButtonsQuote(blockIndex);
+    if (addButton) {
+        addButton.insertAdjacentHTML('beforebegin', newQuoteHtml);
+    } else if (quoteWrapper) {
+        quoteWrapper.insertAdjacentHTML('beforeend', newQuoteHtml);
+    }
+
+    updateQuoteOrder(blockContent);
+    syncBlockDataValue(block);
 }
 
 function getQuoteHTML(blockIndex, newIndex, initialData = null) {
-    const content = initialData ? initialData.content : '';
-    const author = initialData ? initialData.author : '';
+    const content = escapeHtml(initialData ? initialData.content : '');
+    const author = escapeHtml(initialData ? initialData.author : '');
+    const textColor = initialData ? (initialData.text_color || '#000000') : '#000000';
+    const backgroundColor = initialData ? (initialData.background_color || '#ffffff') : '#ffffff';
+    const textSizeDesktop = escapeHtml(initialData ? initialData.text_size_desktop || '' : '');
+    const textSizeTablet = escapeHtml(initialData ? initialData.text_size_tablet || '' : '');
+    const textSizeMobile = escapeHtml(initialData ? initialData.text_size_mobile || '' : '');
+
     return `
         <div class='alpi-quote alpi-card alpi-mb-md' data-index='${newIndex}'>
             <div class="alpi-form-group">
@@ -557,6 +978,26 @@ function getQuoteHTML(blockIndex, newIndex, initialData = null) {
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Author:</label>
                 <input class="alpi-form-input" type='text' name='blocks[${blockIndex}][quotes_data][${newIndex}][author]' value="${author}" placeholder='Author'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Text Color:</label>
+                <input class="alpi-form-input" type='color' name='blocks[${blockIndex}][quotes_data][${newIndex}][text_color]' value='${escapeHtml(textColor)}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Background Color:</label>
+                <input class="alpi-form-input" type='color' name='blocks[${blockIndex}][quotes_data][${newIndex}][background_color]' value='${escapeHtml(backgroundColor)}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Text Size (Desktop):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][quotes_data][${newIndex}][text_size_desktop]' value='${textSizeDesktop}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Text Size (Tablet):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][quotes_data][${newIndex}][text_size_tablet]' value='${textSizeTablet}'>
+            </div>
+            <div class="alpi-form-group">
+                <label class="alpi-form-label">Text Size (Mobile):</label>
+                <input class="alpi-form-input" type='number' name='blocks[${blockIndex}][quotes_data][${newIndex}][text_size_mobile]' value='${textSizeMobile}'>
             </div>
             <div class="alpi-btn-group">
                 <button type="button" class="alpi-btn alpi-btn-secondary" onclick="shiftQuoteUpward(this)">Move Up</button>
@@ -590,43 +1031,66 @@ function removeQuote(button) {
     const blockContent = quote.closest('.alpi-block-content');
     quote.remove();
     updateQuoteOrder(blockContent);
+    syncBlockDataValue(getBlockElement(blockContent));
 }
 
 function updateQuoteOrder(blockContent) {
+    if (!blockContent.querySelector('.alpi-quote-wrapper, .alpi-quote')) {
+        return;
+    }
+
     const quotes = blockContent.querySelectorAll('.alpi-quote');
     const blockIndex = blockContent.closest('.alpi-block').dataset.index;
+    const quotesData = [];
     
     quotes.forEach((quote, index) => {
-        const contentTextarea = quote.querySelector('textarea[name^="blocks["][name$="[content]"]');
-        const authorInput = quote.querySelector('input[name^="blocks["][name$="[author]"]');
-        
-        // Update the name attributes to reflect the new order
-        if (contentTextarea) contentTextarea.name = `blocks[${blockIndex}][quotes_data][${index}][content]`;
-        if (authorInput) authorInput.name = `blocks[${blockIndex}][quotes_data][${index}][author]`;
+        quote.querySelectorAll('[name]').forEach(field => {
+            field.name = field.name.replace(/^blocks\[\d+\]\[quotes_data\]\[\d+\]/, `blocks[${blockIndex}][quotes_data][${index}]`);
+        });
+
         quote.dataset.index = index;
+
+        quotesData[index] = {
+            content: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][content]"]`)?.value || '',
+            author: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][author]"]`)?.value || '',
+            text_color: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][text_color]"]`)?.value || '',
+            background_color: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][background_color]"]`)?.value || '',
+            text_size_desktop: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][text_size_desktop]"]`)?.value || '',
+            text_size_tablet: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][text_size_tablet]"]`)?.value || '',
+            text_size_mobile: quote.querySelector(`[name="blocks[${blockIndex}][quotes_data][${index}][text_size_mobile]"]`)?.value || ''
+        };
     });
+
+    const blockContentDiv = blockContent.closest('.alpi-block').querySelector('.alpi-block-content');
+    const dataValue = JSON.parse(blockContentDiv.dataset.value || '{}');
+    dataValue.quotes_data = JSON.stringify(quotesData);
+    blockContentDiv.dataset.value = JSON.stringify(dataValue);
     
-    updateButtonsQuote(blockContent.closest('.alpi-block').dataset.index);
+    updateButtonsQuote(blockContent.closest('.alpi-block'));
 }
 
-function updateButtonsQuote(blockIndex) {
-    const block = getBlockByIndex(blockIndex);
+function updateButtonsQuote(blockReference) {
+    const block = getBlockElement(blockReference);
+    if (!block) {
+        return;
+    }
+
     const quotes = block.querySelectorAll('.alpi-quote');
     quotes.forEach((quote, index) => {
         const buttonsDiv = quote.querySelector('.alpi-btn-group');
         buttonsDiv.innerHTML = '';
 
         if (index > 0) {
-            const moveUpButton = generateControlButton('Move Up', () => shiftQuoteUpward(quote.querySelector('button')), 'alpi-btn alpi-btn-secondary');
+            const moveUpButton = generateControlButton('Move Up', () => shiftQuoteUpward(quote), 'alpi-btn alpi-btn-secondary');
             buttonsDiv.appendChild(moveUpButton);
         }
 
         if (index < quotes.length - 1) {
-            const moveDownButton = generateControlButton('Move Down', () => shiftQuoteDownward(quote.querySelector('button')), 'alpi-btn alpi-btn-secondary');
+            const moveDownButton = generateControlButton('Move Down', () => shiftQuoteDownward(quote), 'alpi-btn alpi-btn-secondary');
             buttonsDiv.appendChild(moveDownButton);
         }
 
-        const deleteButton = generateControlButton('Delete', () => removeQuote(quote.querySelector('button')), 'alpi-btn alpi-btn-danger');
+        const deleteButton = generateControlButton('Delete', () => removeQuote(quote), 'alpi-btn alpi-btn-danger');
         buttonsDiv.appendChild(deleteButton);
     });
 }

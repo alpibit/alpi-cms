@@ -6,16 +6,17 @@ if (!defined('CONFIG_INCLUDED')) {
 // Unique identifier for this CTA instance
 $ctaId = 'alpi-cms-content-cta-' . uniqid();
 
-// Helper function to get background value
-function getBackgroundValue($type, $image, $color)
-{
-    switch ($type) {
-        case 'image':
-            return $image ? htmlspecialchars($image, ENT_QUOTES, 'UTF-8') : 'none';
-        case 'color':
-            return $color ? htmlspecialchars($color, ENT_QUOTES, 'UTF-8') : 'transparent';
-        default:
-            return 'none';
+if (!function_exists('alpiCmsGetCtaBackgroundValue')) {
+    function alpiCmsGetCtaBackgroundValue($type, $image, $color)
+    {
+        switch ($type) {
+            case 'image':
+                return $image ? htmlspecialchars($image, ENT_QUOTES, 'UTF-8') : 'none';
+            case 'color':
+                return $color ? htmlspecialchars($color, ENT_QUOTES, 'UTF-8') : 'transparent';
+            default:
+                return 'none';
+        }
     }
 }
 
@@ -30,7 +31,7 @@ foreach ($devices as $device) {
     $image = $block["background_image_{$device}"] ?? '';
     $color = $block['background_color'] ?? '';
 
-    $background = getBackgroundValue($type, $image, $color);
+    $background = alpiCmsGetCtaBackgroundValue($type, $image, $color);
     $styles[] = "--alpi-cta-background-{$device}: " . ($type === 'image' ? "url('{$background}')" : $background) . ";";
 
     foreach ($properties as $property) {

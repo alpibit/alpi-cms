@@ -6,47 +6,60 @@ if (!defined('CONFIG_INCLUDED')) {
 // Unique identifier for this Video Block instance
 $videoBlockId = 'alpi-cms-content-video-' . uniqid();
 
-// Helper function to get YouTube video ID
-function getYoutubeId($url) {
-    $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
-    if (preg_match($pattern, $url, $match)) {
-        return $match[1];
+if (!function_exists('alpiCmsGetYoutubeId')) {
+    function alpiCmsGetYoutubeId($url)
+    {
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
+        if (preg_match($pattern, $url, $match)) {
+            return $match[1];
+        }
+
+        return false;
     }
-    return false;
 }
 
-// Helper function to get Vimeo video ID
-function getVimeoId($url) {
-    $pattern = '/(https?:\/\/)?(www\.)?(player\.)?vimeo\.com\/([a-z]*\/)*([0-9]{6,11})[?]?.*/';
-    if (preg_match($pattern, $url, $match)) {
-        return $match[5];
+if (!function_exists('alpiCmsGetVimeoId')) {
+    function alpiCmsGetVimeoId($url)
+    {
+        $pattern = '/(https?:\/\/)?(www\.)?(player\.)?vimeo\.com\/([a-z]*\/)*([0-9]{6,11})[?]?.*/';
+        if (preg_match($pattern, $url, $match)) {
+            return $match[5];
+        }
+
+        return false;
     }
-    return false;
 }
 
-// Helper function to get file extension
-function getFileExtension($filename) {
-    return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+if (!function_exists('alpiCmsGetVideoFileExtension')) {
+    function alpiCmsGetVideoFileExtension($filename)
+    {
+        return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    }
 }
 
-// Helper function to get MIME type
-function getMimeType($extension) {
-    $mime_types = [
-        'mp4' => 'video/mp4',
-        'webm' => 'video/webm',
-        'ogg' => 'video/ogg',
-        'avi' => 'video/x-msvideo',
-        'mov' => 'video/quicktime',
-        'wmv' => 'video/x-ms-wmv',
-        'flv' => 'video/x-flv',
-        '3gp' => 'video/3gpp',
-    ];
-    return $mime_types[$extension] ?? 'video/mp4';
+if (!function_exists('alpiCmsGetVideoMimeType')) {
+    function alpiCmsGetVideoMimeType($extension)
+    {
+        $mimeTypes = [
+            'mp4' => 'video/mp4',
+            'webm' => 'video/webm',
+            'ogg' => 'video/ogg',
+            'avi' => 'video/x-msvideo',
+            'mov' => 'video/quicktime',
+            'wmv' => 'video/x-ms-wmv',
+            'flv' => 'video/x-flv',
+            '3gp' => 'video/3gpp',
+        ];
+
+        return $mimeTypes[$extension] ?? 'video/mp4';
+    }
 }
 
-// Helper function to check if file exists
-function fileExists($filePath) {
-    return file_exists($_SERVER['DOCUMENT_ROOT'] . parse_url($filePath, PHP_URL_PATH));
+if (!function_exists('alpiCmsVideoFileExists')) {
+    function alpiCmsVideoFileExists($filePath)
+    {
+        return file_exists($_SERVER['DOCUMENT_ROOT'] . parse_url($filePath, PHP_URL_PATH));
+    }
 }
 
 // Prepare styles
@@ -82,8 +95,8 @@ ob_start();
             $videoFile = $block['video_file'] ?? '';
 
             if ($videoSource === 'url') {
-                $youtubeId = getYoutubeId($videoUrl);
-                $vimeoId = getVimeoId($videoUrl);
+                $youtubeId = alpiCmsGetYoutubeId($videoUrl);
+                $vimeoId = alpiCmsGetVimeoId($videoUrl);
 
                 if ($youtubeId) {
                     ?>
@@ -101,15 +114,15 @@ ob_start();
                     echo '<p class="video-error">Invalid video URL provided.</p>';
                 }
             } elseif ($videoSource === 'upload' && $videoFile) {
-                $fileExtension = getFileExtension($videoFile);
-                $mimeType = getMimeType($fileExtension);
+                $fileExtension = alpiCmsGetVideoFileExtension($videoFile);
+                $mimeType = alpiCmsGetVideoMimeType($fileExtension);
                 ?>
                 <div class="video-container" data-video-type="upload">
                     <video controls preload="metadata" playsinline>
                         <source src="<?php echo htmlspecialchars($videoFile, ENT_QUOTES, 'UTF-8'); ?>" type="<?php echo $mimeType; ?>">
                         <?php
                         $mp4File = str_replace('.'.$fileExtension, '.mp4', $videoFile);
-                        if ($fileExtension !== 'mp4' && fileExists($mp4File)) : 
+                        if ($fileExtension !== 'mp4' && alpiCmsVideoFileExists($mp4File)) : 
                         ?>
                             <source src="<?php echo htmlspecialchars($mp4File, ENT_QUOTES, 'UTF-8'); ?>" type="video/mp4">
                         <?php endif; ?>

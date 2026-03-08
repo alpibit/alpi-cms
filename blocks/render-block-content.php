@@ -60,7 +60,7 @@ function renderBackgroundOptions($block, $index)
         $selectedBackgroundType = $block["background_type_{$size}"] ?? 'image';
 
         echo "<div class='alpi-form-group'>";
-        echo "<label class='alpi-form-label'>Background Type ({$size}): <select class='alpi-form-input' name='blocks[$index][background_type_{$size}]' id='background_type_{$index}_{$size}' onchange='updateBackgroundTypeFields($index, \"$size\")'>";
+        echo "<label class='alpi-form-label'>Background Type ({$size}): <select class='alpi-form-input alpi-background-type-selector' name='blocks[$index][background_type_{$size}]' data-background-size='{$size}' onchange='updateBackgroundTypeFields(this, \"$size\")'>";
         foreach ($backgroundTypes as $value => $name) {
             $isSelected = ($value == $selectedBackgroundType) ? 'selected' : '';
             echo "<option value='$value' $isSelected>$name</option>";
@@ -72,19 +72,6 @@ function renderBackgroundOptions($block, $index)
     }
 
     renderColorPicker("background_color", $block["background_color"] ?? '', "Background Color", 'background');
-
-    echo "<script>
-        function updateBackgroundTypeFields(index, size) {
-            var typeSelector = document.getElementById('background_type_' + index + '_' + size);
-            var selectedType = typeSelector.value;
-            var imageField = document.getElementById('background_image_' + index + '_' + size);
-            if (imageField) {
-                imageField.style.display = (selectedType == 'image') ? 'block' : 'none';
-            }
-            document.getElementById('background_color_' + index).style.display = (selectedType == 'color') ? 'block' : 'none';
-        }
-        " . implode('', array_map(fn($size) => "updateBackgroundTypeFields($index, '$size');", $sizes)) . "
-    </script>";
 }
 
 function renderTextarea($name, $value, $placeholder)
@@ -124,6 +111,19 @@ function renderVideoSourceSelector($name, $selected)
     echo "<div class='alpi-form-group'>";
     echo "<label class='alpi-form-label'>Video Source: <select class='alpi-form-input video-source-selector' name='blocks[{$GLOBALS['index']}][{$name}]' onchange='toggleSourceField(this, \"video\")'>";
     foreach ($videoSourceOptions as $value => $display) {
+        $isSelected = ($value == $selected) ? 'selected' : '';
+        echo "<option value='{$value}' {$isSelected}>{$display}</option>";
+    }
+    echo "</select></label>";
+    echo "</div>";
+}
+
+function renderAudioSourceSelector($name, $selected)
+{
+    $audioSourceOptions = ['url' => 'URL', 'upload' => 'Upload'];
+    echo "<div class='alpi-form-group'>";
+    echo "<label class='alpi-form-label'>Audio Source: <select class='alpi-form-input audio-source-selector' name='blocks[{$GLOBALS['index']}][{$name}]' onchange='toggleSourceField(this, \"audio\")'>";
+    foreach ($audioSourceOptions as $value => $display) {
         $isSelected = ($value == $selected) ? 'selected' : '';
         echo "<option value='{$value}' {$isSelected}>{$display}</option>";
     }
@@ -261,11 +261,11 @@ switch ($blockType) {
             echo "<div class='alpi-btn-group'>";
             echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageUpward(this)'>Move Up</button>";
             echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftImageDownward(this)'>Move Down</button>";
-            echo "<button type='button' class='alpi-btn alpi-btn-danger' onclick='removeGalleryImage({$index}, {$imageIndex})'>Delete Image</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-danger' onclick='removeGalleryImage(this)'>Delete Image</button>";
             echo "</div>";
             echo "</div>";
         }
-        echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='addGalleryImage({$index})'>Add New Image</button>";
+        echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='addGalleryImage(this)'>Add New Image</button>";
         echo "</div>";
         renderSpacingControls($block, 'slider_gallery');
         break;
@@ -287,13 +287,13 @@ switch ($blockType) {
             renderNumberInput("quotes_data][{$quoteIndex}][text_size_tablet", $quote['text_size_tablet'] ?? '', 'Text Size (Tablet)');
             renderNumberInput("quotes_data][{$quoteIndex}][text_size_mobile", $quote['text_size_mobile'] ?? '', 'Text Size (Mobile)');
             echo "<div class='alpi-btn-group'>";
-            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftQuoteUpward({$index}, {$quoteIndex})'>Move Up</button>";
-            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftQuoteDownward({$index}, {$quoteIndex})'>Move Down</button>";
-            echo "<button type='button' class='alpi-btn alpi-btn-danger' onclick='removeQuote({$index}, {$quoteIndex})'>Delete Quote</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftQuoteUpward(this)'>Move Up</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-secondary' onclick='shiftQuoteDownward(this)'>Move Down</button>";
+            echo "<button type='button' class='alpi-btn alpi-btn-danger' onclick='removeQuote(this)'>Delete Quote</button>";
             echo "</div>";
             echo "</div>";
         }
-        echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='addQuote({$index})'>Add New Quote</button>";
+        echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='addQuote(this)'>Add New Quote</button>";
         echo "</div>";
         renderSpacingControls($block, 'quote');
         break;
@@ -305,6 +305,7 @@ switch ($blockType) {
         }
 
         if (!empty($accordionData)) {
+            echo "<div class='alpi-accordion-wrapper' data-index='{$index}'>";
             foreach ($accordionData as $sectionIndex => $section) {
                 $newIndex = $sectionIndex;
                 $blockIndex = $index;
@@ -330,16 +331,27 @@ switch ($blockType) {
                 echo "</div>";
                 echo "</div>";
             }
+            echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='insertAccordionSection(this)'>Add New Section</button>";
+            echo "</div>";
+        } else {
+            echo "<div class='alpi-accordion-wrapper' data-index='{$index}'>";
+            echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='insertAccordionSection(this)'>Add New Section</button>";
+            echo "</div>";
         }
-
-        echo "<button type='button' class='alpi-btn alpi-btn-primary' onclick='insertAccordionSection({$index})'>Add New Section</button>";
         renderSpacingControls($block, 'accordion');
         break;
 
     case 'audio':
-        renderInput('audio_url', $block['audio_url'] ?? '', 'Audio URL');
-        renderFileUpload('video_url', $uploads, $block['audio_url'] ?? '');
-        renderSelect('audio_source', $videoSourceOptions, $block['audio_source'] ?? '', 'Audio Source');
+        $selectedAudioFile = $block['audio_file'] ?? ($block['video_url'] ?? '');
+        echo "<div class='alpi-form-group audio-url-field' id='audio-url-field-{$index}' style='display:none;'>";
+        renderInput('audio_url', $block['audio_url'] ?? '', 'Audio URL', 'text');
+        echo "</div>";
+
+        echo "<div class='alpi-form-group audio-upload-field' id='audio-upload-field-{$index}' style='display:none;'>";
+        renderFileUpload('audio_file', $uploads, $selectedAudioFile);
+        echo "</div>";
+
+        renderAudioSourceSelector('audio_source', $block['audio_source'] ?? '');
         renderSpacingControls($block, 'audio');
         break;
 
