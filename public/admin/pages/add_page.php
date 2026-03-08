@@ -10,21 +10,27 @@ require '../auth_check.php';
 $db = new Database();
 $conn = $db->connect();
 $page = new Page($conn);
+$error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
-    $title = $_POST['title'];
-    $subtitle = $_POST['subtitle'];
-    $mainImagePath = $_POST['main_image_path'];
-    $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
-    $isActive = isset($_POST['is_active']) ? 1 : 0;
-    $userId = $_SESSION['user_id'];
-    $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        $title = $_POST['title'];
+        $subtitle = $_POST['subtitle'];
+        $mainImagePath = $_POST['main_image_path'];
+        $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
+        $userId = $_SESSION['user_id'];
+        $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
 
-    // Call the addPage function
-    $page->addPage($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
+        $page->addPage($title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
 
-    header("Location: " . BASE_URL . "/public/admin/pages/index.php");
-    exit;
+        alpiRegenerateCsrfToken();
+        header("Location: " . BASE_URL . "/public/admin/pages/index.php");
+        exit;
+    }
 }
 
 
@@ -34,7 +40,12 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Add New Page</h1>
 
+    <?php if ($error) : ?>
+        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php endif; ?>
+
     <form action="" method="POST" class="alpi-form">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="alpi-card alpi-mb-lg">
             <h2 class="alpi-card-header">Page Details</h2>
             <div class="alpi-card-body">

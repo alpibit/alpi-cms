@@ -23,6 +23,12 @@ include '../../../templates/header-admin.php';
         <a href="add_category.php" class="alpi-btn alpi-btn-primary">Add New Category</a>
     </div>
 
+    <?php if (isset($_GET['status'], $_GET['message'])) : ?>
+        <div class="alpi-alert <?= $_GET['status'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md">
+            <?= htmlspecialchars($_GET['message'], ENT_QUOTES, 'UTF-8') ?>
+        </div>
+    <?php endif; ?>
+
     <div class="alpi-card alpi-p-md">
         <table class="alpi-table">
             <thead>
@@ -38,7 +44,11 @@ include '../../../templates/header-admin.php';
                         <td>
                             <div class="alpi-btn-group">
                                 <a href="edit_category.php?id=<?= $singleCategory['id'] ?>" class="alpi-btn alpi-btn-secondary alpi-btn-sm">Edit</a>
-                                <button class="alpi-btn alpi-btn-danger alpi-btn-sm" onclick="confirmCategoryDeletion('<?= $singleCategory['id'] ?>')">Delete</button>
+                                <form method="POST" action="delete_category.php" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="id" value="<?= (int) $singleCategory['id'] ?>">
+                                    <button type="submit" class="alpi-btn alpi-btn-danger alpi-btn-sm">Delete</button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -49,11 +59,3 @@ include '../../../templates/header-admin.php';
 </div>
 
 <?php include '../../../templates/footer-admin.php'; ?>
-
-<script>
-    function confirmCategoryDeletion(categoryId) {
-        if (confirm("Are you sure you want to delete this category?")) {
-            window.location.href = 'delete_category.php?id=' + categoryId;
-        }
-    }
-</script>

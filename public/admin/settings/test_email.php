@@ -14,6 +14,12 @@ if (!$conn instanceof PDO) {
 $settings = new Settings($conn);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['test_email'])) {
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        alpiRegenerateCsrfToken();
+        header("Location: index.php?email_test_status=error&email_test_message=" . urlencode('Invalid CSRF token. Please try again.'));
+        exit;
+    }
+
     $to = $_POST['test_email'];
     $from = $settings->getSetting('email_from');
     $smtp_host = $settings->getSetting('email_smtp_host');
@@ -47,6 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['test_email'])) {
     }
 
     // Redirect back to the settings page with a status message
+    alpiRegenerateCsrfToken();
     header("Location: index.php?email_test_status={$status}&email_test_message=" . urlencode($message));
     exit;
 }

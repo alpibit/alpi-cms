@@ -58,53 +58,59 @@ $time_formats = [
     'H:i' => date('H:i'),
 ];
 
+$error_message = '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Update settings securely
-    $site_title = $_POST['site_title'];
-    $site_description = $_POST['site_description'];
-    $site_logo = $_POST['site_logo'];
-    $site_favicon = $_POST['site_favicon'];
-    $footer_text = $_POST['footer_text'];
-    $default_language = $_POST['default_language'];
-    $timezone = $_POST['timezone'];
-    $date_format = $_POST['date_format'];
-    $time_format = $_POST['time_format'];
-    $posts_per_page = $_POST['posts_per_page'];
-    $google_analytics_code = $_POST['google_analytics_code'];
-    $custom_css = $_POST['custom_css'];
-    $maintenance_mode = $_POST['maintenance_mode'];
-    $header_scripts = $_POST['header_scripts'];
-    $footer_scripts = $_POST['footer_scripts'];
-    $default_post_thumbnail = $_POST['default_post_thumbnail'];
-    $pagination_type = $_POST['pagination_type'];
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error_message = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        $site_title = $_POST['site_title'];
+        $site_description = $_POST['site_description'];
+        $site_logo = $_POST['site_logo'];
+        $site_favicon = $_POST['site_favicon'];
+        $footer_text = $_POST['footer_text'];
+        $default_language = $_POST['default_language'];
+        $timezone = $_POST['timezone'];
+        $date_format = $_POST['date_format'];
+        $time_format = $_POST['time_format'];
+        $posts_per_page = $_POST['posts_per_page'];
+        $google_analytics_code = $_POST['google_analytics_code'];
+        $custom_css = $_POST['custom_css'];
+        $maintenance_mode = $_POST['maintenance_mode'];
+        $header_scripts = $_POST['header_scripts'];
+        $footer_scripts = $_POST['footer_scripts'];
+        $default_post_thumbnail = $_POST['default_post_thumbnail'];
+        $pagination_type = $_POST['pagination_type'];
 
-    $settings->updateSetting('site_title', $site_title);
-    $settings->updateSetting('site_description', $site_description);
-    $settings->updateSetting('site_logo', $site_logo);
-    $settings->updateSetting('site_favicon', $site_favicon);
-    $settings->updateSetting('footer_text', $footer_text);
-    $settings->updateSetting('default_language', $default_language);
-    $settings->updateSetting('timezone', $timezone);
-    $settings->updateSetting('date_format', $date_format);
-    $settings->updateSetting('time_format', $time_format);
-    $settings->updateSetting('posts_per_page', $posts_per_page);
-    $settings->updateSetting('google_analytics_code', $google_analytics_code);
-    $settings->updateSetting('custom_css', $custom_css);
-    $settings->updateSetting('maintenance_mode', $maintenance_mode);
-    $settings->updateSetting('header_scripts', $header_scripts);
-    $settings->updateSetting('footer_scripts', $footer_scripts);
-    $settings->updateSetting('default_post_thumbnail', $default_post_thumbnail);
-    $settings->updateSetting('pagination_type', $pagination_type);
+        $settings->updateSetting('site_title', $site_title);
+        $settings->updateSetting('site_description', $site_description);
+        $settings->updateSetting('site_logo', $site_logo);
+        $settings->updateSetting('site_favicon', $site_favicon);
+        $settings->updateSetting('footer_text', $footer_text);
+        $settings->updateSetting('default_language', $default_language);
+        $settings->updateSetting('timezone', $timezone);
+        $settings->updateSetting('date_format', $date_format);
+        $settings->updateSetting('time_format', $time_format);
+        $settings->updateSetting('posts_per_page', $posts_per_page);
+        $settings->updateSetting('google_analytics_code', $google_analytics_code);
+        $settings->updateSetting('custom_css', $custom_css);
+        $settings->updateSetting('maintenance_mode', $maintenance_mode);
+        $settings->updateSetting('header_scripts', $header_scripts);
+        $settings->updateSetting('footer_scripts', $footer_scripts);
+        $settings->updateSetting('default_post_thumbnail', $default_post_thumbnail);
+        $settings->updateSetting('pagination_type', $pagination_type);
 
-    // Update new email settings
-    $settings->updateSetting('email_from', $_POST['email_from']);
-    $settings->updateSetting('email_smtp_host', $_POST['email_smtp_host']);
-    $settings->updateSetting('email_smtp_port', $_POST['email_smtp_port']);
-    $settings->updateSetting('email_smtp_username', $_POST['email_smtp_username']);
-    $settings->updateSetting('email_smtp_password', $_POST['email_smtp_password']);
-    $settings->updateSetting('email_smtp_encryption', $_POST['email_smtp_encryption']);
+        $settings->updateSetting('email_from', $_POST['email_from']);
+        $settings->updateSetting('email_smtp_host', $_POST['email_smtp_host']);
+        $settings->updateSetting('email_smtp_port', $_POST['email_smtp_port']);
+        $settings->updateSetting('email_smtp_username', $_POST['email_smtp_username']);
+        $settings->updateSetting('email_smtp_password', $_POST['email_smtp_password']);
+        $settings->updateSetting('email_smtp_encryption', $_POST['email_smtp_encryption']);
 
-    $success_message = "Settings updated successfully.";
+        alpiRegenerateCsrfToken();
+        $success_message = "Settings updated successfully.";
+    }
 }
 $uploads = $upload->listFiles();
 
@@ -124,7 +130,12 @@ include '../../../templates/header-admin.php';
         <div class="alpi-alert alpi-alert-success alpi-mb-md"><?php echo $success_message; ?></div>
     <?php endif; ?>
 
+    <?php if ($error_message) : ?>
+        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php endif; ?>
+
     <form action="" method="POST" class="alpi-form">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="alpi-card alpi-p-lg alpi-mb-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">General Settings</h2>
 
@@ -347,6 +358,7 @@ include '../../../templates/header-admin.php';
     <div class="alpi-card alpi-p-lg alpi-mt-lg">
         <h2 class="alpi-text-secondary alpi-mb-md">Test Email Configuration</h2>
         <form action="test_email.php" method="POST" class="alpi-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="alpi-form-group">
                 <label for="test_email" class="alpi-form-label">Send Test Email To:</label>
                 <input type="email" id="test_email" name="test_email" class="alpi-form-input" required>

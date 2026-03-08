@@ -10,28 +10,33 @@ require '../auth_check.php';
 $db = new Database();
 $conn = $db->connect();
 $page = new Page($conn);
+$error = '';
 
 $pageData = $page->getPageById($_GET['id']);
 $blocksData = $pageData['blocks'] ?? [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $title = $_POST['title'];
-    $subtitle = $_POST['subtitle'];
-    $mainImagePath = $_POST['main_image_path'];
-    $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
-    $isActive = isset($_POST['is_active']) ? 1 : 0;
-    $userId = $_SESSION['user_id'] ?? 0;
-    $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        $title = $_POST['title'];
+        $subtitle = $_POST['subtitle'];
+        $mainImagePath = $_POST['main_image_path'];
+        $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
+        $isActive = isset($_POST['is_active']) ? 1 : 0;
+        $userId = $_SESSION['user_id'] ?? 0;
+        $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
 
-    $page->updatePage($_GET['id'], $title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
+        $page->updatePage($_GET['id'], $title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
 
-    // Instead of redirecting, set a success message
-    $updateSuccess = true;
-    $message = "Page updated successfully!";
+        alpiRegenerateCsrfToken();
+        $updateSuccess = true;
+        $message = "Page updated successfully!";
 
-    // Refresh page data
-    $pageData = $page->getPageById($_GET['id']);
-    $blocksData = $pageData['blocks'] ?? [];
+        $pageData = $page->getPageById($_GET['id']);
+        $blocksData = $pageData['blocks'] ?? [];
+    }
 }
 
 include '../../../templates/header-admin.php';
@@ -46,7 +51,14 @@ include '../../../templates/header-admin.php';
         </div>
     <?php endif; ?>
 
+    <?php if ($error) : ?>
+        <div class="alpi-alert alpi-alert-danger alpi-mb-md">
+            <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
+        </div>
+    <?php endif; ?>
+
     <form action="" method="POST" class="alpi-form">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="alpi-card alpi-mb-lg">
             <h2 class="alpi-card-header">Page Details</h2>
             <div class="alpi-card-body">

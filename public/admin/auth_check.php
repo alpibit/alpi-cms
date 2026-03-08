@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../utils/helpers.php';
 
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_secure', 1);
@@ -8,6 +9,8 @@ ini_set('session.cookie_samesite', 'Strict');
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+alpiGetCsrfToken();
 
 $timeout = 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {

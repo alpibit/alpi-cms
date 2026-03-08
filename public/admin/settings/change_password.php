@@ -14,23 +14,29 @@ $success = '';
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $currentPassword = $_POST['current_password'] ?? '';
-    $newPassword = $_POST['new_password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        $currentPassword = $_POST['current_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
-    try {
-        if (!$user->authenticate($_SESSION['username'], $currentPassword)) {
-            throw new Exception("Current password is incorrect");
+        try {
+            if (!$user->authenticate($_SESSION['username'], $currentPassword)) {
+                throw new Exception("Current password is incorrect");
+            }
+
+            if ($newPassword !== $confirmPassword) {
+                throw new Exception("New passwords do not match");
+            }
+
+            $user->updateUser($_SESSION['username'], $newPassword);
+            alpiRegenerateCsrfToken();
+            $success = "Password successfully updated";
+        } catch (Exception $e) {
+            $error = $e->getMessage();
         }
-
-        if ($newPassword !== $confirmPassword) {
-            throw new Exception("New passwords do not match");
-        }
-
-        $user->updateUser($_SESSION['username'], $newPassword);
-        $success = "Password successfully updated";
-    } catch (Exception $e) {
-        $error = $e->getMessage();
     }
 }
 
@@ -54,6 +60,7 @@ include '../../../templates/header-admin.php';
 
     <div class="alpi-card alpi-p-lg">
         <form action="" method="POST" class="alpi-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="alpi-form-group">
                 <label for="current_password" class="alpi-form-label">Current Password:</label>
                 <input type="password"

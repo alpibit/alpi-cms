@@ -23,6 +23,12 @@ include '../../../templates/header-admin.php';
         <a href="add_page.php" class="alpi-btn alpi-btn-primary">Add New Page</a>
     </div>
 
+    <?php if (isset($_GET['status'], $_GET['message'])) : ?>
+        <div class="alpi-alert <?= $_GET['status'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md">
+            <?= htmlspecialchars($_GET['message'], ENT_QUOTES, 'UTF-8') ?>
+        </div>
+    <?php endif; ?>
+
     <?php if (empty($pages)) : ?>
         <div class="alpi-alert alpi-alert-info">
             No pages found. Start by adding a new page!
@@ -49,7 +55,11 @@ include '../../../templates/header-admin.php';
                             <td>
                                 <div class="alpi-btn-group">
                                     <a href="edit_page.php?id=<?= $singlePage['id'] ?>" class="alpi-btn alpi-btn-secondary alpi-btn-sm">Edit</a>
-                                    <button class="alpi-btn alpi-btn-danger alpi-btn-sm" onclick="confirmPageDeletion(<?= $singlePage['id'] ?>)">Delete</button>
+                                    <form method="POST" action="delete_page.php" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this page?');">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="id" value="<?= (int) $singlePage['id'] ?>">
+                                        <button type="submit" class="alpi-btn alpi-btn-danger alpi-btn-sm">Delete</button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -59,13 +69,5 @@ include '../../../templates/header-admin.php';
         </div>
     <?php endif; ?>
 </div>
-
-<script>
-    function confirmPageDeletion(pageId) {
-        if (confirm('Are you sure you want to delete this page?')) {
-            window.location.href = 'delete_page.php?id=' + pageId;
-        }
-    }
-</script>
 
 <?php include '../../../templates/footer-admin.php'; ?>

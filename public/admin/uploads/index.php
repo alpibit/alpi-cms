@@ -12,25 +12,32 @@ $errorMessage = '';
 $successMessage = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['delete'])) {
-        $fileName = basename($_POST['delete']);
-        try {
-            $upload->deleteFile($fileName);
-            $successMessage = 'File deleted successfully.';
-        } catch (Exception $e) {
-            $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage());
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $errorMessage = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        if (isset($_POST['delete'])) {
+            $fileName = basename($_POST['delete']);
+            try {
+                $upload->deleteFile($fileName);
+                alpiRegenerateCsrfToken();
+                $successMessage = 'File deleted successfully.';
+            } catch (Exception $e) {
+                $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+            }
         }
-    }
 
-    if (isset($_FILES['fileToUpload'])) {
-        try {
-            $upload->uploadFile($_FILES['fileToUpload']);
-            $successMessage = 'File uploaded successfully.';
+        if (isset($_FILES['fileToUpload'])) {
+            try {
+                $upload->uploadFile($_FILES['fileToUpload']);
+                alpiRegenerateCsrfToken();
+                $successMessage = 'File uploaded successfully.';
 
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit();
-        } catch (Exception $e) {
-            $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage());
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit();
+            } catch (Exception $e) {
+                $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+            }
         }
     }
 }
@@ -68,6 +75,7 @@ include '../../../templates/header-admin.php';
     <div class="alpi-card alpi-p-lg alpi-mb-lg">
         <h2 class="alpi-text-secondary alpi-mb-md">Upload New File</h2>
         <form action="" method="post" enctype="multipart/form-data" class="alpi-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="alpi-form-group">
                 <label for="fileToUpload" class="alpi-form-label">Select file to upload:</label>
                 <input type="file" name="fileToUpload" id="fileToUpload" class="alpi-form-input alpi-file-input" required>
@@ -98,6 +106,7 @@ include '../../../templates/header-admin.php';
                     <p class="alpi-uploads-filesize"><?= round(filesize($fileInfo['path']) / (1024 * 1024), 2) ?> MB</p>
                     <p class="alpi-uploads-filedate"><?= htmlspecialchars(date("F d, Y", filemtime($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?></p>
                     <form method="post" class="alpi-uploads-delete-form">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="delete" value="<?= htmlspecialchars(basename($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?>">
                         <button type="submit" class="alpi-btn alpi-btn-danger alpi-btn-sm">Delete</button>
                     </form>

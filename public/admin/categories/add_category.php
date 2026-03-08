@@ -8,12 +8,19 @@ require '../auth_check.php';
 $db = new Database();
 $conn = $db->connect();
 $category = new Category($conn);
+$error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'];
-    $category->addCategory($name);
-    header("Location: " . BASE_URL . "/public/admin/categories/index.php");
-    exit;
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        $name = $_POST['name'];
+        $category->addCategory($name);
+        alpiRegenerateCsrfToken();
+        header("Location: " . BASE_URL . "/public/admin/categories/index.php");
+        exit;
+    }
 }
 
 include '../../../templates/header-admin.php';
@@ -22,7 +29,11 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Add New Category</h1>
     <div class="alpi-card alpi-p-lg">
+        <?php if ($error) : ?>
+            <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
         <form action="" method="POST" class="alpi-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="alpi-form-group">
                 <label for="category-name" class="alpi-form-label">Name:</label>
                 <input type="text" id="category-name" name="name" class="alpi-form-input" required>

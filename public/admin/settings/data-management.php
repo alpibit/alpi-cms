@@ -14,43 +14,49 @@ $error = '';
 $warnings = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        if (isset($_POST['action'])) {
-            $format = $_POST['format'] ?? 'json';
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Invalid CSRF token. Please refresh and try again.';
+        alpiRegenerateCsrfToken();
+    } else {
+        try {
+            if (isset($_POST['action'])) {
+                $format = $_POST['format'] ?? 'json';
 
-            if ($_POST['action'] === 'export') {
-                $types = $_POST['types'] ?? [];
+                if ($_POST['action'] === 'export') {
+                    $types = $_POST['types'] ?? [];
 
-                if (empty($types)) {
-                    throw new Exception('Please select at least one content type to export.');
-                }
+                    if (empty($types)) {
+                        throw new Exception('Please select at least one content type to export.');
+                    }
 
-                $exportData = $dataManager->export($format, $types);
+                    $exportData = $dataManager->export($format, $types);
 
-                $timestamp = date('Y-m-d_H-i-s');
-                $filename = "export_{$timestamp}.{$format}";
+                    $timestamp = date('Y-m-d_H-i-s');
+                    $filename = "export_{$timestamp}.{$format}";
 
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename=' . $filename);
-                header('Pragma: no-cache');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename=' . $filename);
+                    header('Pragma: no-cache');
 
-                echo $exportData;
-                exit;
-            } elseif ($_POST['action'] === 'import') {
-                if (!isset($_FILES['import_file']) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK) {
-                    throw new Exception('Please select a valid file to import.');
-                }
+                    echo $exportData;
+                    exit;
+                } elseif ($_POST['action'] === 'import') {
+                    if (!isset($_FILES['import_file']) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK) {
+                        throw new Exception('Please select a valid file to import.');
+                    }
 
-                $result = $dataManager->import($_FILES['import_file']['tmp_name'], $format);
-                $message = 'Data imported successfully.';
+                    $result = $dataManager->import($_FILES['import_file']['tmp_name'], $format);
+                    alpiRegenerateCsrfToken();
+                    $message = 'Data imported successfully.';
 
-                if (!empty($result['warnings'])) {
-                    $warnings = $result['warnings'];
+                    if (!empty($result['warnings'])) {
+                        $warnings = $result['warnings'];
+                    }
                 }
             }
+        } catch (Exception $e) {
+            $error = $e->getMessage();
         }
-    } catch (Exception $e) {
-        $error = $e->getMessage();
     }
 }
 
@@ -88,6 +94,7 @@ include '../../../templates/header-admin.php';
         <div class="alpi-card alpi-p-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">Export Data</h2>
             <form method="post" class="alpi-form">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="export">
 
                 <div class="alpi-form-group">
@@ -142,6 +149,7 @@ include '../../../templates/header-admin.php';
         <div class="alpi-card alpi-p-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">Import Data</h2>
             <form method="post" class="alpi-form" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="import">
 
                 <div class="alpi-form-group">
