@@ -12,16 +12,21 @@ $db = new Database();
 $conn = $db->connect();
 $post = new Post($conn);
 $category = new Category($conn);
-$error = '';
+$postId = (int) ($_GET['id'] ?? 0);
 
-$postData = $post->getPostById($_GET['id']);
+$postData = $post->getPostById($postId);
 $postData = $postData[0];
 $categories = $category->getAllCategories();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('post_edit_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/posts/edit_post.php?id=' . urlencode((string) $postId));
+        exit;
     } else {
         $title = $_POST['title'];
         $subtitle = $_POST['subtitle'];
@@ -33,16 +38,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
 
         $userId = $_SESSION['user_id'] ?? 0;
-        $post->updatePost($_GET['id'], $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
+        $post->updatePost($postId, $title, $contentBlocks, $slug, $userId, $subtitle, $mainImagePath, $showMainImage, $isActive, $categoryId);
 
         alpiRegenerateCsrfToken();
-        $updateSuccess = true;
-        $message = "Post updated successfully!";
-
-        $postData = $post->getPostById($_GET['id']);
-        $postData = $postData[0];
+        alpiSetFlashValue('post_edit_message', [
+            'type' => 'success',
+            'message' => 'Post updated successfully!',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/posts/edit_post.php?id=' . urlencode((string) $postId));
+        exit;
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('post_edit_message');
 
 
 include '../../../templates/header-admin.php';
@@ -51,15 +59,9 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Edit Post</h1>
 
-    <?php if (isset($updateSuccess) && $updateSuccess) : ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md">
-            <?php echo htmlspecialchars($message); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($error) : ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md">
-            <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
+    <?php if ($flashMessage) : ?>
+        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md">
+            <?php echo htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
     <?php endif; ?>
 

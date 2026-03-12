@@ -10,15 +10,20 @@ require '../auth_check.php';
 $db = new Database();
 $conn = $db->connect();
 $page = new Page($conn);
-$error = '';
+$pageId = (int) ($_GET['id'] ?? 0);
 
-$pageData = $page->getPageById($_GET['id']);
+$pageData = $page->getPageById($pageId);
 $blocksData = $pageData['blocks'] ?? [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('page_edit_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/pages/edit_page.php?id=' . urlencode((string) $pageId));
+        exit;
     } else {
         $title = $_POST['title'];
         $subtitle = $_POST['subtitle'];
@@ -28,16 +33,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $userId = $_SESSION['user_id'] ?? 0;
         $contentBlocks = BlockData::normalizeSubmittedBlocks($_POST['blocks'] ?? []);
 
-        $page->updatePage($_GET['id'], $title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
+        $page->updatePage($pageId, $title, $subtitle, $mainImagePath, $showMainImage, $isActive, $contentBlocks, $userId);
 
         alpiRegenerateCsrfToken();
-        $updateSuccess = true;
-        $message = "Page updated successfully!";
-
-        $pageData = $page->getPageById($_GET['id']);
-        $blocksData = $pageData['blocks'] ?? [];
+        alpiSetFlashValue('page_edit_message', [
+            'type' => 'success',
+            'message' => 'Page updated successfully!',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/pages/edit_page.php?id=' . urlencode((string) $pageId));
+        exit;
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('page_edit_message');
 
 include '../../../templates/header-admin.php';
 ?>
@@ -45,15 +53,9 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Edit Page</h1>
 
-    <?php if (isset($updateSuccess) && $updateSuccess) : ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md">
-            <?php echo htmlspecialchars($message); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($error) : ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md">
-            <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
+    <?php if ($flashMessage) : ?>
+        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md">
+            <?php echo htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
     <?php endif; ?>
 

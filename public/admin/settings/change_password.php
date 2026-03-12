@@ -10,13 +10,15 @@ $db = new Database();
 $conn = $db->connect();
 $user = new User($conn);
 
-$success = '';
-$error = '';
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('change_password_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/settings/change_password.php');
+        exit;
     } else {
         $currentPassword = $_POST['current_password'] ?? '';
         $newPassword = $_POST['new_password'] ?? '';
@@ -33,12 +35,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $user->updateUser($_SESSION['username'], $newPassword);
             alpiRegenerateCsrfToken();
-            $success = "Password successfully updated";
+            alpiSetFlashValue('change_password_message', [
+                'type' => 'success',
+                'message' => 'Password successfully updated',
+            ]);
+            header('Location: ' . BASE_URL . '/public/admin/settings/change_password.php');
+            exit;
         } catch (Exception $e) {
-            $error = $e->getMessage();
+            alpiSetFlashValue('change_password_message', [
+                'type' => 'danger',
+                'message' => $e->getMessage(),
+            ]);
+            header('Location: ' . BASE_URL . '/public/admin/settings/change_password.php');
+            exit;
         }
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('change_password_message');
 
 include '../../../templates/header-admin.php';
 ?>
@@ -46,15 +60,9 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Change Password</h1>
 
-    <?php if ($success): ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md">
-            <?php echo htmlspecialchars($success); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($error): ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md">
-            <?php echo htmlspecialchars($error); ?>
+    <?php if ($flashMessage): ?>
+        <div class="alpi-alert <?php echo $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger'; ?> alpi-mb-md">
+            <?php echo htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
     <?php endif; ?>
 

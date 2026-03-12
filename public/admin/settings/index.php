@@ -58,12 +58,15 @@ $time_formats = [
     'H:i' => date('H:i'),
 ];
 
-$error_message = '';
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $error_message = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('settings_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/settings/index.php');
+        exit;
     } else {
         $site_title = $_POST['site_title'];
         $site_description = $_POST['site_description'];
@@ -109,9 +112,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $settings->updateSetting('email_smtp_encryption', $_POST['email_smtp_encryption']);
 
         alpiRegenerateCsrfToken();
-        $success_message = "Settings updated successfully.";
+        alpiSetFlashValue('settings_message', [
+            'type' => 'success',
+            'message' => 'Settings updated successfully.',
+        ]);
+        header('Location: ' . BASE_URL . '/public/admin/settings/index.php');
+        exit;
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('settings_message');
 $uploads = $upload->listFiles();
 
 include '../../../templates/header-admin.php';
@@ -126,12 +136,8 @@ include '../../../templates/header-admin.php';
         </div>
     <?php endif; ?>
 
-    <?php if (isset($success_message)) : ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md"><?php echo $success_message; ?></div>
-    <?php endif; ?>
-
-    <?php if ($error_message) : ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php if ($flashMessage) : ?>
+        <div class="alpi-alert <?php echo $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger'; ?> alpi-mb-md"><?php echo htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
     <form action="" method="POST" class="alpi-form">

@@ -7,40 +7,60 @@ require '../auth_check.php';
 $db = new Database();
 $conn = $db->connect();
 $upload = new Upload($conn);
-
-$errorMessage = '';
-$successMessage = '';
+$redirectUrl = BASE_URL . '/public/admin/uploads/index.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $errorMessage = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('uploads_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . $redirectUrl);
+        exit;
     } else {
         if (isset($_POST['delete'])) {
             $fileName = basename($_POST['delete']);
             try {
                 $upload->deleteFile($fileName);
                 alpiRegenerateCsrfToken();
-                $successMessage = 'File deleted successfully.';
+                alpiSetFlashValue('uploads_message', [
+                    'type' => 'success',
+                    'message' => 'File deleted successfully.',
+                ]);
             } catch (Exception $e) {
-                $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+                alpiSetFlashValue('uploads_message', [
+                    'type' => 'danger',
+                    'message' => 'Error: ' . $e->getMessage(),
+                ]);
             }
+
+            header('Location: ' . $redirectUrl);
+            exit;
         }
 
         if (isset($_FILES['fileToUpload'])) {
             try {
                 $upload->uploadFile($_FILES['fileToUpload']);
                 alpiRegenerateCsrfToken();
-                $successMessage = 'File uploaded successfully.';
-
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit();
+                alpiSetFlashValue('uploads_message', [
+                    'type' => 'success',
+                    'message' => 'File uploaded successfully.',
+                ]);
             } catch (Exception $e) {
-                $errorMessage = 'Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+                alpiSetFlashValue('uploads_message', [
+                    'type' => 'danger',
+                    'message' => 'Error: ' . $e->getMessage(),
+                ]);
             }
+
+            header('Location: ' . $redirectUrl);
+            exit;
         }
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('uploads_message');
 
 $uploads = $upload->listFiles();
 
@@ -64,12 +84,8 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Uploads Management</h1>
 
-    <?php if ($errorMessage) : ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?= $errorMessage ?></div>
-    <?php endif; ?>
-
-    <?php if ($successMessage) : ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md"><?= $successMessage ?></div>
+    <?php if ($flashMessage) : ?>
+        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md"><?= htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8') ?></div>
     <?php endif; ?>
 
     <div class="alpi-card alpi-p-lg alpi-mb-lg">

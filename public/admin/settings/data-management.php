@@ -9,14 +9,23 @@ $db = new Database();
 $conn = $db->connect();
 $dataManager = new DataManager($conn);
 
-$message = '';
-$error = '';
+$activeTab = (isset($_GET['tab']) && $_GET['tab'] === 'import') ? 'import' : 'export';
+$flashMessage = null;
 $warnings = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? 'export';
+    $redirectTab = $action === 'import' ? 'import' : 'export';
+    $redirectUrl = BASE_URL . '/public/admin/settings/data-management.php?tab=' . urlencode($redirectTab);
+
     if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid CSRF token. Please refresh and try again.';
         alpiRegenerateCsrfToken();
+        alpiSetFlashValue('data_management_message', [
+            'type' => 'danger',
+            'message' => 'Invalid CSRF token. Please refresh and try again.',
+        ]);
+        header('Location: ' . $redirectUrl);
+        exit;
     } else {
         try {
             if (isset($_POST['action'])) {
@@ -47,18 +56,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $result = $dataManager->import($_FILES['import_file']['tmp_name'], $format);
                     alpiRegenerateCsrfToken();
-                    $message = 'Data imported successfully.';
+                    alpiSetFlashValue('data_management_message', [
+                        'type' => 'success',
+                        'message' => 'Data imported successfully.',
+                    ]);
 
                     if (!empty($result['warnings'])) {
-                        $warnings = $result['warnings'];
+                        alpiSetFlashValue('data_management_warnings', $result['warnings']);
                     }
+
+                    header('Location: ' . $redirectUrl);
+                    exit;
                 }
             }
         } catch (Exception $e) {
-            $error = $e->getMessage();
+            alpiSetFlashValue('data_management_message', [
+                'type' => 'danger',
+                'message' => $e->getMessage(),
+            ]);
+            header('Location: ' . $redirectUrl);
+            exit;
         }
     }
 }
+
+$flashMessage = alpiConsumeFlashValue('data_management_message');
+$warnings = alpiConsumeFlashValue('data_management_warnings', []);
 
 include '../../../templates/header-admin.php';
 ?>
@@ -66,12 +89,8 @@ include '../../../templates/header-admin.php';
 <div class="alpi-admin-content">
     <h1 class="alpi-text-primary alpi-mb-lg">Data Management</h1>
 
-    <?php if ($message): ?>
-        <div class="alpi-alert alpi-alert-success alpi-mb-md"><?= htmlspecialchars($message) ?></div>
-    <?php endif; ?>
-
-    <?php if ($error): ?>
-        <div class="alpi-alert alpi-alert-danger alpi-mb-md"><?= htmlspecialchars($error) ?></div>
+    <?php if ($flashMessage): ?>
+        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md"><?= htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8') ?></div>
     <?php endif; ?>
 
     <?php if (!empty($warnings)): ?>
@@ -86,11 +105,11 @@ include '../../../templates/header-admin.php';
     <?php endif; ?>
 
     <div class="alpi-tabs">
-        <button class="alpi-tab active" onclick="switchTab(event, 'export')">Export Data</button>
-        <button class="alpi-tab" onclick="switchTab(event, 'import')">Import Data</button>
+        <button class="alpi-tab <?= $activeTab === 'export' ? 'active' : '' ?>" onclick="switchTab(event, 'export')">Export Data</button>
+        <button class="alpi-tab <?= $activeTab === 'import' ? 'active' : '' ?>" onclick="switchTab(event, 'import')">Import Data</button>
     </div>
 
-    <div class="alpi-tab-content" id="export-tab" style="display: block;">
+    <div class="alpi-tab-content" id="export-tab" style="display: <?= $activeTab === 'export' ? 'block' : 'none' ?>;">
         <div class="alpi-card alpi-p-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">Export Data</h2>
             <form method="post" class="alpi-form">
@@ -145,7 +164,7 @@ include '../../../templates/header-admin.php';
         </div>
     </div>
 
-    <div class="alpi-tab-content" id="import-tab" style="display: none;">
+    <div class="alpi-tab-content" id="import-tab" style="display: <?= $activeTab === 'import' ? 'block' : 'none' ?>;">
         <div class="alpi-card alpi-p-lg">
             <h2 class="alpi-text-secondary alpi-mb-md">Import Data</h2>
             <form method="post" class="alpi-form" enctype="multipart/form-data">
