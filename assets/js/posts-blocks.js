@@ -157,6 +157,69 @@ function renderBlockLoadError(contentDiv, message) {
     `;
 }
 
+function getUploadsLoadErrorMessage(status) {
+    if (status === 401) {
+        return 'Your admin session expired. Refresh the page and sign in again.';
+    }
+
+    if (status === 403) {
+        return 'You are not allowed to load uploads.';
+    }
+
+    return 'Unable to load uploads right now.';
+}
+
+function showUploadsLoadError(block, message) {
+    if (!block) {
+        return;
+    }
+
+    const container = block.querySelector('.alpi-slider-gallery') || block.querySelector('.alpi-block-content');
+    if (!container) {
+        return;
+    }
+
+    let errorBanner = container.querySelector('.alpi-uploads-load-error');
+    if (!errorBanner) {
+        errorBanner = document.createElement('div');
+        errorBanner.className = 'alpi-alert alpi-alert-danger alpi-mb-md alpi-uploads-load-error';
+        container.prepend(errorBanner);
+    }
+
+    errorBanner.textContent = message;
+}
+
+function clearUploadsLoadError(block) {
+    if (!block) {
+        return;
+    }
+
+    const errorBanner = block.querySelector('.alpi-uploads-load-error');
+    if (errorBanner) {
+        errorBanner.remove();
+    }
+}
+
+function fetchUploads() {
+    return fetch('../../../utils/get-uploads.php', {
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(async response => {
+        if (!response.ok) {
+            const responseText = await response.text();
+            const error = new Error(getUploadsLoadErrorMessage(response.status));
+            error.status = response.status;
+            error.responseText = responseText;
+            throw error;
+        }
+
+        return response.json();
+    });
+}
+
 function getBlockElement(reference) {
     if (!reference) {
         return null;
@@ -582,11 +645,12 @@ function populateGalleryData(container, galleryData, blockIndex) {
 }
 
 function addGalleryImageWithData(blockIndex, imageData, imageIndex, callback) {
-    fetch('../../../utils/get-uploads.php')
-        .then(response => response.json())
+    const block = getBlockElement(blockIndex);
+
+    fetchUploads()
         .then(data => {
             if (data && data.uploads) {
-                const block = getBlockElement(blockIndex);
+                clearUploadsLoadError(block);
                 const gallery = block ? block.querySelector('.alpi-slider-gallery') : null;
                 if (!gallery) {
                     console.error('Gallery block not found for index:', blockIndex);
@@ -606,7 +670,10 @@ function addGalleryImageWithData(blockIndex, imageData, imageIndex, callback) {
                 console.error('No upload data found');
             }
         })
-        .catch(error => console.error('Error loading uploads:', error));
+        .catch(error => {
+            console.error('Error loading uploads:', error);
+            showUploadsLoadError(block, error.message || 'Unable to load uploads right now.');
+        });
 }
 
 function getGalleryImageHTMLWithData(blockIndex, imageIndex, uploads, imageData) {
@@ -650,10 +717,10 @@ function addGalleryImage(reference) {
 
     const blockIndex = getBlockIndex(block);
 
-    fetch('../../../utils/get-uploads.php')
-        .then(response => response.json())
+    fetchUploads()
         .then(data => {
             if (data && data.uploads) {
+                clearUploadsLoadError(block);
                 const gallery = block.querySelector('.alpi-slider-gallery');
                 if (!gallery) {
                     console.error('Block not found');
@@ -675,7 +742,10 @@ function addGalleryImage(reference) {
                 console.error('No upload data found');
             }
         })
-        .catch(error => console.error('Error loading uploads:', error));
+        .catch(error => {
+            console.error('Error loading uploads:', error);
+            showUploadsLoadError(block, error.message || 'Unable to load uploads right now.');
+        });
 }
 
 function getGalleryImageHTML(blockIndex, newIndex, uploads) {
