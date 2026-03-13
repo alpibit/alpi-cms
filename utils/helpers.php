@@ -9,6 +9,32 @@ if (!function_exists('alpiEnsureSessionStarted')) {
 	}
 }
 
+if (!function_exists('alpiIsAjaxRequest')) {
+	function alpiIsAjaxRequest()
+	{
+		$requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+
+		return is_string($requestedWith)
+			&& strcasecmp($requestedWith, 'XMLHttpRequest') === 0;
+	}
+}
+
+if (!function_exists('alpiRejectAjaxOrRedirect')) {
+	function alpiRejectAjaxOrRedirect($redirectUrl, $message = 'Unauthorized', $statusCode = 401)
+	{
+		if (alpiIsAjaxRequest()) {
+			http_response_code((int) $statusCode);
+			header('Content-Type: text/plain; charset=UTF-8');
+			header('Cache-Control: no-store');
+			echo $message;
+			exit;
+		}
+
+		header('Location: ' . $redirectUrl);
+		exit;
+	}
+}
+
 if (!function_exists('alpiGetCsrfToken')) {
 	function alpiGetCsrfToken()
 	{

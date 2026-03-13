@@ -16,20 +16,17 @@ $timeout = 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
     session_unset();
     session_destroy();
-    header('Location: ' . htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/admin?expired=1');
-    exit;
+    alpiRejectAjaxOrRedirect(BASE_URL . '/admin?expired=1', 'Session expired. Please sign in again.', 401);
 }
 
 $_SESSION['last_activity'] = time();
 
 if (!isset($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true) {
-    header('Location: ' . htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/admin');
-    exit;
+    alpiRejectAjaxOrRedirect(BASE_URL . '/admin', 'You must sign in to continue.', 401);
 }
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ' . htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') . '/admin');
-    exit;
+    alpiRejectAjaxOrRedirect(BASE_URL . '/admin', 'You are not authorized to access this area.', 403);
 }
 
 if (!isset($_SESSION['last_regeneration'])) {

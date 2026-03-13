@@ -135,6 +135,28 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+function getBlockLoadErrorMessage(status) {
+    if (status === 401) {
+        return 'Your admin session expired. Refresh the page and sign in again.';
+    }
+
+    if (status === 403) {
+        return 'You are not allowed to load this block.';
+    }
+
+    if (status === 400) {
+        return 'The selected block type could not be loaded.';
+    }
+
+    return 'Unable to load block settings right now.';
+}
+
+function renderBlockLoadError(contentDiv, message) {
+    contentDiv.innerHTML = `
+        <div class="alpi-alert alpi-alert-danger alpi-mb-md">${escapeHtml(message)}</div>
+    `;
+}
+
 function getBlockElement(reference) {
     if (!reference) {
         return null;
@@ -387,9 +409,29 @@ function loadSelectedBlockContent(selectElement) {
     const index = getBlockIndex(block);
     const contentDiv = block.querySelector('.alpi-block-content');
     const blockData = JSON.parse(contentDiv.getAttribute('data-value') || '{}');
+    const requestParams = new URLSearchParams({
+        type,
+        index: String(index)
+    });
 
-    fetch(`../../../blocks/render-block-content.php?type=${type}&index=${index}`)
-        .then(response => response.text())
+    fetch(`../../../blocks/render-block-content.php?${requestParams.toString()}`, {
+        credentials: 'same-origin',
+        headers: {
+            'Accept': 'text/html',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(async response => {
+            if (!response.ok) {
+                const responseText = await response.text();
+                const error = new Error(getBlockLoadErrorMessage(response.status));
+                error.status = response.status;
+                error.responseText = responseText;
+                throw error;
+            }
+
+            return response.text();
+        })
         .then(html => {
             contentDiv.innerHTML = html;
             populateBlockFields(contentDiv, blockData, index);
@@ -398,7 +440,10 @@ function loadSelectedBlockContent(selectElement) {
             initializeBackgroundTypeControls(block);
             syncBlockDataValue(block);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error loading block content:', error);
+            renderBlockLoadError(contentDiv, error.message || 'Unable to load block settings right now.');
+        });
 }
 
 function populateBlockFields(container, data, index) {

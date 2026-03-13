@@ -1,25 +1,72 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+require_once __DIR__ . '/../config/autoload.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../public/admin/auth_check.php';
 
-require '../config/autoload.php';
-require '../config/database.php';
-require '../config/config.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo 'Method not allowed.';
+    exit;
+}
 
-$blockType = $_GET['type'] ?? '';
-$index = $_GET['index'] ?? 0;
-$blockDataJson = $_GET['blockData'] ?? '{}';
+$allowedBlockTypes = [
+    'text',
+    'image_text',
+    'image',
+    'cta',
+    'post_picker',
+    'video',
+    'slider_gallery',
+    'quote',
+    'accordion',
+    'audio',
+    'free_code',
+    'map',
+    'form',
+    'hero',
+];
 
-$block = json_decode($blockDataJson, true) ?: [];
+$blockType = trim((string) ($_GET['type'] ?? ''));
+$index = filter_input(
+    INPUT_GET,
+    'index',
+    FILTER_VALIDATE_INT,
+    ['options' => ['min_range' => 0]]
+);
+
+if ($blockType === '' || $index === false || $index === null || !in_array($blockType, $allowedBlockTypes, true)) {
+    http_response_code(400);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo 'Invalid block request.';
+    exit;
+}
+
+$block = [];
 
 $db = new Database();
 $conn = $db->connect();
+
+if (!$conn instanceof PDO) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo 'Unable to load block data.';
+    exit;
+}
+
 $upload = new Upload($conn);
 $uploads = $upload->listFiles();
 
+header('Content-Type: text/html; charset=UTF-8');
+
 function renderInput($name, $value, $placeholder, $type = 'text')
 {
+    $escapedPlaceholder = htmlspecialchars($placeholder, ENT_QUOTES, 'UTF-8');
+    $escapedValue = htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+
     echo "<div class='alpi-form-group'>";
-    echo "<label class='alpi-form-label'>{$placeholder}: <input class='alpi-form-input' type='{$type}' name='blocks[{$GLOBALS['index']}][{$name}]' value='" . htmlspecialchars($value) . "' placeholder='{$placeholder}'></label>";
+    echo "<label class='alpi-form-label'>{$escapedPlaceholder}: <input class='alpi-form-input' type='{$type}' name='blocks[{$GLOBALS['index']}][{$name}]' value='{$escapedValue}' placeholder='{$escapedPlaceholder}'></label>";
     echo "</div>";
 }
 
@@ -76,18 +123,22 @@ function renderBackgroundOptions($block, $index)
 
 function renderTextarea($name, $value, $placeholder)
 {
+    $escapedPlaceholder = htmlspecialchars($placeholder, ENT_QUOTES, 'UTF-8');
+
     echo "<div class='alpi-form-group'>";
-    echo "<label class='alpi-form-label'>{$placeholder}: <textarea class='alpi-form-input' name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars($value) . "</textarea></label>";
+    echo "<label class='alpi-form-label'>{$escapedPlaceholder}: <textarea class='alpi-form-input' name='blocks[{$GLOBALS['index']}][{$name}]'>" . htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') . "</textarea></label>";
     echo "</div>";
 }
 
 function renderSelect($name, $options, $selected, $label)
 {
+    $escapedLabel = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+
     echo "<div class='alpi-form-group'>";
-    echo "<label class='alpi-form-label'>{$label}: <select class='alpi-form-input' name='blocks[{$GLOBALS['index']}][{$name}]'>";
+    echo "<label class='alpi-form-label'>{$escapedLabel}: <select class='alpi-form-input' name='blocks[{$GLOBALS['index']}][{$name}]'>";
     foreach ($options as $value => $display) {
         $isSelected = ($value == $selected) ? 'selected' : '';
-        echo "<option value='{$value}' {$isSelected}>{$display}</option>";
+        echo "<option value='" . htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') . "' {$isSelected}>" . htmlspecialchars((string) $display, ENT_QUOTES, 'UTF-8') . "</option>";
     }
     echo "</select></label>";
     echo "</div>";
@@ -98,8 +149,10 @@ function renderFileUpload($name, $uploads, $selected)
     echo "<div class='alpi-form-group'>";
     echo "<label class='alpi-form-label'>Choose a file: <select class='alpi-form-input' name='blocks[{$GLOBALS['index']}][{$name}]'>";
     foreach ($uploads as $upload) {
-        $isSelected = ($upload['url'] == $selected) ? 'selected' : '';
-        echo "<option value='{$upload['url']}' {$isSelected}>{$upload['url']}</option>";
+        $uploadUrl = (string) ($upload['url'] ?? '');
+        $isSelected = ($uploadUrl == $selected) ? 'selected' : '';
+        $escapedUploadUrl = htmlspecialchars($uploadUrl, ENT_QUOTES, 'UTF-8');
+        echo "<option value='{$escapedUploadUrl}' {$isSelected}>{$escapedUploadUrl}</option>";
     }
     echo "</select></label>";
     echo "</div>";
@@ -212,11 +265,13 @@ switch ($blockType) {
     case 'post_picker':
         $postObj = new Post($conn);
         $availablePosts = $postObj->getAllPosts();
+        $selectedPostIds = explode(',', (string) ($block['selected_post_ids'] ?? ''));
         echo "<div class='alpi-form-group'>";
         echo "<label class='alpi-form-label'>Select Posts: <select class='alpi-form-input' name='blocks[{$index}][selected_post_ids][]' multiple>";
-        foreach ($availablePosts as $post) {
-            $selected = in_array($post['id'], explode(',', $block['selected_post_ids'] ?? '')) ? 'selected' : '';
-            echo "<option value='{$post['id']}' {$selected}>{$post['title']}</option>";
+        foreach ($availablePosts as $availablePost) {
+            $postId = (string) ($availablePost['id'] ?? '');
+            $selected = in_array($postId, $selectedPostIds, true) ? 'selected' : '';
+            echo "<option value='" . htmlspecialchars($postId, ENT_QUOTES, 'UTF-8') . "' {$selected}>" . htmlspecialchars((string) ($availablePost['title'] ?? ''), ENT_QUOTES, 'UTF-8') . "</option>";
         }
         echo "</select></label>";
         echo "</div>";
@@ -247,8 +302,10 @@ switch ($blockType) {
             echo "<div class='alpi-form-group'>";
             echo "<label class='alpi-form-label'>Image: <select class='alpi-form-input' name='blocks[{$index}][gallery_data][{$imageIndex}][url]'>";
             foreach ($uploads as $upload) {
-                $selected = ($upload['url'] == ($image['url'] ?? '')) ? 'selected' : '';
-                echo "<option value='{$upload['url']}' {$selected}>{$upload['url']}</option>";
+                $uploadUrl = (string) ($upload['url'] ?? '');
+                $selected = ($uploadUrl == ($image['url'] ?? '')) ? 'selected' : '';
+                $escapedUploadUrl = htmlspecialchars($uploadUrl, ENT_QUOTES, 'UTF-8');
+                echo "<option value='{$escapedUploadUrl}' {$selected}>{$escapedUploadUrl}</option>";
             }
             echo "</select></label>";
             echo "</div>";
