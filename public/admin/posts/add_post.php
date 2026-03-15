@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     } else {
         $title = $_POST['title'];
         $subtitle = $_POST['subtitle'];
-        $mainImagePath = $_POST['main_image_path'];
+        $mainImagePath = (new Upload($conn))->sanitizeFileUrl($_POST['main_image_path'] ?? '', ['image']);
         $showMainImage = isset($_POST['show_main_image']) ? 1 : 0;
         $isActive = isset($_POST['is_active']) ? 1 : 0;
         $categoryId = $_POST['category_id'];
@@ -65,7 +65,7 @@ include '../../../templates/header-admin.php';
                     <select id="main_image_path" name="main_image_path" class="alpi-form-input">
                         <option value="">Select an image</option>
                         <?php
-                        $uploads = (new Upload($conn))->listFiles();
+                        $uploads = (new Upload($conn))->listFiles(['image']);
                         foreach ($uploads as $upload) {
                             echo "<option value='" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($upload['url'], ENT_QUOTES, 'UTF-8') . "</option>";
                         }

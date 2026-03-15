@@ -70,8 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $site_title = $_POST['site_title'];
         $site_description = $_POST['site_description'];
-        $site_logo = $_POST['site_logo'];
-        $site_favicon = $_POST['site_favicon'];
+        $site_logo = $upload->sanitizeFileUrl($_POST['site_logo'] ?? '', ['image']);
+        $site_favicon = $upload->sanitizeFileUrl($_POST['site_favicon'] ?? '', ['icon']);
         $footer_text = $_POST['footer_text'];
         $default_language = $_POST['default_language'];
         $timezone = $_POST['timezone'];
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $maintenance_mode = $_POST['maintenance_mode'];
         $header_scripts = $_POST['header_scripts'];
         $footer_scripts = $_POST['footer_scripts'];
-        $default_post_thumbnail = $_POST['default_post_thumbnail'];
+        $default_post_thumbnail = $upload->sanitizeFileUrl($_POST['default_post_thumbnail'] ?? '', ['image']);
         $pagination_type = $_POST['pagination_type'];
 
         $settings->updateSetting('site_title', $site_title);
@@ -123,6 +123,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $flashMessage = alpiConsumeFlashValue('settings_message');
 $uploads = $upload->listFiles();
+$imageUploads = $upload->filterFilesByGroups($uploads, ['image']);
+$faviconUploads = $upload->filterFilesByGroups($uploads, ['icon']);
 
 include '../../../templates/header-admin.php';
 ?>
@@ -161,12 +163,10 @@ include '../../../templates/header-admin.php';
                 <label for="site_logo" class="alpi-form-label">Site Logo:</label>
                 <select name="site_logo" id="site_logo" class="alpi-form-input">
                     <option value="">Select a logo</option>
-                    <?php foreach ($uploads as $file) : ?>
-                        <?php if (in_array($file['type'], ['image/jpeg', 'image/png', 'image/gif'])) : ?>
-                            <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_logo == $file['url']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($file['url']) ?>
-                            </option>
-                        <?php endif; ?>
+                    <?php foreach ($imageUploads as $file) : ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_logo == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
                 <p class="alpi-form-help">The main logo of your website, typically displayed in the header.</p>
@@ -176,12 +176,10 @@ include '../../../templates/header-admin.php';
                 <label for="site_favicon" class="alpi-form-label">Site Favicon:</label>
                 <select name="site_favicon" id="site_favicon" class="alpi-form-input">
                     <option value="">Select a favicon</option>
-                    <?php foreach ($uploads as $file) : ?>
-                        <?php if (in_array($file['type'], ['image/x-icon', 'image/vnd.microsoft.icon', 'image/png'])) : ?>
-                            <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_favicon == $file['url']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($file['url']) ?>
-                            </option>
-                        <?php endif; ?>
+                    <?php foreach ($faviconUploads as $file) : ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($site_favicon == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
                 <p class="alpi-form-help">The small icon displayed in the browser's address bar and tabs.</p>
@@ -249,12 +247,10 @@ include '../../../templates/header-admin.php';
                 <label for="default_post_thumbnail" class="alpi-form-label">Default Post Thumbnail:</label>
                 <select name="default_post_thumbnail" id="default_post_thumbnail" class="alpi-form-input">
                     <option value="">Select a default thumbnail</option>
-                    <?php foreach ($uploads as $file) : ?>
-                        <?php if (in_array($file['type'], ['image/jpeg', 'image/png', 'image/gif'])) : ?>
-                            <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($default_post_thumbnail == $file['url']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($file['url']) ?>
-                            </option>
-                        <?php endif; ?>
+                    <?php foreach ($imageUploads as $file) : ?>
+                        <option value="<?= htmlspecialchars($file['url']) ?>" <?= ($default_post_thumbnail == $file['url']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($file['url']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
                 <p class="alpi-form-help">The default image to use when a post doesn't have a specific thumbnail set.</p>

@@ -200,8 +200,12 @@ function clearUploadsLoadError(block) {
     }
 }
 
-function fetchUploads() {
-    return fetch('../../../utils/get-uploads.php', {
+function fetchUploads(mediaType = 'image') {
+    const requestParams = new URLSearchParams({
+        type: mediaType
+    });
+
+    return fetch(`../../../utils/get-uploads.php?${requestParams.toString()}`, {
         credentials: 'same-origin',
         headers: {
             'Accept': 'application/json',

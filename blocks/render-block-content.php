@@ -56,7 +56,10 @@ if (!$conn instanceof PDO) {
 }
 
 $upload = new Upload($conn);
-$uploads = $upload->listFiles();
+$allUploads = $upload->listFiles();
+$imageUploads = $upload->filterFilesByGroups($allUploads, ['image']);
+$videoUploads = $upload->filterFilesByGroups($allUploads, ['video']);
+$audioUploads = $upload->filterFilesByGroups($allUploads, ['audio']);
 
 header('Content-Type: text/html; charset=UTF-8');
 
@@ -115,7 +118,7 @@ function renderBackgroundOptions($block, $index)
         echo "</select></label>";
         echo "</div>";
 
-        renderFileUpload("background_image_{$size}", $GLOBALS['uploads'], $block["background_image_{$size}"] ?? '');
+        renderFileUpload("background_image_{$size}", $GLOBALS['imageUploads'], $block["background_image_{$size}"] ?? '');
     }
 
     renderColorPicker("background_color", $block["background_color"] ?? '', "Background Color", 'background');
@@ -228,7 +231,7 @@ switch ($blockType) {
     case 'image_text':
         renderInput('title', $block['title'] ?? '', 'Title');
         renderTextarea('content', $block['content'] ?? '', 'Content');
-        renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
+        renderFileUpload('image_path', $imageUploads, $block['image_path'] ?? '');
         renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
         renderInput('caption', $block['caption'] ?? '', 'Caption');
         renderColorPicker('background_color', $block['background_color'] ?? '', 'Background Color', 'background');
@@ -242,7 +245,7 @@ switch ($blockType) {
         break;
 
     case 'image':
-        renderFileUpload('image_path', $uploads, $block['image_path'] ?? '');
+        renderFileUpload('image_path', $imageUploads, $block['image_path'] ?? '');
         renderInput('alt_text', $block['alt_text'] ?? '', 'Alt Text');
         renderInput('caption', $block['caption'] ?? '', 'Caption');
         renderSpacingControls($block, 'image');
@@ -284,7 +287,7 @@ switch ($blockType) {
         echo "</div>";
 
         echo "<div class='alpi-form-group video-upload-field' id='video-upload-field-{$index}' style='display:none;'>";
-        renderFileUpload('video_file', $uploads, $block['video_file'] ?? '');
+        renderFileUpload('video_file', $videoUploads, $block['video_file'] ?? '');
         echo "</div>";
         renderVideoSourceSelector('video_source', $block['video_source'] ?? '');
         renderSpacingControls($block, 'video');
@@ -301,7 +304,7 @@ switch ($blockType) {
             echo "<div class='alpi-gallery-image alpi-card alpi-mb-md' data-index='{$imageIndex}'>";
             echo "<div class='alpi-form-group'>";
             echo "<label class='alpi-form-label'>Image: <select class='alpi-form-input' name='blocks[{$index}][gallery_data][{$imageIndex}][url]'>";
-            foreach ($uploads as $upload) {
+            foreach ($imageUploads as $upload) {
                 $uploadUrl = (string) ($upload['url'] ?? '');
                 $selected = ($uploadUrl == ($image['url'] ?? '')) ? 'selected' : '';
                 $escapedUploadUrl = htmlspecialchars($uploadUrl, ENT_QUOTES, 'UTF-8');
@@ -405,7 +408,7 @@ switch ($blockType) {
         echo "</div>";
 
         echo "<div class='alpi-form-group audio-upload-field' id='audio-upload-field-{$index}' style='display:none;'>";
-        renderFileUpload('audio_file', $uploads, $selectedAudioFile);
+        renderFileUpload('audio_file', $audioUploads, $selectedAudioFile);
         echo "</div>";
 
         renderAudioSourceSelector('audio_source', $block['audio_source'] ?? '');

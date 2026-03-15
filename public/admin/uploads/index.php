@@ -29,9 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     'message' => 'File deleted successfully.',
                 ]);
             } catch (Exception $e) {
+                $details = [];
+                if ($e instanceof UploadInUseException) {
+                    $details = $e->getUsages();
+                }
+
                 alpiSetFlashValue('uploads_message', [
                     'type' => 'danger',
                     'message' => 'Error: ' . $e->getMessage(),
+                    'details' => $details,
                 ]);
             }
 
@@ -85,7 +91,16 @@ include '../../../templates/header-admin.php';
     <h1 class="alpi-text-primary alpi-mb-lg">Uploads Management</h1>
 
     <?php if ($flashMessage) : ?>
-        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md"><?= htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8') ?></div>
+        <div class="alpi-alert <?= $flashMessage['type'] === 'success' ? 'alpi-alert-success' : 'alpi-alert-danger' ?> alpi-mb-md">
+            <div><?= htmlspecialchars($flashMessage['message'], ENT_QUOTES, 'UTF-8') ?></div>
+            <?php if (!empty($flashMessage['details']) && is_array($flashMessage['details'])) : ?>
+                <ul class="alpi-mt-sm">
+                    <?php foreach ($flashMessage['details'] as $detail) : ?>
+                        <li><?= htmlspecialchars($detail, ENT_QUOTES, 'UTF-8') ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <div class="alpi-card alpi-p-lg alpi-mb-lg">
@@ -94,7 +109,8 @@ include '../../../templates/header-admin.php';
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(alpiGetCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="alpi-form-group">
                 <label for="fileToUpload" class="alpi-form-label">Select file to upload:</label>
-                <input type="file" name="fileToUpload" id="fileToUpload" class="alpi-form-input alpi-file-input" required>
+                <input type="file" name="fileToUpload" id="fileToUpload" class="alpi-form-input alpi-file-input" accept="<?= htmlspecialchars($upload->getAcceptAttribute(), ENT_QUOTES, 'UTF-8') ?>" required>
+                <p class="alpi-form-help">Supported files include images, upload-based video formats, upload-based audio formats, and favicon icons.</p>
             </div>
             <button type="submit" name="submit" class="alpi-btn alpi-btn-primary">Upload File</button>
         </form>
@@ -118,7 +134,7 @@ include '../../../templates/header-admin.php';
                             <?= htmlspecialchars(shorten_filename(basename($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?>
                         </a>
                     </h4>
-                    <p class="alpi-uploads-filetype"><?= htmlspecialchars(mime_content_type($fileInfo['path']), ENT_QUOTES, 'UTF-8') ?></p>
+                    <p class="alpi-uploads-filetype"><?= htmlspecialchars($fileInfo['type'], ENT_QUOTES, 'UTF-8') ?></p>
                     <p class="alpi-uploads-filesize"><?= round(filesize($fileInfo['path']) / (1024 * 1024), 2) ?> MB</p>
                     <p class="alpi-uploads-filedate"><?= htmlspecialchars(date("F d, Y", filemtime($fileInfo['path'])), ENT_QUOTES, 'UTF-8') ?></p>
                     <form method="post" class="alpi-uploads-delete-form">

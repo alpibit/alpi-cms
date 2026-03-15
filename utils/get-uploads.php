@@ -16,6 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+$requestedType = trim((string) ($_GET['type'] ?? 'image'));
+if (!Upload::isSupportedMediaGroup($requestedType)) {
+    http_response_code(400);
+    echo json_encode([
+        'error' => 'Invalid uploads request.',
+        'uploads' => [],
+    ]);
+    exit;
+}
+
 $db = new Database();
 $conn = $db->connect();
 
@@ -29,7 +39,7 @@ if (!$conn instanceof PDO) {
 }
 
 $upload = new Upload($conn);
-$files = $upload->listFiles();
+$files = $upload->listFiles([$requestedType]);
 
 $response = ['uploads' => []];
 
