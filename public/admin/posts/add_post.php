@@ -35,6 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['user_id'])) {
     }
 }
 
+$editorBlockOptionsJson = htmlspecialchars(json_encode(BlockRegistry::getEditorOptions()), ENT_QUOTES, 'UTF-8');
+
 include '../../../templates/header-admin.php';
 ?>
 
@@ -101,24 +103,11 @@ include '../../../templates/header-admin.php';
         <div class="alpi-card alpi-mb-lg">
             <h2 class="alpi-card-header">Content Blocks</h2>
             <div class="alpi-card-body">
-                <fieldset id="contentBlocks">
+                <fieldset id="contentBlocks" data-block-options="<?= $editorBlockOptionsJson ?>">
                     <div class='alpi-block' data-index='0'>
                         <label class="alpi-form-label">Block Type:</label>
                         <select name='blocks[0][type]' class="alpi-form-input alpi-mb-sm" onchange='loadSelectedBlockContent(this, 0)'>
-                            <option value='text'>Text</option>
-                            <option value='image_text'>Image + Text</option>
-                            <option value='image'>Image</option>
-                            <option value='cta'>Call to Action</option>
-                            <option value='post_picker'>Post Picker</option>
-                            <option value='video'>Video</option>
-                            <option value='slider_gallery'>Slider Gallery</option>
-                            <option value='quote'>Quote</option>
-                            <option value='accordion'>Accordion</option>
-                            <option value='audio'>Audio</option>
-                            <option value='free_code'>Free Code</option>
-                            <option value='map'>Map</option>
-                            <option value='form'>Form</option>
-                            <option value='hero'>Hero</option>
+                            <?= BlockRegistry::renderEditorOptionTags() ?>
                         </select>
                         <div class='alpi-block-content alpi-mb-md'></div>
                         <div class='alpi-btn-group'>

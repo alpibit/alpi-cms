@@ -11,23 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$allowedBlockTypes = [
-    'text',
-    'image_text',
-    'image',
-    'cta',
-    'post_picker',
-    'video',
-    'slider_gallery',
-    'quote',
-    'accordion',
-    'audio',
-    'free_code',
-    'map',
-    'form',
-    'hero',
-];
-
 $blockType = trim((string) ($_GET['type'] ?? ''));
 $index = filter_input(
     INPUT_GET,
@@ -36,7 +19,7 @@ $index = filter_input(
     ['options' => ['min_range' => 0]]
 );
 
-if ($blockType === '' || $index === false || $index === null || !in_array($blockType, $allowedBlockTypes, true)) {
+if ($blockType === '' || $index === false || $index === null || !BlockRegistry::isEditorEnabled($blockType)) {
     http_response_code(400);
     header('Content-Type: text/plain; charset=UTF-8');
     echo 'Invalid block request.';

@@ -4,6 +4,41 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeMediaSourceSelectors();
 });
 
+let cachedBlockOptions = null;
+
+function getConfiguredBlockOptions() {
+    if (cachedBlockOptions !== null) {
+        return cachedBlockOptions;
+    }
+
+    const contentBlocks = document.getElementById('contentBlocks');
+    if (!contentBlocks) {
+        cachedBlockOptions = [];
+        return cachedBlockOptions;
+    }
+
+    const rawOptions = contentBlocks.dataset.blockOptions || '[]';
+
+    try {
+        const parsedOptions = JSON.parse(rawOptions);
+        cachedBlockOptions = Array.isArray(parsedOptions)
+            ? parsedOptions.filter(option => option && typeof option.value === 'string' && typeof option.label === 'string')
+            : [];
+    } catch (error) {
+        console.error('Error parsing configured block options:', error);
+        cachedBlockOptions = [];
+    }
+
+    return cachedBlockOptions;
+}
+
+function getBlockTypeOptionsMarkup(selectedValue = '') {
+    return getConfiguredBlockOptions().map(option => {
+        const selected = option.value === selectedValue ? ' selected' : '';
+        return `<option value="${escapeHtml(option.value)}"${selected}>${escapeHtml(option.label)}</option>`;
+    }).join('');
+}
+
 // Block management functions
 function initializeBlocks() {
     reindexBlocks();
@@ -28,20 +63,7 @@ function getBlockHTML(index) {
             <div class="alpi-form-group">
                 <label class="alpi-form-label">Type:</label>
                 <select class="alpi-form-input" name="blocks[${index}][type]" onchange="loadSelectedBlockContent(this, ${index})">
-                    <option value="text">Text</option>
-                    <option value="image_text">Image + Text</option>
-                    <option value="image">Image</option>
-                    <option value="cta">Call to Action (CTA)</option>
-                    <option value="post_picker">Post Picker</option>
-                    <option value="video">Video</option>
-                    <option value="slider_gallery">Slider Gallery</option>
-                    <option value="quote">Quote</option>
-                    <option value="accordion">Accordion</option>
-                    <option value="audio">Audio</option>
-                    <option value="free_code">Free Code</option>
-                    <option value="map">Map</option>
-                    <option value="form">Form</option>
-                    <option value="hero">Hero</option>
+                    ${getBlockTypeOptionsMarkup()}
                 </select>
             </div>
             <div class="alpi-block-content" data-value="{}"></div>

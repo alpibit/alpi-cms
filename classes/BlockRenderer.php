@@ -36,11 +36,27 @@ class BlockRenderer
             return;
         }
 
+        if (!BlockRegistry::hasType($blockType)) {
+            $this->renderUnavailableComment("Unknown block type: {$blockType}");
+            return;
+        }
+
+        if (!BlockRegistry::supportsFrontendRendering($blockType)) {
+            $this->renderUnavailableComment("Frontend renderer unavailable for block type: {$blockType}");
+            return;
+        }
+
         $this->registerAssets($blockType);
 
-        $blockPath = $this->blockBasePath . $blockType . '.php';
+        $templateFile = BlockRegistry::getTemplateFile($blockType);
+        if ($templateFile === null) {
+            $this->renderUnavailableComment("Missing block renderer mapping for type: {$blockType}");
+            return;
+        }
+
+        $blockPath = $this->blockBasePath . $templateFile;
         if (!file_exists($blockPath)) {
-            echo 'Block type not found.';
+            $this->renderUnavailableComment("Missing block renderer file for type: {$blockType}");
             return;
         }
 
@@ -56,11 +72,16 @@ class BlockRenderer
     protected function registerAssets($blockType)
     {
         $blockType = trim((string) $blockType);
-        if ($blockType === '') {
+        if ($blockType === '' || !BlockRegistry::supportsFrontendRendering($blockType)) {
             return;
         }
 
         $this->assetManager->addCss("blocks/{$blockType}.css");
         $this->assetManager->addJs("blocks/{$blockType}.js");
+    }
+
+    protected function renderUnavailableComment($message)
+    {
+        echo '<!-- ' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . ' -->';
     }
 }

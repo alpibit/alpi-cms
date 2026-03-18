@@ -50,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+$editorBlockOptionsJson = htmlspecialchars(json_encode(BlockRegistry::getEditorOptions()), ENT_QUOTES, 'UTF-8');
 $flashMessage = alpiConsumeFlashValue('post_edit_message');
 
 
@@ -123,18 +124,14 @@ include '../../../templates/header-admin.php';
         <div class="alpi-card alpi-mb-lg">
             <h2 class="alpi-card-header">Content Blocks</h2>
             <div class="alpi-card-body">
-                <fieldset id="contentBlocks">
+                <fieldset id="contentBlocks" data-block-options="<?= $editorBlockOptionsJson ?>">
                     <?php
                     if (isset($postData['blocks']) && is_array($postData['blocks'])) {
                         foreach ($postData['blocks'] as $index => $block) {
                             echo "<div class='alpi-block alpi-mb-md' data-index='{$index}'>";
                             echo "<label class='alpi-form-label'>Block Type:</label>";
                             echo "<select name='blocks[{$index}][type]' class='alpi-form-input alpi-mb-sm' onchange='loadSelectedBlockContent(this, {$index})'>";
-                            $blockTypes = ['text', 'image_text', 'image', 'cta', 'post_picker', 'video', 'slider_gallery', 'quote', 'accordion', 'audio', 'free_code', 'map', 'form', 'hero'];
-                            foreach ($blockTypes as $type) {
-                                $selected = ($block['type'] == $type) ? 'selected' : '';
-                                echo "<option value='{$type}' {$selected}>" . ucfirst(str_replace('_', ' ', $type)) . "</option>";
-                            }
+                            echo BlockRegistry::renderEditorOptionTags($block['type'] ?? '');
                             echo "</select>";
                             $blockDataJson = htmlspecialchars(json_encode($block), ENT_QUOTES, 'UTF-8');
                             echo "<div class='alpi-block-content alpi-mb-sm' data-value='{$blockDataJson}'></div>";
