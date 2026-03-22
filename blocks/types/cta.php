@@ -20,6 +20,18 @@ if (!function_exists('alpiCmsGetCtaBackgroundValue')) {
     }
 }
 
+if (!function_exists('alpiCmsNormalizeResponsiveBlockSizeValue')) {
+    function alpiCmsNormalizeResponsiveBlockSizeValue($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? $value . 'px' : $value;
+    }
+}
+
 // Prepare styles
 $styles = [];
 $devices = ['desktop', 'tablet', 'mobile'];
@@ -44,8 +56,8 @@ foreach ($devices as $device) {
         }
     }
 
-    if (!empty($block["text_size_{$device}"])) {
-        $styles[] = "--alpi-cta-text-size-{$device}: " . htmlspecialchars($block["text_size_{$device}"], ENT_QUOTES, 'UTF-8') . ";";
+    if (!empty($block["title_size_{$device}"])) {
+        $styles[] = "--alpi-cta-title-size-{$device}: " . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($block["title_size_{$device}"]), ENT_QUOTES, 'UTF-8') . ";";
     }
 }
 

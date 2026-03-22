@@ -6,6 +6,18 @@ if (!defined('CONFIG_INCLUDED')) {
 // Unique identifier for this image-text block instance
 $imageTextBlockId = 'alpi-cms-content-image-text-' . uniqid();
 
+if (!function_exists('alpiCmsNormalizeResponsiveBlockSizeValue')) {
+    function alpiCmsNormalizeResponsiveBlockSizeValue($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? $value . 'px' : $value;
+    }
+}
+
 // Prepare spacing styles
 $spacingStyles = [];
 $devices = ['desktop', 'tablet', 'mobile'];
@@ -25,10 +37,10 @@ foreach ($devices as $device) {
 
     // Text size for each device
     if (!empty($block["title_size_{$device}"])) {
-        $spacingStyles[] = "--alpi-image-text-title-size-{$device}: " . htmlspecialchars($block["title_size_{$device}"], ENT_QUOTES, 'UTF-8') . ";";
+        $spacingStyles[] = "--alpi-image-text-title-size-{$device}: " . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($block["title_size_{$device}"]), ENT_QUOTES, 'UTF-8') . ";";
     }
     if (!empty($block["content_size_{$device}"])) {
-        $spacingStyles[] = "--alpi-image-text-content-size-{$device}: " . htmlspecialchars($block["content_size_{$device}"], ENT_QUOTES, 'UTF-8') . ";";
+        $spacingStyles[] = "--alpi-image-text-content-size-{$device}: " . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($block["content_size_{$device}"]), ENT_QUOTES, 'UTF-8') . ";";
     }
 }
 

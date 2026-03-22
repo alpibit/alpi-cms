@@ -6,12 +6,32 @@ if (!defined('CONFIG_INCLUDED')) {
 // Unique identifier for this Quote Slider instance
 $quoteId = 'alpi-cms-content-quote-' . uniqid();
 
+if (!function_exists('alpiCmsNormalizeResponsiveBlockSizeValue')) {
+    function alpiCmsNormalizeResponsiveBlockSizeValue($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? $value . 'px' : $value;
+    }
+}
+
 // Parse quotes data
 $quotesData = json_decode($block['quotes_data'] ?? '[]', true);
 
 // Check if we have valid quotes data
 if (!is_array($quotesData) || empty($quotesData)) {
     return; // Exit silently if no valid data
+}
+
+$quotesData = array_values(array_filter($quotesData, static function ($quote) {
+    return trim((string) ($quote['content'] ?? '')) !== '';
+}));
+
+if (empty($quotesData)) {
+    return;
 }
 
 // Prepare spacing styles
@@ -42,13 +62,35 @@ ob_start();
     <div class="alpi-cms-content-container">
         <div class="quote-slider">
             <?php foreach ($quotesData as $index => $quote): ?>
-                <div class="quote-slide" style="color: <?php echo htmlspecialchars($quote['text_color'] ?? '#000000', ENT_QUOTES, 'UTF-8'); ?>; background-color: <?php echo htmlspecialchars($quote['background_color'] ?? '#ffffff', ENT_QUOTES, 'UTF-8'); ?>;">
+                <?php
+                $quoteStyles = [];
+
+                if (!empty($quote['text_color'])) {
+                    $quoteStyles[] = '--alpi-quote-slide-text-color: ' . htmlspecialchars((string) $quote['text_color'], ENT_QUOTES, 'UTF-8') . ';';
+                }
+
+                if (!empty($quote['background_color'])) {
+                    $quoteStyles[] = '--alpi-quote-slide-background-color: ' . htmlspecialchars((string) $quote['background_color'], ENT_QUOTES, 'UTF-8') . ';';
+                }
+
+                foreach ($devices as $device) {
+                    $sizeKey = "text_size_{$device}";
+                    if (!empty($quote[$sizeKey])) {
+                        $quoteStyles[] = '--alpi-quote-content-size-' . $device . ': ' . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($quote[$sizeKey]), ENT_QUOTES, 'UTF-8') . ';';
+                    }
+                }
+
+                $quoteStyle = !empty($quoteStyles) ? ' style="' . implode(' ', $quoteStyles) . '"' : '';
+                $quoteContent = htmlspecialchars((string) ($quote['content'] ?? ''), ENT_QUOTES, 'UTF-8');
+                $quoteAuthor = trim((string) ($quote['author'] ?? ''));
+                ?>
+                <div class="quote-slide"<?php echo $quoteStyle; ?>>
                     <blockquote class="quote-content">
-                        <?php echo htmlspecialchars($quote['content'], ENT_QUOTES, 'UTF-8'); ?>
+                        <?php echo $quoteContent; ?>
                     </blockquote>
-                    <?php if (!empty($quote['author'])): ?>
-                        <cite class="quote-author"><?php echo htmlspecialchars($quote['author'], ENT_QUOTES, 'UTF-8'); ?>
-                        <?php endif; ?>
+                    <?php if ($quoteAuthor !== ''): ?>
+                        <cite class="quote-author"><?php echo htmlspecialchars($quoteAuthor, ENT_QUOTES, 'UTF-8'); ?></cite>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>

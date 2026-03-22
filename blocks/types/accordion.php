@@ -6,6 +6,18 @@ if (!defined('CONFIG_INCLUDED')) {
 // Unique identifier for this accordion instance
 $accordionId = 'alpi-cms-content-accordion-' . uniqid();
 
+if (!function_exists('alpiCmsNormalizeResponsiveBlockSizeValue')) {
+    function alpiCmsNormalizeResponsiveBlockSizeValue($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? $value . 'px' : $value;
+    }
+}
+
 // Parse accordion data
 $accordionData = json_decode($blockAccordionData, true);
 
@@ -60,8 +72,32 @@ ob_start();
             // Sanitize inputs
             $title = htmlspecialchars($section['title'], ENT_QUOTES, 'UTF-8');
             $content = htmlspecialchars($section['content'], ENT_QUOTES, 'UTF-8');
+            $sectionStyles = [];
+
+            if (!empty($section['text_color'])) {
+                $sectionStyles[] = '--alpi-accordion-section-text-color: ' . htmlspecialchars((string) $section['text_color'], ENT_QUOTES, 'UTF-8') . ';';
+            }
+
+            if (!empty($section['background_color'])) {
+                $sectionStyles[] = '--alpi-accordion-section-background-color: ' . htmlspecialchars((string) $section['background_color'], ENT_QUOTES, 'UTF-8') . ';';
+            }
+
+            foreach ($devices as $device) {
+                $titleSizeKey = "title_size_{$device}";
+                $contentSizeKey = "content_size_{$device}";
+
+                if (!empty($section[$titleSizeKey])) {
+                    $sectionStyles[] = '--alpi-accordion-section-title-size-' . $device . ': ' . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($section[$titleSizeKey]), ENT_QUOTES, 'UTF-8') . ';';
+                }
+
+                if (!empty($section[$contentSizeKey])) {
+                    $sectionStyles[] = '--alpi-accordion-section-content-size-' . $device . ': ' . htmlspecialchars(alpiCmsNormalizeResponsiveBlockSizeValue($section[$contentSizeKey]), ENT_QUOTES, 'UTF-8') . ';';
+                }
+            }
+
+            $sectionStyle = !empty($sectionStyles) ? ' style="' . implode(' ', $sectionStyles) . '"' : '';
             ?>
-            <div class="alpi-cms-content-accordion-section" id="<?php echo $sectionId; ?>">
+            <div class="alpi-cms-content-accordion-section" id="<?php echo $sectionId; ?>"<?php echo $sectionStyle; ?>>
                 <h3 id="<?php echo $headerId; ?>" class="alpi-cms-content-accordion-header">
                     <button class="alpi-cms-content-accordion-trigger" aria-expanded="false" aria-controls="<?php echo $contentId; ?>">
                         <?php echo $title; ?>

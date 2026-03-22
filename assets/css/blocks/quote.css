@@ -17,16 +17,20 @@
     padding: 20px;
     box-sizing: border-box;
     text-align: center;
+    color: var(--alpi-quote-slide-text-color, inherit);
+    background-color: var(--alpi-quote-slide-background-color, transparent);
 }
 
 .quote-content {
-    font-size: 24px;
+    font-size: var(--alpi-quote-content-size-desktop, 24px);
     line-height: 1.4;
     margin-bottom: 10px;
 }
 
 .quote-author {
-    font-size: 18px;
+    display: block;
+    font-size: calc(var(--alpi-quote-content-size-desktop, 24px) * 0.75);
+    color: inherit;
     font-style: italic;
 }
 
@@ -39,11 +43,11 @@
     }
 
     .quote-content {
-        font-size: 20px;
+        font-size: var(--alpi-quote-content-size-tablet, var(--alpi-quote-content-size-desktop, 20px));
     }
 
     .quote-author {
-        font-size: 16px;
+        font-size: calc(var(--alpi-quote-content-size-tablet, var(--alpi-quote-content-size-desktop, 20px)) * 0.75);
     }
 }
 
@@ -56,10 +60,10 @@
     }
 
     .quote-content {
-        font-size: 18px;
+        font-size: var(--alpi-quote-content-size-mobile, var(--alpi-quote-content-size-tablet, var(--alpi-quote-content-size-desktop, 18px)));
     }
 
     .quote-author {
-        font-size: 14px;
+        font-size: calc(var(--alpi-quote-content-size-mobile, var(--alpi-quote-content-size-tablet, var(--alpi-quote-content-size-desktop, 18px))) * 0.75);
     }
 }
