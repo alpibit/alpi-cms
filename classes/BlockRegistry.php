@@ -78,6 +78,7 @@ class BlockRegistry
         'form' => [
             'label' => 'Form',
             'editor_enabled' => true,
+            'picker_enabled' => false,
             'template' => null,
             'frontend_enabled' => false,
         ],
@@ -99,11 +100,11 @@ class BlockRegistry
         return array_keys(self::getEditorDefinitions());
     }
 
-    public static function getEditorOptions()
+    public static function getEditorOptions($selectedType = '')
     {
         $options = [];
 
-        foreach (self::getEditorDefinitions() as $type => $definition) {
+        foreach (self::getEditorOptionDefinitions($selectedType) as $type => $definition) {
             $options[] = [
                 'value' => $type,
                 'label' => $definition['label'],
@@ -118,7 +119,7 @@ class BlockRegistry
         $selectedType = trim((string) $selectedType);
         $optionTags = [];
 
-        foreach (self::getEditorOptions() as $option) {
+        foreach (self::getEditorOptions($selectedType) as $option) {
             $value = htmlspecialchars($option['value'], ENT_QUOTES, 'UTF-8');
             $label = htmlspecialchars($option['label'], ENT_QUOTES, 'UTF-8');
             $selected = $option['value'] === $selectedType ? ' selected' : '';
@@ -168,6 +169,23 @@ class BlockRegistry
         return array_filter(self::BLOCK_DEFINITIONS, static function (array $definition) {
             return !empty($definition['editor_enabled']);
         });
+    }
+
+    private static function getEditorOptionDefinitions($selectedType = '')
+    {
+        $selectedType = trim((string) $selectedType);
+
+        return array_filter(
+            self::getEditorDefinitions(),
+            static function (array $definition, $type) use ($selectedType) {
+                if ($type === $selectedType) {
+                    return true;
+                }
+
+                return !array_key_exists('picker_enabled', $definition) || !empty($definition['picker_enabled']);
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
     }
 
     private static function formatFallbackLabel($type)
