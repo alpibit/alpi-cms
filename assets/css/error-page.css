@@ -1,0 +1,176 @@
+:root {
+    --alpi-error-bg-top: #fcfcf8;
+    --alpi-error-bg-bottom: #edf2f7;
+    --alpi-error-surface: rgba(255, 255, 255, 0.78);
+    --alpi-error-surface-strong: rgba(255, 255, 255, 0.92);
+    --alpi-error-border: rgba(16, 24, 40, 0.08);
+    --alpi-error-shadow: 0 24px 80px rgba(16, 24, 40, 0.12);
+    --alpi-error-text: #17212d;
+    --alpi-error-muted: #5f6c7b;
+    --alpi-error-accent: #2b6df8;
+    --alpi-error-accent-soft: rgba(43, 109, 248, 0.12);
+    --alpi-error-warm: rgba(255, 199, 102, 0.30);
+    --alpi-error-cool: rgba(43, 109, 248, 0.18);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--alpi-error-text);
+    background: linear-gradient(180deg, var(--alpi-error-bg-top) 0%, var(--alpi-error-bg-bottom) 100%);
+}
+
+.alpi-error-page {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 32px;
+    background:
+        radial-gradient(circle at 12% 18%, var(--alpi-error-warm), transparent 30%),
+        radial-gradient(circle at 88% 14%, var(--alpi-error-cool), transparent 32%),
+        linear-gradient(180deg, var(--alpi-error-bg-top) 0%, var(--alpi-error-bg-bottom) 100%);
+}
+
+.alpi-error-card {
+    position: relative;
+    z-index: 1;
+    width: min(720px, 100%);
+    padding: 42px;
+    border: 1px solid var(--alpi-error-border);
+    border-radius: 28px;
+    background: var(--alpi-error-surface);
+    backdrop-filter: blur(18px);
+    box-shadow: var(--alpi-error-shadow);
+}
+
+.alpi-error-eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--alpi-error-muted);
+}
+
+.alpi-error-title {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.65rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+}
+
+.alpi-error-text {
+    margin: 18px 0 0;
+    max-width: 44ch;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--alpi-error-muted);
+}
+
+.alpi-error-meta {
+    margin-top: 26px;
+}
+
+.alpi-error-code {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--alpi-error-accent-soft);
+    color: var(--alpi-error-accent);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.alpi-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.alpi-error-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.alpi-error-button:hover {
+    transform: translateY(-1px);
+}
+
+.alpi-error-button-primary {
+    background: var(--alpi-error-text);
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(23, 33, 45, 0.16);
+}
+
+.alpi-error-button-secondary {
+    border-color: var(--alpi-error-border);
+    background: var(--alpi-error-surface-strong);
+    color: var(--alpi-error-text);
+}
+
+.alpi-error-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(24px);
+    opacity: 0.82;
+}
+
+.alpi-error-orb-one {
+    top: 8%;
+    left: -88px;
+    width: 260px;
+    height: 260px;
+    background: var(--alpi-error-warm);
+}
+
+.alpi-error-orb-two {
+    right: -92px;
+    bottom: 10%;
+    width: 320px;
+    height: 320px;
+    background: var(--alpi-error-cool);
+}
+
+@media (max-width: 640px) {
+    .alpi-error-page {
+        padding: 18px;
+    }
+
+    .alpi-error-card {
+        padding: 30px 22px;
+        border-radius: 22px;
+    }
+
+    .alpi-error-actions {
+        flex-direction: column;
+    }
+
+    .alpi-error-button {
+        width: 100%;
+    }
+}

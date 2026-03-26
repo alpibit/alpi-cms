@@ -60,6 +60,13 @@ try {
 
 <?php
 } catch (Exception $e) {
-    die($e->getMessage());
+    error_log('Category page error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 500,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'We could not load this category right now.',
+        'message' => 'Please try again in a moment.',
+    ]);
 }
 ?>

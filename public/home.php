@@ -7,26 +7,38 @@ require_once __DIR__ . '/../classes/BlockRenderer.php';
 // Home content ID
 $homeContentId = 1;
 
-$db = new Database();
-$conn = $db->connect();
+try {
+    $db = new Database();
+    $conn = $db->connect();
 
-if (!($conn instanceof PDO)) {
-    die("Error establishing a database connection.");
+    if (!($conn instanceof PDO)) {
+        throw new Exception('Error establishing a database connection.');
+    }
+
+    $pageObj = new Page($conn);
+    $homePage = $pageObj->getPageById($homeContentId);
+
+    $blocks = $pageObj->getBlocksByPageId($homeContentId) ?? [];
+
+    $assetManager = new AssetManager();
+
+    $pageTitle = isset($homePage['title']) ? $homePage['title'] : '';
+
+    $blockRenderer = new BlockRenderer($conn, $assetManager, ['page' => $homePage]);
+    $blockRenderer->preloadAssets($blocks);
+
+    include __DIR__ . '/../templates/header.php';
+} catch (Throwable $e) {
+    error_log('Home page error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 500,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'We could not load the homepage right now.',
+        'message' => 'Please try again in a moment.',
+        'errorCode' => $e instanceof PDOException && $e->getCode() === '42S02' ? 'DB_TABLE_MIA' : null,
+    ]);
 }
-
-$pageObj = new Page($conn);
-$homePage = $pageObj->getPageById($homeContentId);
-
-$blocks = $pageObj->getBlocksByPageId($homeContentId) ?? [];
-
-$assetManager = new AssetManager();
-
-$pageTitle = isset($homePage['title']) ? $homePage['title'] : '';
-
-$blockRenderer = new BlockRenderer($conn, $assetManager, ['page' => $homePage]);
-$blockRenderer->preloadAssets($blocks);
-
-include __DIR__ . '/../templates/header.php';
 ?>
 
 <main class="content">

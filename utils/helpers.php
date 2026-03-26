@@ -106,3 +106,86 @@ if (!function_exists('alpiConsumeFlashValue')) {
 		return $value;
 	}
 }
+
+if (!function_exists('alpiRenderPublicErrorPage')) {
+	function alpiRenderPublicErrorPage(array $options = [])
+	{
+		$statusCode = isset($options['statusCode']) ? (int) $options['statusCode'] : 500;
+		$title = isset($options['title']) && is_string($options['title']) && trim($options['title']) !== ''
+			? trim($options['title'])
+			: 'We could not load this page right now.';
+		$message = isset($options['message']) && is_string($options['message']) && trim($options['message']) !== ''
+			? trim($options['message'])
+			: 'Please try again in a moment.';
+		$eyebrow = isset($options['eyebrow']) && is_string($options['eyebrow']) && trim($options['eyebrow']) !== ''
+			? trim($options['eyebrow'])
+			: 'Temporary issue';
+		$errorCode = isset($options['errorCode']) && is_string($options['errorCode']) && trim($options['errorCode']) !== ''
+			? trim($options['errorCode'])
+			: null;
+		$pageTitle = isset($options['pageTitle']) && is_string($options['pageTitle']) && trim($options['pageTitle']) !== ''
+			? trim($options['pageTitle'])
+			: $title;
+		$actions = [];
+
+		if (isset($options['actions']) && is_array($options['actions'])) {
+			foreach ($options['actions'] as $action) {
+				if (!is_array($action)) {
+					continue;
+				}
+
+				$label = isset($action['label']) && is_string($action['label']) ? trim($action['label']) : '';
+				$href = isset($action['href']) && is_string($action['href']) ? trim($action['href']) : '';
+				$variant = isset($action['variant']) && $action['variant'] === 'secondary' ? 'secondary' : 'primary';
+				$isButton = !empty($action['isButton']);
+
+				if ($label === '') {
+					continue;
+				}
+
+				if (!$isButton && $href === '') {
+					continue;
+				}
+
+				$actions[] = [
+					'label' => $label,
+					'href' => $href,
+					'variant' => $variant,
+					'isButton' => $isButton,
+				];
+			}
+		}
+
+		if ($actions === []) {
+			$actions[] = [
+				'label' => 'Go home',
+				'href' => defined('BASE_URL') ? BASE_URL : '/',
+				'variant' => 'primary',
+				'isButton' => false,
+			];
+
+			$actions[] = [
+				'label' => 'Try again',
+				'href' => '',
+				'variant' => 'secondary',
+				'isButton' => true,
+			];
+		}
+
+		if (!headers_sent()) {
+			http_response_code($statusCode);
+			header('Content-Type: text/html; charset=UTF-8');
+			header('Cache-Control: no-store, no-cache, must-revalidate');
+		}
+
+		require __DIR__ . '/../templates/error-shell.php';
+	}
+}
+
+if (!function_exists('alpiExitWithPublicErrorPage')) {
+	function alpiExitWithPublicErrorPage(array $options = [])
+	{
+		alpiRenderPublicErrorPage($options);
+		exit;
+	}
+}

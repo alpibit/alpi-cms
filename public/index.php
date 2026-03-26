@@ -53,12 +53,31 @@ try {
 } catch (PDOException $e) {
     // Check if the error is about a missing table
     if ($e->getCode() === '42S02') {
-        echo "Sorry, currently we are experiencing small issues. (Error: DB_TABLE_MIA)";
+        alpiExitWithPublicErrorPage([
+            'statusCode' => 503,
+            'pageTitle' => 'Temporary issue',
+            'eyebrow' => 'Temporary issue',
+            'title' => 'Sorry, currently we are experiencing small issues.',
+            'message' => 'The page is still here, but we could not load it properly right now.',
+            'errorCode' => 'DB_TABLE_MIA',
+        ]);
     } else {
         error_log("PDOException: " . $e->getMessage());
-        echo "Sorry, we are currently experiencing technical difficulties. Please try again later.";
+        alpiExitWithPublicErrorPage([
+            'statusCode' => 500,
+            'pageTitle' => 'Temporary issue',
+            'eyebrow' => 'Temporary issue',
+            'title' => 'Sorry, we are currently experiencing technical difficulties.',
+            'message' => 'Please try again in a little while.',
+        ]);
     }
 } catch (Exception $e) {
     error_log("Exception: " . $e->getMessage());
-    echo "An unexpected error occurred. We are working to fix it. Please try again later.";
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 500,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'We could not load this page right now.',
+        'message' => 'Please try again in a moment.',
+    ]);
 }

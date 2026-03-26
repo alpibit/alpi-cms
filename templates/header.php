@@ -8,30 +8,31 @@ if (!defined('CONFIG_INCLUDED')) {
 }
 
 $db = new Database();
-$conn = $db->connect();
-
-if (!$conn) {
-    die("Error establishing a database connection.");
-}
-
-$settings = new Settings($conn);
-$rawSiteTitle = $settings->getSetting('site_title');
-if (mb_strlen($rawSiteTitle) > 30) {
-    $rawSiteTitle = mb_substr($rawSiteTitle, 0, 30) . '...';
-}
-$siteName = htmlspecialchars($rawSiteTitle, ENT_QUOTES, 'UTF-8');
-$siteDescription = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
-$siteLogo = htmlspecialchars($settings->getSetting('site_logo'), ENT_QUOTES, 'UTF-8');
-$siteFavicon = htmlspecialchars($settings->getSetting('site_favicon'), ENT_QUOTES, 'UTF-8');
-$defaultLanguage = htmlspecialchars($settings->getSetting('default_language'), ENT_QUOTES, 'UTF-8');
-$timezone = htmlspecialchars($settings->getSetting('timezone'), ENT_QUOTES, 'UTF-8');
-$googleAnalyticsCode = $settings->getSetting('google_analytics_code');
-$customCss = $settings->getSetting('custom_css');
-$headerScripts = $settings->getSetting('header_scripts');
-$footerScripts = $settings->getSetting('footer_scripts');
-$footerText = htmlspecialchars($settings->getSetting('footer_text'), ENT_QUOTES, 'UTF-8');
 
 try {
+    $conn = $db->connect();
+
+    if (!$conn) {
+        throw new Exception('Error establishing a database connection.');
+    }
+
+    $settings = new Settings($conn);
+    $rawSiteTitle = $settings->getSetting('site_title');
+    if (mb_strlen($rawSiteTitle) > 30) {
+        $rawSiteTitle = mb_substr($rawSiteTitle, 0, 30) . '...';
+    }
+    $siteName = htmlspecialchars($rawSiteTitle, ENT_QUOTES, 'UTF-8');
+    $siteDescription = htmlspecialchars($settings->getSetting('site_description'), ENT_QUOTES, 'UTF-8');
+    $siteLogo = htmlspecialchars($settings->getSetting('site_logo'), ENT_QUOTES, 'UTF-8');
+    $siteFavicon = htmlspecialchars($settings->getSetting('site_favicon'), ENT_QUOTES, 'UTF-8');
+    $defaultLanguage = htmlspecialchars($settings->getSetting('default_language'), ENT_QUOTES, 'UTF-8');
+    $timezone = htmlspecialchars($settings->getSetting('timezone'), ENT_QUOTES, 'UTF-8');
+    $googleAnalyticsCode = $settings->getSetting('google_analytics_code');
+    $customCss = $settings->getSetting('custom_css');
+    $headerScripts = $settings->getSetting('header_scripts');
+    $footerScripts = $settings->getSetting('footer_scripts');
+    $footerText = htmlspecialchars($settings->getSetting('footer_text'), ENT_QUOTES, 'UTF-8');
+
     // Fetch pages
     $stmt = $conn->query("SELECT title, slug FROM contents WHERE content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
     $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -48,8 +49,16 @@ try {
         $stmt->execute(['slug' => $category['slug']]);
         $postsByCategory[$category['slug']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-} catch (PDOException $e) {
-    die("Error fetching data from the database.");
+} catch (Throwable $e) {
+    error_log('Header bootstrap error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 503,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'Sorry, we could not finish loading this page.',
+        'message' => 'Please try again in a moment.',
+        'errorCode' => $e instanceof PDOException && $e->getCode() === '42S02' ? 'DB_TABLE_MIA' : null,
+    ]);
 }
 
 if (!isset($pageTitle) || !is_string($pageTitle) || trim($pageTitle) === '') {

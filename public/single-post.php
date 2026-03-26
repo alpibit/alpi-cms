@@ -14,37 +14,56 @@ $segments = explode('/', $path);
 $postSlug = $segments[1] ?? null;
 
 if (!$postSlug) {
-    die('Post slug is missing.');
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 404,
+        'pageTitle' => 'Post not found',
+        'eyebrow' => 'Post not found',
+        'title' => 'We could not find the post you were looking for.',
+        'message' => 'The address may be incomplete or no longer available.',
+        'errorCode' => '404',
+    ]);
 }
 
-$db = new Database();
-$conn = $db->connect();
+try {
+    $db = new Database();
+    $conn = $db->connect();
 
-if (!($conn instanceof PDO)) {
-    die("Error establishing a database connection.");
+    if (!($conn instanceof PDO)) {
+        throw new Exception('Error establishing a database connection.');
+    }
+
+    $postObj = new Post($conn);
+
+    $postData = $postObj->getPostBySlug($postSlug);
+
+    if (!$postData) {
+        header('HTTP/1.0 404 Not Found');
+        require __DIR__ . '/404.php';
+        exit;
+    }
+
+    $singlePost = $postObj->getPostById($postData['id']);
+    $blocks = $postObj->getBlocksByPostId($postData['id']);
+
+    $assetManager = new AssetManager();
+
+    $pageTitle = isset($singlePost[0]['title']) ? $singlePost[0]['title'] : '';
+
+    $blockRenderer = new BlockRenderer($conn, $assetManager, ['post' => $singlePost[0]]);
+    $blockRenderer->preloadAssets($blocks);
+
+    include __DIR__ . '/../templates/header.php';
+} catch (Throwable $e) {
+    error_log('Single post error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 500,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'We could not load this post right now.',
+        'message' => 'Please try again in a moment.',
+        'errorCode' => $e instanceof PDOException && $e->getCode() === '42S02' ? 'DB_TABLE_MIA' : null,
+    ]);
 }
-
-$postObj = new Post($conn);
-
-$postData = $postObj->getPostBySlug($postSlug);
-
-if (!$postData) {
-    header("HTTP/1.0 404 Not Found");
-    echo "Post not found.";
-    exit;
-}
-
-$singlePost = $postObj->getPostById($postData['id']);
-$blocks = $postObj->getBlocksByPostId($postData['id']);
-
-$assetManager = new AssetManager();
-
-$pageTitle = isset($singlePost[0]['title']) ? $singlePost[0]['title'] : '';
-
-$blockRenderer = new BlockRenderer($conn, $assetManager, ['post' => $singlePost[0]]);
-$blockRenderer->preloadAssets($blocks);
-
-include __DIR__ . '/../templates/header.php';
 ?>
 
 <main class="content">
