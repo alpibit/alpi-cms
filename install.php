@@ -6,6 +6,17 @@ if (!defined('CONFIG_INCLUDED')) {
     define('CONFIG_INCLUDED', true);
 }
 
+$forwardedProto = strtolower(trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+$isHttpsRequest = (
+    (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+    || ($forwardedProto !== '' && trim(explode(',', $forwardedProto)[0]) === 'https')
+    || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
+);
+
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Strict');
+ini_set('session.cookie_secure', $isHttpsRequest ? '1' : '0');
+
 $errors = [];
 
 $host = isset($_POST['db_host']) ? htmlspecialchars($_POST['db_host'], ENT_QUOTES, 'UTF-8') : '';
@@ -52,71 +63,78 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $errors = [];
 
-    if (empty($host)) {
-        $errors[] = "Please enter the database host.";
-    }
-    if (empty($name)) {
-        $errors[] = "Please enter the database name.";
-    }
-    if (empty($user)) {
-        $errors[] = "Please enter the database user.";
-    }
-    if (empty($pass)) {
-        $errors[] = "Please enter the database password.";
-    }
-    if (empty($adminUser)) {
-        $errors[] = "Please enter the admin username.";
-    }
-    if (empty($adminPass)) {
-        $errors[] = "Please enter the admin password.";
-    }
-    if (empty($adminPassConfirm)) {
-        $errors[] = "Please confirm the admin password.";
-    }
-    if (empty($adminEmail)) {
-        $errors[] = "Please enter the admin email.";
-    }
-    if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Please enter a valid admin email.";
-    }
-    if (strlen($adminUser) < 5) {
-        $errors[] = "Admin username should be at least 5 characters long.";
-    }
-
-    if (!empty($adminPass) && !empty($adminPassConfirm) && $adminPass !== $adminPassConfirm) {
-        $errors[] = "Admin passwords do not match.";
-    }
-
-    // Use the new password validation
-    if (!empty($adminPass)) {
-        $tempUser = new User(null);
-        try {
-            if (!$tempUser->validatePassword($adminPass)) {
-                $errors = array_merge($errors, $tempUser->getPasswordErrors());
-            }
-        } catch (Exception $e) {
-            $errors[] = $e->getMessage();
+    if (!alpiVerifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        alpiRegenerateCsrfToken();
+        $errors[] = 'Invalid security token. Please try again.';
+    } else {
+        if (empty($host)) {
+            $errors[] = "Please enter the database host.";
         }
-    }
+        if (empty($name)) {
+            $errors[] = "Please enter the database name.";
+        }
+        if (empty($user)) {
+            $errors[] = "Please enter the database user.";
+        }
+        if (empty($pass)) {
+            $errors[] = "Please enter the database password.";
+        }
+        if (empty($adminUser)) {
+            $errors[] = "Please enter the admin username.";
+        }
+        if (empty($adminPass)) {
+            $errors[] = "Please enter the admin password.";
+        }
+        if (empty($adminPassConfirm)) {
+            $errors[] = "Please confirm the admin password.";
+        }
+        if (empty($adminEmail)) {
+            $errors[] = "Please enter the admin email.";
+        }
+        if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Please enter a valid admin email.";
+        }
+        if (strlen($adminUser) < 5) {
+            $errors[] = "Admin username should be at least 5 characters long.";
+        }
 
-    if (empty($websiteUrl)) {
-        $errors[] = "Please enter the website URL.";
-    }
+        if (!empty($adminPass) && !empty($adminPassConfirm) && $adminPass !== $adminPassConfirm) {
+            $errors[] = "Admin passwords do not match.";
+        }
 
-    if (empty($errors)) {
-        try {
-            $installer = new Installer();
-            $installer->install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl);
+        // Use the new password validation
+        if (!empty($adminPass)) {
+            $tempUser = new User(null);
+            try {
+                if (!$tempUser->validatePassword($adminPass)) {
+                    $errors = array_merge($errors, $tempUser->getPasswordErrors());
+                }
+            } catch (Exception $e) {
+                $errors[] = $e->getMessage();
+            }
+        }
 
-            header("Location: " . BASE_URL . "/admin");
-            exit;
-        } catch (PDOException $e) {
-            $errors[] = "Database connection failed. Error: " . $e->getMessage();
-        } catch (Exception $e) {
-            $errors[] = $e->getMessage();
+        if (empty($websiteUrl)) {
+            $errors[] = "Please enter the website URL.";
+        }
+
+        if (empty($errors)) {
+            try {
+                $installer = new Installer();
+                $installer->install($adminUser, $adminPass, $adminEmail, $host, $name, $user, $pass, $websiteUrl);
+
+                header("Location: " . BASE_URL . "/admin");
+                exit;
+            } catch (PDOException $e) {
+                $errors[] = "Database connection failed. Error: " . $e->getMessage();
+            } catch (Exception $e) {
+                $errors[] = $e->getMessage();
+            }
         }
     }
 }
+
+$csrfToken = alpiGetCsrfToken();
 
 function isInstalled($conn)
 {
@@ -167,6 +185,7 @@ function isInstalled($conn)
             <?php endif; ?>
 
             <form method="post" class="alpi-form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                 <h2 class="alpi-text-primary alpi-mb-md">Database Configuration</h2>
                 <div class="alpi-form-group">
                     <label for="db_host" class="alpi-form-label">Database Host</label>
