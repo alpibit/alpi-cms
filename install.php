@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pass = trim($_POST['db_pass']);
     $adminUser = trim($_POST['admin_user']);
     $adminPass = trim($_POST['admin_pass']);
+    $adminPassConfirm = trim($_POST['admin_pass_confirm'] ?? '');
     $adminEmail = trim($_POST['admin_email']);
     $websiteUrl = trim($_POST['website_url']);
 
@@ -69,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($adminPass)) {
         $errors[] = "Please enter the admin password.";
     }
+    if (empty($adminPassConfirm)) {
+        $errors[] = "Please confirm the admin password.";
+    }
     if (empty($adminEmail)) {
         $errors[] = "Please enter the admin email.";
     }
@@ -79,14 +83,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Admin username should be at least 5 characters long.";
     }
 
+    if (!empty($adminPass) && !empty($adminPassConfirm) && $adminPass !== $adminPassConfirm) {
+        $errors[] = "Admin passwords do not match.";
+    }
+
     // Use the new password validation
-    $tempUser = new User(null);
-    try {
-        if (!$tempUser->validatePassword($adminPass)) {
-            $errors = array_merge($errors, $tempUser->getPasswordErrors());
+    if (!empty($adminPass)) {
+        $tempUser = new User(null);
+        try {
+            if (!$tempUser->validatePassword($adminPass)) {
+                $errors = array_merge($errors, $tempUser->getPasswordErrors());
+            }
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
         }
-    } catch (Exception $e) {
-        $errors[] = $e->getMessage();
     }
 
     if (empty($websiteUrl)) {
@@ -201,6 +211,16 @@ function isInstalled($conn)
                             <li>At least one special character</li>
                         </ul>
                     </div>
+                </div>
+
+                <div class="alpi-form-group">
+                    <label for="admin_pass_confirm" class="alpi-form-label">Confirm Admin Password:</label>
+                    <input type="password"
+                        id="admin_pass_confirm"
+                        name="admin_pass_confirm"
+                        class="alpi-form-input"
+                        required
+                        autocomplete="new-password">
                 </div>
 
                 <h2 class="alpi-text-primary alpi-mb-md alpi-mt-md">Site Configuration</h2>
