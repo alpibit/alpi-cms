@@ -9,8 +9,8 @@ $adminFooterText = $settingsAdminFooter->getSetting('footer_text');
 </div>
 </main>
 <footer class="alpi-admin-footer">
-    <div class="alpi-container">
-        <p><?= htmlspecialchars($adminFooterText, ENT_QUOTES, 'UTF-8') ?></p>
+    <div class="alpi-container alpi-admin-footer-shell">
+        <p class="alpi-admin-footer-text"><?= htmlspecialchars($adminFooterText, ENT_QUOTES, 'UTF-8') ?></p>
     </div>
 </footer>
 

@@ -3,15 +3,23 @@
 :root {
     /* Color Palette */
     --alpi-primary: #4a90e2;
+    --alpi-primary-dark: #2f6dc6;
+    --alpi-primary-soft: #edf4ff;
     --alpi-secondary: #50e3c2;
+    --alpi-secondary-dark: #26c6a8;
     --alpi-light: #f8f9fa;
     --alpi-accent: #f39c12;
-    --alpi-background: #f5f7fa;
-    --alpi-text: #2c3e50;
+    --alpi-background: #eef4fb;
+    --alpi-surface: rgba(255, 255, 255, 0.94);
+    --alpi-surface-muted: #f6f9fc;
+    --alpi-text: #1f2937;
+    --alpi-text-muted: #667085;
     --alpi-border: #e0e6ed;
+    --alpi-border-strong: #ced8e5;
     --alpi-success: #27ae60;
     --alpi-warning: #f1c40f;
     --alpi-danger: #e74c3c;
+    --alpi-info: #2563eb;
 
     /* Typography */
     --alpi-font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
@@ -44,6 +52,7 @@
     --alpi-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --alpi-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --alpi-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --alpi-shadow-xl: 0 24px 60px rgba(31, 41, 55, 0.14);
 }
 
 /* Base Styles */
@@ -61,7 +70,10 @@ html {
 body {
     font-family: var(--alpi-font-main);
     color: var(--alpi-text);
-    background-color: var(--alpi-background);
+    background:
+        radial-gradient(circle at 12% 16%, rgba(80, 227, 194, 0.16), transparent 26%),
+        radial-gradient(circle at 86% 12%, rgba(74, 144, 226, 0.16), transparent 30%),
+        linear-gradient(180deg, #f7fbff 0%, var(--alpi-background) 100%);
     margin: 0;
     padding: 0;
 }
@@ -171,23 +183,29 @@ h6 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: var(--alpi-spacing-xs);
+    min-height: 44px;
     padding: var(--alpi-spacing-sm) var(--alpi-spacing-md);
     border: none;
     border-radius: var(--alpi-radius-md);
     font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1;
     text-decoration: none;
     cursor: pointer;
     transition: var(--alpi-transition);
 }
 
 .alpi-btn-primary {
-    background-color: var(--alpi-primary);
+    background: linear-gradient(135deg, var(--alpi-primary) 0%, var(--alpi-primary-dark) 100%);
     color: white;
+    box-shadow: 0 12px 24px rgba(47, 109, 198, 0.2);
 }
 
 .alpi-btn-secondary {
-    background-color: var(--alpi-secondary);
+    background-color: rgba(80, 227, 194, 0.18);
     color: var(--alpi-text);
+    border: 1px solid rgba(38, 198, 168, 0.18);
 }
 
 .alpi-btn-accent {
@@ -195,13 +213,44 @@ h6 {
     color: white;
 }
 
+.alpi-btn-danger {
+    background: linear-gradient(135deg, var(--alpi-danger) 0%, #c93c2c 100%);
+    color: white;
+    box-shadow: 0 12px 24px rgba(231, 76, 60, 0.18);
+}
+
+.alpi-btn-info {
+    background: linear-gradient(135deg, var(--alpi-info) 0%, var(--alpi-primary-dark) 100%);
+    color: white;
+}
+
+.alpi-btn-sm {
+    min-height: 34px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+}
+
+.alpi-btn-block {
+    width: 100%;
+}
+
 .alpi-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--alpi-shadow-md);
 }
 
+.alpi-btn:focus-visible,
+.alpi-form-input:focus-visible,
+.alpi-nav-link:focus-visible,
+.alpi-tab:focus-visible {
+    outline: 3px solid rgba(74, 144, 226, 0.22);
+    outline-offset: 2px;
+}
+
 .alpi-btn-group {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--alpi-spacing-sm);
 }
 
@@ -219,8 +268,10 @@ h6 {
 .alpi-form-input {
     width: 100%;
     padding: var(--alpi-spacing-sm);
-    border: 1px solid var(--alpi-border);
+    border: 1px solid var(--alpi-border-strong);
     border-radius: var(--alpi-radius-md);
+    background-color: rgba(255, 255, 255, 0.96);
+    color: var(--alpi-text);
     transition: var(--alpi-transition);
 }
 
@@ -230,9 +281,86 @@ h6 {
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
+.alpi-form-input::placeholder {
+    color: var(--alpi-text-muted);
+}
+
+textarea.alpi-form-input {
+    min-height: 140px;
+    resize: vertical;
+}
+
 .alpi-form-checkbox,
 .alpi-form-radio {
     accent-color: var(--alpi-primary);
+}
+
+.alpi-form-help {
+    margin-top: var(--alpi-spacing-xs);
+    color: var(--alpi-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.alpi-form-help-title {
+    margin: 0 0 var(--alpi-spacing-xs);
+    color: var(--alpi-text);
+    font-weight: 600;
+}
+
+.alpi-list-clean {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.alpi-check-list {
+    display: grid;
+    gap: 8px;
+}
+
+.alpi-check-list li {
+    position: relative;
+    padding-left: 18px;
+}
+
+.alpi-check-list li::before {
+    content: '';
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--alpi-primary);
+    transform: translateY(-50%);
+}
+
+.alpi-form-section {
+    padding: clamp(18px, 2vw, 24px);
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    border-radius: 24px;
+    background: var(--alpi-surface-muted);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.alpi-form-section + .alpi-form-section {
+    margin-top: var(--alpi-spacing-lg);
+}
+
+.alpi-form-section-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--alpi-spacing-sm);
+    margin-bottom: var(--alpi-spacing-md);
+}
+
+.alpi-form-section-title {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--alpi-text);
 }
 
 /* Tables */
@@ -243,6 +371,8 @@ h6 {
     border: 1px solid var(--alpi-border);
     border-radius: var(--alpi-radius-md);
     overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--alpi-shadow-sm);
 }
 
 .alpi-table th,
@@ -267,8 +397,9 @@ h6 {
 
 /* Cards */
 .alpi-card {
-    background-color: white;
+    background-color: var(--alpi-surface);
     border-radius: var(--alpi-radius-lg);
+    border: 1px solid rgba(206, 216, 229, 0.72);
     box-shadow: var(--alpi-shadow-md);
     padding: var(--alpi-spacing-lg);
 }
@@ -285,6 +416,7 @@ h6 {
     border-radius: var(--alpi-radius-md);
     margin-bottom: var(--alpi-spacing-md);
     border-left: 4px solid transparent;
+    box-shadow: var(--alpi-shadow-sm);
 }
 
 .alpi-alert-success {
@@ -303,6 +435,81 @@ h6 {
     background-color: #f8d7da;
     color: #721c24;
     border-left-color: var(--alpi-danger);
+}
+
+.alpi-alert-info {
+    background-color: #e8f1ff;
+    color: #17467d;
+    border-left-color: var(--alpi-info);
+}
+
+.alpi-alert ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.alpi-alert li + li {
+    margin-top: 0.35rem;
+}
+
+.alpi-alert-list {
+    display: grid;
+    gap: 8px;
+}
+
+.alpi-alert-list li {
+    position: relative;
+    padding-left: 18px;
+}
+
+.alpi-alert-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.35;
+    transform: translateY(-50%);
+}
+
+.alpi-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: var(--alpi-radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+.alpi-badge-success {
+    background: rgba(39, 174, 96, 0.12);
+    color: #17653c;
+    border-color: rgba(39, 174, 96, 0.16);
+}
+
+.alpi-badge-warning {
+    background: rgba(241, 196, 15, 0.16);
+    color: #785c00;
+    border-color: rgba(241, 196, 15, 0.2);
+}
+
+.alpi-badge-secondary {
+    background: rgba(31, 41, 55, 0.08);
+    color: #344054;
+    border-color: rgba(31, 41, 55, 0.08);
+}
+
+.alpi-badge-info {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+    border-color: rgba(37, 99, 235, 0.16);
 }
 
 /* Navigation */
@@ -324,7 +531,239 @@ h6 {
 .alpi-nav-link:hover,
 .alpi-nav-link.active {
     background-color: #f0f7ff;
-    color: var(--alpi-light);
+    color: var(--alpi-primary-dark);
+}
+
+/* Setup and Auth Shells */
+.alpi-auth-shell {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.alpi-auth-backdrop {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.alpi-auth-backdrop-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(12px);
+    opacity: 0.75;
+}
+
+.alpi-auth-backdrop-orb-one {
+    top: 6%;
+    left: -80px;
+    width: 280px;
+    height: 280px;
+    background: rgba(80, 227, 194, 0.28);
+}
+
+.alpi-auth-backdrop-orb-two {
+    right: -100px;
+    bottom: 8%;
+    width: 320px;
+    height: 320px;
+    background: rgba(74, 144, 226, 0.2);
+}
+
+.alpi-auth-layout {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+    padding-block: clamp(28px, 6vw, 64px);
+}
+
+.alpi-auth-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(24px, 4vw, 40px);
+    align-items: stretch;
+}
+
+.alpi-auth-hero,
+.alpi-auth-card {
+    position: relative;
+    border-radius: 32px;
+}
+
+.alpi-auth-hero {
+    padding: clamp(28px, 5vw, 48px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.42) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    box-shadow: var(--alpi-shadow-lg);
+    backdrop-filter: blur(18px);
+}
+
+.alpi-auth-kicker,
+.alpi-auth-eyebrow {
+    margin: 0 0 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--alpi-primary-dark);
+}
+
+.alpi-auth-title {
+    margin: 0;
+    max-width: 12ch;
+    font-size: clamp(2.35rem, 5vw, 4.4rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+}
+
+.alpi-auth-copy,
+.alpi-auth-card-copy,
+.alpi-auth-note {
+    color: var(--alpi-text-muted);
+}
+
+.alpi-auth-copy {
+    max-width: 54ch;
+    margin: 18px 0 0;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.alpi-auth-step-list,
+.alpi-auth-feature-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.alpi-auth-step-list {
+    counter-reset: setup-step;
+}
+
+.alpi-auth-step,
+.alpi-auth-feature {
+    position: relative;
+    padding-left: 52px;
+    min-height: 40px;
+}
+
+.alpi-auth-step::before,
+.alpi-auth-feature::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--alpi-primary-dark);
+    background: rgba(74, 144, 226, 0.12);
+    border: 1px solid rgba(74, 144, 226, 0.18);
+}
+
+.alpi-auth-step::before {
+    counter-increment: setup-step;
+    content: counter(setup-step);
+}
+
+.alpi-auth-feature::before {
+    content: '\2713';
+}
+
+.alpi-auth-step strong,
+.alpi-auth-feature strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.96rem;
+}
+
+.alpi-auth-step span,
+.alpi-auth-feature span {
+    display: block;
+    color: var(--alpi-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.alpi-auth-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.alpi-auth-stat {
+    padding: 18px 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.alpi-auth-stat-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.alpi-auth-stat-label {
+    display: block;
+    margin-top: 4px;
+    color: var(--alpi-text-muted);
+    font-size: 0.9rem;
+}
+
+.alpi-auth-panel {
+    display: flex;
+    justify-content: center;
+}
+
+.alpi-auth-card {
+    width: min(100%, 700px);
+    padding: clamp(24px, 4vw, 36px);
+    box-shadow: var(--alpi-shadow-xl);
+}
+
+.alpi-auth-card-header {
+    margin-bottom: var(--alpi-spacing-lg);
+}
+
+.alpi-auth-card-title {
+    margin: 0;
+    font-size: clamp(1.7rem, 2.2vw, 2.35rem);
+}
+
+.alpi-auth-card-copy {
+    margin: 12px 0 0;
+    line-height: 1.7;
+}
+
+.alpi-auth-inline-badge {
+    flex-shrink: 0;
+}
+
+.alpi-password-hints {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    background: rgba(255, 255, 255, 0.68);
+}
+
+.alpi-auth-actions {
+    margin-top: var(--alpi-spacing-lg);
+}
+
+.alpi-auth-note {
+    margin: 12px 0 0;
+    font-size: 0.92rem;
+    text-align: center;
 }
 
 /* Block Editor Styles */
@@ -367,21 +806,27 @@ h6 {
 /* Tabs */
 .alpi-tabs {
     display: flex;
-    border-bottom: 1px solid var(--alpi-border);
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: var(--alpi-spacing-md);
 }
 
 .alpi-tab {
-    padding: var(--alpi-spacing-sm) var(--alpi-spacing-md);
+    padding: 10px 16px;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    border-radius: var(--alpi-radius-full);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--alpi-text);
+    font: inherit;
     transition: var(--alpi-transition);
 }
 
 .alpi-tab:hover,
 .alpi-tab.active {
-    border-bottom-color: var(--alpi-primary);
-    color: var(--alpi-primary);
+    background: rgba(74, 144, 226, 0.12);
+    border-color: rgba(74, 144, 226, 0.18);
+    color: var(--alpi-primary-dark);
 }
 
 .alpi-tab-content {
@@ -390,6 +835,128 @@ h6 {
 
 .alpi-tab-content.active {
     display: block;
+}
+
+.alpi-checkbox-group {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.alpi-checkbox-group .alpi-form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--alpi-text);
+}
+
+.alpi-info-panel {
+    padding: 18px 20px;
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    border-radius: 18px;
+    background: rgba(248, 250, 252, 0.92);
+    color: var(--alpi-text-muted);
+}
+
+.alpi-info-panel-title {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: var(--alpi-text);
+}
+
+.alpi-info-panel p {
+    margin: 0 0 10px;
+}
+
+.alpi-info-panel ul {
+    margin: 10px 0;
+    padding-left: 18px;
+}
+
+.alpi-info-panel li + li {
+    margin-top: 6px;
+}
+
+.alpi-info-panel-note {
+    margin-bottom: 0;
+    color: #8a5800;
+    font-weight: 600;
+}
+
+.alpi-uploads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.alpi-uploads-item {
+    overflow: hidden;
+}
+
+.alpi-uploads-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    margin: -24px -24px 18px;
+    background: linear-gradient(180deg, rgba(74, 144, 226, 0.08) 0%, rgba(80, 227, 194, 0.08) 100%);
+}
+
+.alpi-uploads-thumbnail {
+    max-width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+}
+
+.alpi-uploads-file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--alpi-primary-dark);
+}
+
+.alpi-uploads-file-ext {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    min-height: 84px;
+    padding: 12px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(74, 144, 226, 0.12);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.alpi-uploads-details {
+    display: grid;
+    gap: 6px;
+}
+
+.alpi-uploads-filename {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.alpi-uploads-filetype,
+.alpi-uploads-filesize,
+.alpi-uploads-filedate {
+    margin: 0;
+    color: var(--alpi-text-muted);
+    font-size: 0.92rem;
+}
+
+.alpi-uploads-delete-form {
+    margin-top: 10px;
+    text-align: right;
 }
 
 /* Utilities */
@@ -819,45 +1386,107 @@ h6 {
 }
 
 /* Admin Header and Footer */
-.alpi-admin-header,
-.alpi-admin-footer {
-    background-color: var(--alpi-primary);
+.alpi-admin-body {
+    min-height: 100vh;
+}
+
+.alpi-admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 18px 0;
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.96) 0%, rgba(47, 109, 198, 0.96) 100%);
     color: white;
-    padding: var(--alpi-spacing-md);
+    box-shadow: 0 18px 40px rgba(47, 109, 198, 0.18);
 }
 
-.alpi-admin-header h1 {
+.alpi-admin-header-shell {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--alpi-spacing-lg);
+}
+
+.alpi-admin-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.alpi-admin-kicker {
     margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.alpi-admin-title {
+    margin: 0;
+    font-size: clamp(1.45rem, 2.2vw, 2rem);
+}
+
+.alpi-admin-title-link {
+    color: white;
+    text-decoration: none;
+}
+
+.alpi-admin-main {
+    padding: 28px 0 44px;
+}
+
+.alpi-admin-frame {
+    position: relative;
 }
 
 .alpi-admin-footer {
+    color: var(--alpi-text-muted);
+    padding-bottom: 28px;
+}
+
+.alpi-admin-footer-shell {
+    padding: 18px 22px;
+    border: 1px solid rgba(206, 216, 229, 0.72);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: var(--alpi-shadow-sm);
     text-align: center;
-    font-size: 14px;
+}
+
+.alpi-admin-footer-text {
+    margin: 0;
+    font-size: 0.92rem;
 }
 
 /* Admin Navigation */
 .alpi-admin-nav {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: var(--alpi-spacing-sm);
-    margin-top: var(--alpi-spacing-md);
 }
 
-.alpi-admin-nav a {
+.alpi-admin-nav .alpi-nav-link {
     color: white;
     text-decoration: none;
-    padding: var(--alpi-spacing-xs) var(--alpi-spacing-sm);
-    border-radius: var(--alpi-radius-sm);
+    padding: 10px 14px;
+    border-radius: var(--alpi-radius-full);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     transition: var(--alpi-transition);
 }
 
-.alpi-admin-nav a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.alpi-admin-nav .alpi-nav-link:hover,
+.alpi-admin-nav .alpi-nav-link.active {
+    background-color: rgba(255, 255, 255, 0.96);
+    color: var(--alpi-primary-dark);
+    border-color: rgba(255, 255, 255, 0.9);
 }
 
 /* Admin Content Area */
 .alpi-admin-content {
-    padding: var(--alpi-spacing-lg);
+    padding: 0;
 }
 
 /* Admin Tables */
@@ -989,8 +1618,32 @@ h6 {
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+    .alpi-auth-layout {
+        padding-block: 20px 30px;
+    }
+
+    .alpi-auth-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .alpi-auth-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .alpi-auth-hero,
+    .alpi-auth-card {
+        padding: 24px;
+        border-radius: 24px;
+    }
+
+    .alpi-admin-header-shell {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .alpi-admin-nav {
         flex-direction: column;
+        align-items: stretch;
     }
 
     .alpi-admin-table {
@@ -1003,6 +1656,16 @@ h6 {
 
     .alpi-media-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .alpi-uploads-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .alpi-auth-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1145,8 +1808,9 @@ h6 {
 
 /* Badge improvements for activity feed */
 .alpi-badge-sm {
+    min-height: 22px;
     font-size: 0.625rem;
-    padding: 2px 6px;
+    padding: 0 8px;
 }
 
 /* Additional activity type styling */

@@ -24,13 +24,16 @@ $adminSiteName = $siteTitle . ' Admin';
 
 <body class="alpi-admin-body">
     <header class="alpi-admin-header">
-        <div class="alpi-container alpi-flex alpi-items-center alpi-justify-between">
-            <h1 class="alpi-admin-title">
-                <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/index.php" class="alpi-admin-title-link">
-                    <?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?>
-                </a>
-            </h1>
-            <nav class="alpi-admin-nav">
+        <div class="alpi-container alpi-admin-header-shell">
+            <div class="alpi-admin-brand">
+                <p class="alpi-admin-kicker">Admin Console</p>
+                <h1 class="alpi-admin-title">
+                    <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/index.php" class="alpi-admin-title-link">
+                        <?= htmlspecialchars($adminSiteName, ENT_QUOTES, 'UTF-8') ?>
+                    </a>
+                </h1>
+            </div>
+            <nav class="alpi-admin-nav" aria-label="Admin navigation">
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>" class="alpi-nav-link" target="_blank">View Site</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/index.php" class="alpi-nav-link">Dashboard</a>
                 <a href="<?= htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8') ?>/public/admin/posts/index.php" class="alpi-nav-link">Manage Posts</a>
@@ -45,4 +48,4 @@ $adminSiteName = $siteTitle . ' Admin';
         </div>
     </header>
     <main class="alpi-admin-main">
-        <div class="alpi-container">
+        <div class="alpi-container alpi-admin-frame">

@@ -105,8 +105,8 @@ include '../../../templates/header-admin.php';
     <?php endif; ?>
 
     <div class="alpi-tabs">
-        <button class="alpi-tab <?= $activeTab === 'export' ? 'active' : '' ?>" onclick="switchTab(event, 'export')">Export Data</button>
-        <button class="alpi-tab <?= $activeTab === 'import' ? 'active' : '' ?>" onclick="switchTab(event, 'import')">Import Data</button>
+        <button type="button" class="alpi-tab <?= $activeTab === 'export' ? 'active' : '' ?>" onclick="switchTab(event, 'export')">Export Data</button>
+        <button type="button" class="alpi-tab <?= $activeTab === 'import' ? 'active' : '' ?>" onclick="switchTab(event, 'import')">Import Data</button>
     </div>
 
     <div class="alpi-tab-content" id="export-tab" style="display: <?= $activeTab === 'export' ? 'block' : 'none' ?>;">
@@ -146,8 +146,8 @@ include '../../../templates/header-admin.php';
                     </select>
                 </div>
 
-                <div class="alpi-form-help alpi-mb-md">
-                    <h3>About Export</h3>
+                <div class="alpi-info-panel alpi-mb-md">
+                    <h3 class="alpi-info-panel-title">About Export</h3>
                     <p>The export tool will:</p>
                     <ul>
                         <li>Create a backup of your selected content</li>
@@ -184,8 +184,8 @@ include '../../../templates/header-admin.php';
                     </select>
                 </div>
 
-                <div class="alpi-form-help alpi-mb-md">
-                    <h3>About Import</h3>
+                <div class="alpi-info-panel alpi-mb-md">
+                    <h3 class="alpi-info-panel-title">About Import</h3>
                     <p>The import process will:</p>
                     <ul>
                         <li>Validate the import file format and structure</li>
@@ -193,7 +193,7 @@ include '../../../templates/header-admin.php';
                         <li>Map fields dynamically to match your database structure</li>
                         <li>Generate warnings for any non-critical issues</li>
                     </ul>
-                    <p class="alpi-text-warning">Note: It's recommended to backup your database before performing an import.</p>
+                    <p class="alpi-info-panel-note">Note: It is recommended to back up your database before performing an import.</p>
                 </div>
 
                 <div class="alpi-text-right">
@@ -204,89 +204,19 @@ include '../../../templates/header-admin.php';
     </div>
 </div>
 
-<style>
-    .alpi-tabs {
-        display: flex;
-        border-bottom: 1px solid var(--alpi-border);
-        margin-bottom: var(--alpi-spacing-md);
-        gap: 1px;
-    }
-
-    .alpi-tab {
-        padding: var(--alpi-spacing-sm) var(--alpi-spacing-md);
-        background: none;
-        border: none;
-        border-bottom: 2px solid transparent;
-        cursor: pointer;
-        font-size: 16px;
-        color: var(--alpi-text);
-        transition: all 0.3s ease;
-    }
-
-    .alpi-tab:hover {
-        background-color: var(--alpi-light);
-    }
-
-    .alpi-tab.active {
-        border-bottom-color: var(--alpi-primary);
-        color: var(--alpi-primary);
-    }
-
-    .alpi-checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .alpi-form-help {
-        color: #666;
-        font-size: 14px;
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 4px;
-    }
-
-    .alpi-form-help h3 {
-        margin-bottom: 10px;
-        color: #333;
-    }
-
-    .alpi-form-help ul {
-        margin: 10px 0 10px 20px;
-    }
-
-    .alpi-form-help li {
-        margin-bottom: 5px;
-    }
-
-    .alpi-text-warning {
-        color: #856404;
-        background-color: #fff3cd;
-        padding: 10px;
-        border-radius: 4px;
-        margin-top: 15px;
-    }
-</style>
-
 <script>
     function switchTab(event, tabName) {
-        document.querySelectorAll('.alpi-tab-content').forEach(content => {
-            content.style.display = 'none';
-        });
+        const exportTab = document.getElementById('export-tab');
+        const importTab = document.getElementById('import-tab');
+        const tabs = document.querySelectorAll('.alpi-tab');
 
-        document.querySelectorAll('.alpi-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
+        exportTab.style.display = tabName === 'export' ? 'block' : 'none';
+        importTab.style.display = tabName === 'import' ? 'block' : 'none';
 
-        const targetContent = document.getElementById(tabName + '-tab');
-        if (targetContent) targetContent.style.display = 'block';
+        tabs.forEach((tab) => tab.classList.remove('active'));
 
-        if (event && event.target) {
-            event.target.classList.add('active');
-        } else {
-            const btn = Array.from(document.querySelectorAll('.alpi-tab')).find(b => b.textContent.trim().toLowerCase().startsWith(tabName));
-            if (btn) btn.classList.add('active');
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
         }
     }
 </script>
