@@ -175,6 +175,16 @@ class Upload
             }
         }
 
+        usort($files, static function ($left, $right) {
+            $timeComparison = ((int) ($right['modifiedAt'] ?? 0)) <=> ((int) ($left['modifiedAt'] ?? 0));
+
+            if ($timeComparison !== 0) {
+                return $timeComparison;
+            }
+
+            return strcmp((string) ($left['path'] ?? ''), (string) ($right['path'] ?? ''));
+        });
+
         return $files;
     }
 
@@ -267,6 +277,8 @@ class Upload
             'type' => $normalizedType,
             'extension' => $fileExt,
             'groups' => $groups,
+            'sizeBytes' => (int) (@filesize($filePath) ?: 0),
+            'modifiedAt' => (int) (@filemtime($filePath) ?: 0),
             'isImage' => in_array('image', $groups, true),
             'isVideo' => in_array('video', $groups, true),
             'isAudio' => in_array('audio', $groups, true),
