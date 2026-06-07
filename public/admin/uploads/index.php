@@ -126,6 +126,24 @@ if (!function_exists('alpiGetUploadBadgeConfig')) {
     }
 }
 
+if (!function_exists('alpiGetUploadGroupsAttribute')) {
+    function alpiGetUploadGroupsAttribute(array $fileInfo): string
+    {
+        $groups = $fileInfo['groups'] ?? [];
+        if (!is_array($groups)) {
+            return '';
+        }
+
+        $groups = array_values(array_unique(array_filter(array_map(static function ($group) {
+            return is_string($group) ? trim($group) : '';
+        }, $groups), static function ($group) {
+            return $group !== '';
+        })));
+
+        return implode(',', $groups);
+    }
+}
+
 include '../../../templates/header-admin.php';
 ?>
 
@@ -133,11 +151,11 @@ include '../../../templates/header-admin.php';
     <div class="alpi-uploads-toolbar alpi-mb-lg">
         <div>
             <h1 class="alpi-text-primary">Uploads Management</h1>
-            <p class="alpi-uploads-summary">
+            <p class="alpi-uploads-summary" id="alpiUploadsSummary">
                 <?= htmlspecialchars($uploadCount === 1 ? '1 file in the library. Newest uploads appear first.' : $uploadCount . ' files in the library. Newest uploads appear first.', ENT_QUOTES, 'UTF-8') ?>
             </p>
         </div>
-        <span class="alpi-badge alpi-badge-info"><?= htmlspecialchars((string) $uploadCount, ENT_QUOTES, 'UTF-8') ?> files</span>
+        <span class="alpi-badge alpi-badge-info" id="alpiUploadsCount"><?= htmlspecialchars((string) $uploadCount, ENT_QUOTES, 'UTF-8') ?> files</span>
     </div>
 
     <?php if ($flashMessage) : ?>
@@ -179,13 +197,30 @@ include '../../../templates/header-admin.php';
             <p class="alpi-uploads-empty-copy">Start by uploading an image, video, audio file, or icon above. Your newest files will appear here first.</p>
         </div>
     <?php else : ?>
-        <div class="alpi-uploads-grid">
+        <div class="alpi-uploads-filter-wrap">
+            <div class="alpi-tabs alpi-uploads-filters" aria-label="Filter uploads by type">
+                <button type="button" class="alpi-tab active" data-upload-filter="all" data-summary-singular="file" data-summary-plural="files" aria-pressed="true">All Files</button>
+                <button type="button" class="alpi-tab" data-upload-filter="image" data-summary-singular="image file" data-summary-plural="image files" aria-pressed="false">Images</button>
+                <button type="button" class="alpi-tab" data-upload-filter="audio" data-summary-singular="audio file" data-summary-plural="audio files" aria-pressed="false">Audio</button>
+                <button type="button" class="alpi-tab" data-upload-filter="video" data-summary-singular="video file" data-summary-plural="video files" aria-pressed="false">Videos</button>
+                <button type="button" class="alpi-tab" data-upload-filter="icon" data-summary-singular="icon" data-summary-plural="icons" aria-pressed="false">Icons</button>
+            </div>
+        </div>
+
+        <div class="alpi-card alpi-uploads-empty alpi-uploads-filter-empty" id="alpiUploadsFilteredEmpty" hidden>
+            <span class="alpi-badge alpi-badge-secondary">No matches</span>
+            <h2 class="alpi-uploads-empty-title" id="alpiUploadsFilteredEmptyTitle">No files match this filter</h2>
+            <p class="alpi-uploads-empty-copy" id="alpiUploadsFilteredEmptyCopy">Try a different type or upload a new file.</p>
+        </div>
+
+        <div class="alpi-uploads-grid" id="alpiUploadsGrid">
             <?php foreach ($uploads as $fileInfo) : ?>
                 <?php
                 $fileName = basename($fileInfo['path']);
                 $badgeConfig = alpiGetUploadBadgeConfig($fileInfo);
+                $uploadGroups = alpiGetUploadGroupsAttribute($fileInfo);
                 ?>
-                <div class="alpi-uploads-item alpi-card">
+                <div class="alpi-uploads-item alpi-card" data-upload-groups="<?= htmlspecialchars($uploadGroups, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="alpi-uploads-preview">
                         <?php if ($fileInfo['isImage']) : ?>
                             <img src="<?= htmlspecialchars($fileInfo['url'], ENT_QUOTES, 'UTF-8') ?>" alt="Preview of <?= htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8') ?>" class="alpi-uploads-thumbnail">

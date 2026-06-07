@@ -107,5 +107,84 @@ document.addEventListener('DOMContentLoaded', () => {
 			}, 1600);
 		});
 	});
+
+	const uploadFilterButtons = Array.from(document.querySelectorAll('[data-upload-filter]'));
+	const uploadCards = Array.from(document.querySelectorAll('[data-upload-groups]'));
+	const uploadsSummary = document.getElementById('alpiUploadsSummary');
+	const uploadsCountBadge = document.getElementById('alpiUploadsCount');
+	const uploadsFilteredEmpty = document.getElementById('alpiUploadsFilteredEmpty');
+	const uploadsFilteredEmptyTitle = document.getElementById('alpiUploadsFilteredEmptyTitle');
+	const uploadsFilteredEmptyCopy = document.getElementById('alpiUploadsFilteredEmptyCopy');
+
+	const updateUploadsFilterUi = (filterButton) => {
+		if (!filterButton || uploadCards.length === 0) {
+			return;
+		}
+
+		const selectedFilter = filterButton.dataset.uploadFilter || 'all';
+		const singularLabel = filterButton.dataset.summarySingular || 'file';
+		const pluralLabel = filterButton.dataset.summaryPlural || 'files';
+		let visibleCount = 0;
+
+		uploadFilterButtons.forEach((button) => {
+			const isActive = button === filterButton;
+			button.classList.toggle('active', isActive);
+			button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+		});
+
+		uploadCards.forEach((card) => {
+			const groups = (card.dataset.uploadGroups || '')
+				.split(',')
+				.map((group) => group.trim())
+				.filter(Boolean);
+			const shouldShow = selectedFilter === 'all' || groups.includes(selectedFilter);
+
+			card.hidden = !shouldShow;
+			if (shouldShow) {
+				visibleCount += 1;
+			}
+		});
+
+		if (uploadsSummary) {
+			if (selectedFilter === 'all') {
+				uploadsSummary.textContent = `${uploadCards.length} ${uploadCards.length === 1 ? 'file' : 'files'} in the library. Newest uploads appear first.`;
+			} else if (visibleCount === 0) {
+				uploadsSummary.textContent = `No ${pluralLabel} are in the library right now.`;
+			} else {
+				uploadsSummary.textContent = `${visibleCount} ${visibleCount === 1 ? singularLabel : pluralLabel} shown from ${uploadCards.length} files.`;
+			}
+		}
+
+		if (uploadsCountBadge) {
+			uploadsCountBadge.textContent = selectedFilter === 'all'
+				? `${uploadCards.length} files`
+				: `${visibleCount} shown`;
+		}
+
+		if (uploadsFilteredEmpty) {
+			const shouldShowEmpty = selectedFilter !== 'all' && visibleCount === 0;
+			uploadsFilteredEmpty.hidden = !shouldShowEmpty;
+
+			if (shouldShowEmpty) {
+				if (uploadsFilteredEmptyTitle) {
+					uploadsFilteredEmptyTitle.textContent = `No ${pluralLabel} yet`;
+				}
+
+				if (uploadsFilteredEmptyCopy) {
+					uploadsFilteredEmptyCopy.textContent = `Try another filter or upload a new ${singularLabel}.`;
+				}
+			}
+		}
+	};
+
+	if (uploadFilterButtons.length > 0 && uploadCards.length > 0) {
+		uploadFilterButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				updateUploadsFilterUi(button);
+			});
+		});
+
+		updateUploadsFilterUi(uploadFilterButtons[0]);
+	}
 });
 
