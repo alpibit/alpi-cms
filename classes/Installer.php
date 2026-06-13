@@ -26,11 +26,10 @@ class Installer
     private function writeConfigFile($host, $name, $user, $pass)
     {
         $configContent = "<?php\n\n";
-        $configContent .= "define('DB_HOST', '{$host}');\n";
-        $configContent .= "define('DB_NAME', '{$name}');\n";
-        $configContent .= "define('DB_USER', '{$user}');\n";
-        $configContent .= "define('DB_PASS', '{$pass}');\n\n";
-        $configContent .= "?>";
+        $configContent .= "define('DB_HOST', " . var_export($host, true) . ");\n";
+        $configContent .= "define('DB_NAME', " . var_export($name, true) . ");\n";
+        $configContent .= "define('DB_USER', " . var_export($user, true) . ");\n";
+        $configContent .= "define('DB_PASS', " . var_export($pass, true) . ");\n";
 
         file_put_contents('config/database.php', $configContent);
     }
