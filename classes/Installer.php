@@ -251,7 +251,7 @@ class Installer
 
     private function createAdminUser($username, $password, $email)
     {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = User::hashPasswordWithArgon2id($password);
         $sql = "INSERT INTO users (username, password, email, role) VALUES (:username, :hashedPassword, :email, 'admin')";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':username', $username);

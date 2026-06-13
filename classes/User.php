@@ -60,15 +60,18 @@ trait PasswordHandler
         return in_array(strtolower($password), $commonPasswords);
     }
 
-    protected function hashPassword($password)
+    public static function hashPasswordWithArgon2id($password)
     {
-        $options = [
+        return password_hash($password, PASSWORD_ARGON2ID, [
             'memory_cost' => 65536,
             'time_cost' => 4,
-            'threads' => 2
-        ];
+            'threads' => 2,
+        ]);
+    }
 
-        return password_hash($password, PASSWORD_ARGON2ID, $options);
+    protected function hashPassword($password)
+    {
+        return self::hashPasswordWithArgon2id($password);
     }
 }
 
