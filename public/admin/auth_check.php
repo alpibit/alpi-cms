@@ -2,11 +2,12 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../utils/helpers.php';
 
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 1);
-ini_set('session.cookie_samesite', 'Strict');
-
 if (session_status() == PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'httponly' => true,
+        'secure' => alpiIsHttpsRequest(),
+        'samesite' => 'Strict',
+    ]);
     session_start();
 }
 

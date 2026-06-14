@@ -10,8 +10,15 @@ try {
     if (!$conn instanceof PDO) {
         throw new Exception("Error establishing a database connection.");
     }
-} catch (Exception $e) {
-    die($e->getMessage());
+} catch (Throwable $e) {
+    error_log('Admin dashboard error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 503,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'The admin area is temporarily unavailable.',
+        'message' => 'Please try again in a little while.',
+    ]);
 }
 
 $post = new Post($conn);
@@ -24,8 +31,15 @@ try {
     $pageCount = $page->countPages();
     $categoryCount = $category->countCategories();
     $recentActivities = $activityFeed->getRecentActivities(3);
-} catch (Exception $e) {
-    die("Error retrieving data: " . $e->getMessage());
+} catch (Throwable $e) {
+    error_log('Admin dashboard data error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 503,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'The admin area is temporarily unavailable.',
+        'message' => 'Please try again in a little while.',
+    ]);
 }
 
 include '../../templates/header-admin.php';

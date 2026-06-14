@@ -26,6 +26,8 @@ try {
     }
 
     echo json_encode(['success' => true, 'activities' => $activities]);
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} catch (Throwable $e) {
+    error_log('Load activities error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Unable to load activities right now.']);
 }

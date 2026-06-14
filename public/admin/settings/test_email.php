@@ -4,11 +4,13 @@ require '../../../config/database.php';
 require '../../../config/config.php';
 require '../auth_check.php';
 
-$db = new Database();
-$conn = $db->connect();
-
-if (!$conn instanceof PDO) {
-    die("Error establishing a database connection.");
+try {
+    $db = new Database();
+    $conn = $db->connect();
+} catch (Throwable $e) {
+    error_log('Test email error: ' . $e->getMessage());
+    header("Location: index.php?email_test_status=error&email_test_message=" . urlencode('Email test is temporarily unavailable. Please try again later.'));
+    exit;
 }
 
 $settings = new Settings($conn);

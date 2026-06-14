@@ -4,15 +4,22 @@ require '../../../config/database.php';
 require '../../../config/config.php';
 require '../auth_check.php';
 
-$db = new Database();
-$conn = $db->connect();
+try {
+    $db = new Database();
+    $conn = $db->connect();
 
-if (!$conn instanceof PDO) {
-    die("Error establishing a database connection.");
+    $category = new Category($conn);
+    $categories = $category->getAllCategories();
+} catch (Throwable $e) {
+    error_log('Admin categories page error: ' . $e->getMessage());
+    alpiExitWithPublicErrorPage([
+        'statusCode' => 503,
+        'pageTitle' => 'Temporary issue',
+        'eyebrow' => 'Temporary issue',
+        'title' => 'The admin area is temporarily unavailable.',
+        'message' => 'Please try again in a little while.',
+    ]);
 }
-
-$category = new Category($conn);
-$categories = $category->getAllCategories();
 
 include '../../../templates/header-admin.php';
 ?>

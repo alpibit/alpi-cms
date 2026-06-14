@@ -17,6 +17,11 @@ ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
 ini_set('session.cookie_secure', $isHttpsRequest ? '1' : '0');
 
+if (file_exists('config/installed.lock')) {
+    header("Location: " . BASE_URL . "/admin");
+    exit;
+}
+
 $errors = [];
 
 $host = isset($_POST['db_host']) ? htmlspecialchars($_POST['db_host'], ENT_QUOTES, 'UTF-8') : '';

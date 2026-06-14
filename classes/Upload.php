@@ -321,7 +321,13 @@ class Upload
 
     private function detectMimeType(string $filePath): string
     {
-        $mimeType = mime_content_type($filePath);
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo === false) {
+            return '';
+        }
+
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
 
         return is_string($mimeType) ? strtolower($mimeType) : '';
     }

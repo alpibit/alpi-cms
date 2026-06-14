@@ -189,3 +189,14 @@ if (!function_exists('alpiExitWithPublicErrorPage')) {
 		exit;
 	}
 }
+
+if (!function_exists('alpiIsHttpsRequest')) {
+	function alpiIsHttpsRequest()
+	{
+		$forwardedProto = strtolower(trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+
+		return (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+			|| ($forwardedProto !== '' && trim(explode(',', $forwardedProto)[0]) === 'https')
+			|| ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443);
+	}
+}

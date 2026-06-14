@@ -209,7 +209,8 @@ class DataManager
 
     protected function exportSettings()
     {
-        $stmt = $this->db->query("SELECT * FROM settings");
+        $stmt = $this->db->prepare("SELECT * FROM settings WHERE setting_key != :smtpPassword");
+        $stmt->execute([':smtpPassword' => 'email_smtp_password']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

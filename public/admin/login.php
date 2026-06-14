@@ -6,10 +6,12 @@ if (!defined('ROUTER_ACCESS')) {
 }
 
 if (session_status() == PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'httponly' => true,
+        'secure' => alpiIsHttpsRequest(),
+        'samesite' => 'Strict',
+    ]);
     session_start();
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', 1);
-    ini_set('session.cookie_samesite', 'Strict');
 }
 
 // Generate CSRF token if one doesn't exist

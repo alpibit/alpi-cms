@@ -20,6 +20,7 @@ class Installer
         $this->updateEmailSettings($adminEmail, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption);
         $this->createAdminUser($adminUser, $adminPass, $adminEmail);
         $this->flagAsInstalledIfNotSet();
+        $this->writeInstalledLock();
         $this->sendWelcomeEmail($adminEmail, $websiteUrl, $smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpEncryption);
     }
 
@@ -32,6 +33,11 @@ class Installer
         $configContent .= "define('DB_PASS', " . var_export($pass, true) . ");\n";
 
         file_put_contents('config/database.php', $configContent);
+    }
+
+    private function writeInstalledLock()
+    {
+        file_put_contents('config/installed.lock', date('c') . "\n");
     }
 
     private function setupTables()
