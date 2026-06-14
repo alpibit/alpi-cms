@@ -49,9 +49,6 @@ try {
 
     $pageTitle = isset($singlePage['title']) ? $singlePage['title'] : '';
 
-    $assetManager->addCss('global.css');
-    $assetManager->addJs('global.js');
-
     $blockRenderer = new BlockRenderer($conn, $assetManager, ['page' => $singlePage]);
     $blockRenderer->preloadAssets($blocks);
 

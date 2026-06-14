@@ -1,5 +1,13 @@
 RewriteEngine On
 RewriteBase /
+
+# Hardening: deny direct access to sensitive paths (Apache adopters)
+RewriteRule ^config/ - [F]
+RewriteRule ^sql/ - [F]
+RewriteRule \.sql$ - [F]
+RewriteRule ^uploads/.*\.php$ - [F]
+RewriteRule (^|/)\.(?!well-known) - [F]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]

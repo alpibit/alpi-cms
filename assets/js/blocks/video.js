@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function onPlayerReady(event) {
-        // You can add custom behavior here when the player is ready
-        console.log('YouTube player is ready');
+        // Custom behavior can be added here when the player is ready.
     }
 });

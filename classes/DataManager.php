@@ -350,7 +350,7 @@ class DataManager
 
             if (isset($data[$fieldName])) {
                 $mapped[$fieldName] = $this->formatFieldValue($data[$fieldName], $field['Type']);
-            } elseif ($field['Null'] === 'NO' && $field['Default'] === null && !$field['Extra'] === 'auto_increment') {
+            } elseif ($field['Null'] === 'NO' && $field['Default'] === null && ($field['Extra'] ?? '') !== 'auto_increment') {
                 switch ($fieldName) {
                     case 'created_at':
                     case 'updated_at':
