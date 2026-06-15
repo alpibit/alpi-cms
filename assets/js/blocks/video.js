@@ -27,6 +27,5 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function onPlayerReady(event) {
-        // Custom behavior can be added here when the player is ready.
     }
 });

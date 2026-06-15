@@ -45,6 +45,10 @@ try {
             require __DIR__ . '/admin/login.php';
             break;
 
+        case 'sitemap':
+            require __DIR__ . '/sitemap.php';
+            break;
+
         case '404':
         default:
             require __DIR__ . '/404.php';

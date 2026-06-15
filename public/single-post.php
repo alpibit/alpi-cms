@@ -48,6 +48,9 @@ try {
     $assetManager = new AssetManager();
 
     $pageTitle = isset($singlePost[0]['title']) ? $singlePost[0]['title'] : '';
+    $metaDescription = $singlePost[0]['subtitle'] ?? '';
+    $metaImage = !empty($singlePost[0]['main_image_path']) ? $singlePost[0]['main_image_path'] : '';
+    $ogType = 'article';
 
     $blockRenderer = new BlockRenderer($conn, $assetManager, ['post' => $singlePost[0]]);
     $blockRenderer->preloadAssets($blocks);

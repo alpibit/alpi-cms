@@ -1,7 +1,6 @@
 RewriteEngine On
 RewriteBase /
 
-# Hardening: deny direct access to sensitive paths (Apache adopters)
 RewriteRule ^config/ - [F]
 RewriteRule ^sql/ - [F]
 RewriteRule \.sql$ - [F]

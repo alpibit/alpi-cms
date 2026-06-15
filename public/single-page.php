@@ -48,6 +48,8 @@ try {
     $assetManager = new AssetManager();
 
     $pageTitle = isset($singlePage['title']) ? $singlePage['title'] : '';
+    $metaDescription = $singlePage['subtitle'] ?? '';
+    $metaImage = !empty($singlePage['main_image_path']) ? $singlePage['main_image_path'] : '';
 
     $blockRenderer = new BlockRenderer($conn, $assetManager, ['page' => $singlePage]);
     $blockRenderer->preloadAssets($blocks);

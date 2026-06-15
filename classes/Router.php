@@ -22,6 +22,10 @@ class Router
             return ['type' => 'admin'];
         }
 
+        if ($segments[0] === 'sitemap.xml') {
+            return ['type' => 'sitemap'];
+        }
+
         if ($this->isCategory($segments[0])) {
             if (isset($segments[1])) {
                 return $this->getPostRoute($segments[0], $segments[1]);

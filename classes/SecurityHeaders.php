@@ -10,8 +10,6 @@ class SecurityHeaders
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.youtube.com https://player.vimeo.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com; font-src 'self'; object-src 'none'; media-src 'self'; frame-src https://www.youtube.com https://player.vimeo.com; child-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'");
         header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
-        // Only advertise HSTS over HTTPS; sending it over plain HTTP can lock out
-        // adopters who haven't set up TLS yet.
         if (self::isHttpsRequest()) {
             header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
         }

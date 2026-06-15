@@ -66,6 +66,15 @@ if (!isset($pageTitle) || !is_string($pageTitle) || trim($pageTitle) === '') {
 }
 
 $pageTitle = htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8');
+
+$metaDescription = isset($metaDescription) && is_string($metaDescription) && trim($metaDescription) !== ''
+    ? htmlspecialchars(trim($metaDescription), ENT_QUOTES, 'UTF-8')
+    : $siteDescription;
+$metaImage = isset($metaImage) && is_string($metaImage) && trim($metaImage) !== ''
+    ? htmlspecialchars(trim($metaImage), ENT_QUOTES, 'UTF-8')
+    : $siteLogo;
+$ogType = (isset($ogType) && $ogType === 'article') ? 'article' : 'website';
+$canonicalUrl = htmlspecialchars(rtrim(BASE_URL, '/') . (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'), ENT_QUOTES, 'UTF-8');
 ?>
 
 <!DOCTYPE html>
@@ -75,7 +84,22 @@ $pageTitle = htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?> - <?= $siteName ?></title>
-    <meta name="description" content="<?= $siteDescription ?>">
+    <meta name="description" content="<?= $metaDescription ?>">
+    <link rel="canonical" href="<?= $canonicalUrl ?>">
+    <meta property="og:type" content="<?= $ogType ?>">
+    <meta property="og:title" content="<?= $pageTitle ?>">
+    <meta property="og:description" content="<?= $metaDescription ?>">
+    <meta property="og:url" content="<?= $canonicalUrl ?>">
+    <meta property="og:site_name" content="<?= $siteName ?>">
+    <?php if ($metaImage) : ?>
+        <meta property="og:image" content="<?= $metaImage ?>">
+    <?php endif; ?>
+    <meta name="twitter:card" content="<?= $metaImage ? 'summary_large_image' : 'summary' ?>">
+    <meta name="twitter:title" content="<?= $pageTitle ?>">
+    <meta name="twitter:description" content="<?= $metaDescription ?>">
+    <?php if ($metaImage) : ?>
+        <meta name="twitter:image" content="<?= $metaImage ?>">
+    <?php endif; ?>
     <?php if ($siteFavicon) : ?>
         <link rel="icon" href="<?= $siteFavicon ?>" type="image/x-icon">
     <?php endif; ?>
