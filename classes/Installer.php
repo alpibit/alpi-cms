@@ -63,13 +63,7 @@ class Installer
         $defaultPages = [
             ['title' => 'Home', 'content' => 'Welcome to the Home page'],
             ['title' => 'About', 'content' => 'Information about us'],
-            ['title' => 'Contact', 'content' => 'Contact us here'],
-            ['title' => 'Blog', 'content' => 'Latest news and updates'],
-            ['title' => 'FAQ', 'content' => 'Frequently Asked Questions'],
-            ['title' => 'Privacy Policy', 'content' => 'Our Privacy Policy'],
-            ['title' => 'Terms of Service', 'content' => 'Terms and Conditions'],
-            ['title' => 'Portfolio', 'content' => 'Showcase of our work'],
-            ['title' => 'Services', 'content' => 'Our Services']
+            ['title' => 'Contact', 'content' => 'Contact us here']
         ];
 
         foreach ($defaultPages as $page) {
@@ -87,8 +81,8 @@ class Installer
         $sampleBlocks = [
             [
                 'type' => 'text',
-                'title' => 'Sample Text Block',
-                'content' => 'This is a text block content.',
+                'title' => 'Welcome',
+                'content' => 'This is a text block. Edit or delete this sample post, then start building your own pages and posts from blocks.',
                 'image_path' => '',
                 'alt_text' => '',
                 'caption' => '',
@@ -99,24 +93,6 @@ class Installer
                 'metafield3' => null,
                 'cta_text1' => '',
                 'order_num' => 1,
-                'status' => 'active',
-                'start_date' => null,
-                'end_date' => null,
-            ],
-            [
-                'type' => 'image_text',
-                'title' => 'Sample Image Text Block',
-                'content' => 'This is the text content for the image-text block.',
-                'image_path' => 'path_to_sample_image.jpg',
-                'alt_text' => 'Sample Image',
-                'caption' => 'This is a caption.',
-                'url1' => '',
-                'class' => '',
-                'metafield1' => null,
-                'metafield2' => null,
-                'metafield3' => null,
-                'cta_text1' => 'Click here',
-                'order_num' => 2,
                 'status' => 'active',
                 'start_date' => null,
                 'end_date' => null,
@@ -211,7 +187,6 @@ class Installer
             ['default_post_thumbnail', ''],
             ['pagination_type', 'numbered'],
             ['footer_text', 'My Site powered by AlpiCMS'],
-            ['header_logo', 'path_to_logo_image.jpg'],
             ['email_from', ''],
             ['email_smtp_host', ''],
             ['email_smtp_port', ''],

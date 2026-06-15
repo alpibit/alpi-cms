@@ -408,11 +408,6 @@ switch ($blockType) {
         renderSpacingControls($block, 'map');
         break;
 
-    case 'form':
-        renderInput('form_shortcode', $block['form_shortcode'] ?? '', 'Form Shortcode');
-        renderSpacingControls($block, 'form');
-        break;
-
     case 'hero':
         renderInput('title', $block['title'] ?? '', 'Title');
         renderTextarea('content', $block['content'] ?? '', 'Content');

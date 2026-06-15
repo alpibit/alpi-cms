@@ -14,7 +14,6 @@ CREATE TABLE blocks (
         'audio',
         'free_code',
         'map',
-        'form',
         'hero'
     ) NOT NULL,
     title VARCHAR(255),

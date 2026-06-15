@@ -75,13 +75,6 @@ class BlockRegistry
             'template' => 'map.php',
             'frontend_enabled' => true,
         ],
-        'form' => [
-            'label' => 'Form',
-            'editor_enabled' => true,
-            'picker_enabled' => false,
-            'template' => null,
-            'frontend_enabled' => false,
-        ],
         'hero' => [
             'label' => 'Hero',
             'editor_enabled' => true,
