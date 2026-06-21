@@ -68,7 +68,7 @@ class DataManager
             'metadata' => [
                 'export_date' => date($this->dateFormat),
                 'version' => '1.0',
-                'cms_version' => '1.0',
+                'cms_version' => APP_VERSION,
                 'content_types' => $types
             ]
         ];

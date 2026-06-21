@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('APP_VERSION')) {
+    define('APP_VERSION', '0.9.0');
+}
+
 SecurityHeaders::apply();
 
 $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");

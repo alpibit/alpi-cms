@@ -2,3 +2,5 @@
 /uploads/*
 !/config/config.php
 !/config/autoload.php
+!/config/database.sample.php
+!/uploads/.gitkeep
