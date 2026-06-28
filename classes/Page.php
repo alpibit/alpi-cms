@@ -78,7 +78,7 @@ class Page
     // Fetch a page by its slug
     public function getPageBySlug($slug)
     {
-        $sql = "SELECT id, title, subtitle, main_image_path, show_main_image, is_active, slug FROM contents WHERE slug = :slug";
+        $sql = "SELECT id, title, subtitle, main_image_path, show_main_image, is_active, slug FROM contents WHERE slug = :slug AND is_active = 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();

@@ -34,7 +34,7 @@ $postObj = new Post($conn);
 $posts = [];
 foreach ($selectedPostIds as $postId) {
     $post = $postObj->getPostById($postId);
-    if (!empty($post)) {
+    if (!empty($post) && !empty($post[0]['is_active'])) {
         $posts[] = $post[0]; // getPostById returns an array of posts, we need the first (and only) element
     }
 }

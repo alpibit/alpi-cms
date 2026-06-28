@@ -19,7 +19,7 @@ $errorMessage = '';
 try {
     $db = new Database();
     $conn = $db->connect();
-    $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE title LIKE :query OR subtitle LIKE :query");
+    $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE is_active = 1 AND (title LIKE :query OR subtitle LIKE :query)");
     $stmt->bindValue(':query', '%' . $query . '%', PDO::PARAM_STR);
     $stmt->execute();
     $searchResults = $stmt->fetchAll(PDO::FETCH_ASSOC);

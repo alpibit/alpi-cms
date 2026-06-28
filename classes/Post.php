@@ -251,7 +251,7 @@ class Post
     // Fetch a post by its slug
     public function getPostBySlug($slug)
     {
-        $sql = "SELECT * FROM contents WHERE slug = :slug";
+        $sql = "SELECT * FROM contents WHERE slug = :slug AND is_active = 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
         $stmt->execute();
@@ -261,10 +261,10 @@ class Post
     // Fetch a post by its category slug and post slug
     public function getPostByCategoryAndSlug($categorySlug, $postSlug)
     {
-        $sql = "SELECT contents.*, categories.name AS category_name, categories.slug AS category_slug 
-            FROM contents 
-            INNER JOIN categories ON contents.category_id = categories.id 
-            WHERE categories.slug = :categorySlug AND contents.slug = :postSlug";
+        $sql = "SELECT contents.*, categories.name AS category_name, categories.slug AS category_slug
+            FROM contents
+            INNER JOIN categories ON contents.category_id = categories.id
+            WHERE categories.slug = :categorySlug AND contents.slug = :postSlug AND contents.is_active = 1";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':categorySlug', $categorySlug, PDO::PARAM_STR);
@@ -300,8 +300,8 @@ class Post
 
     public function getPostsByCategoryId($categoryId)
     {
-        $sql = "SELECT * FROM contents 
-                WHERE category_id = :categoryId AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')
+        $sql = "SELECT * FROM contents
+                WHERE category_id = :categoryId AND is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')
                 ORDER BY created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);

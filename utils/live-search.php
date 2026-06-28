@@ -25,7 +25,7 @@ $results = [];
 $searchTerm = '%' . $term . '%';
 
 try {
-    $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE content_type_id = (SELECT id FROM content_types WHERE name = 'page') AND (title LIKE :term OR subtitle LIKE :term)");
+    $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'page') AND (title LIKE :term OR subtitle LIKE :term)");
     $stmt->execute(['term' => $searchTerm]);
     $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($pages as $page) {
@@ -36,7 +36,7 @@ try {
         ];
     }
 
-    $stmt = $conn->prepare("SELECT c.title, c.slug, cat.slug as category_slug FROM contents c JOIN categories cat ON c.category_id = cat.id WHERE c.content_type_id = (SELECT id FROM content_types WHERE name = 'post') AND (c.title LIKE :term OR c.subtitle LIKE :term)");
+    $stmt = $conn->prepare("SELECT c.title, c.slug, cat.slug as category_slug FROM contents c JOIN categories cat ON c.category_id = cat.id WHERE c.is_active = 1 AND c.content_type_id = (SELECT id FROM content_types WHERE name = 'post') AND (c.title LIKE :term OR c.subtitle LIKE :term)");
     $stmt->execute(['term' => $searchTerm]);
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($posts as $post) {
@@ -72,7 +72,7 @@ try {
     if (!empty($contentIds)) {
         $placeholders = implode(',', array_fill(0, count($contentIds), '?'));
 
-        $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE id IN ($placeholders) AND content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
+        $stmt = $conn->prepare("SELECT title, slug FROM contents WHERE id IN ($placeholders) AND is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
         $stmt->execute($contentIds);
         $pagesFromBlocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($pagesFromBlocks as $page) {
@@ -86,7 +86,7 @@ try {
             }
         }
 
-        $stmt = $conn->prepare("SELECT c.title, c.slug, cat.slug as category_slug FROM contents c JOIN categories cat ON c.category_id = cat.id WHERE c.id IN ($placeholders) AND c.content_type_id = (SELECT id FROM content_types WHERE name = 'post')");
+        $stmt = $conn->prepare("SELECT c.title, c.slug, cat.slug as category_slug FROM contents c JOIN categories cat ON c.category_id = cat.id WHERE c.id IN ($placeholders) AND c.is_active = 1 AND c.content_type_id = (SELECT id FROM content_types WHERE name = 'post')");
         $stmt->execute($contentIds);
         $postsFromBlocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($postsFromBlocks as $post) {

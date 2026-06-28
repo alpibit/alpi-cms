@@ -34,7 +34,7 @@ try {
     $footerText = htmlspecialchars($settings->getSetting('footer_text'), ENT_QUOTES, 'UTF-8');
 
     // Fetch pages
-    $stmt = $conn->query("SELECT title, slug FROM contents WHERE content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
+    $stmt = $conn->query("SELECT title, slug FROM contents WHERE is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'page')");
     $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch categories
@@ -44,7 +44,7 @@ try {
     // Fetch posts under each category
     $postsByCategory = [];
     foreach ($categories as $category) {
-        $postQuery = "SELECT title, slug FROM contents WHERE category_id = (SELECT id FROM categories WHERE slug = :slug) AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')";
+        $postQuery = "SELECT title, slug FROM contents WHERE is_active = 1 AND category_id = (SELECT id FROM categories WHERE slug = :slug) AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')";
         $stmt = $conn->prepare($postQuery);
         $stmt->execute(['slug' => $category['slug']]);
         $postsByCategory[$category['slug']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
