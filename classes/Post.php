@@ -298,15 +298,36 @@ class Post
         }
     }
 
-    public function getPostsByCategoryId($categoryId)
+    public function getPostsByCategoryId($categoryId, $limit = null, $offset = 0)
     {
         $sql = "SELECT * FROM contents
                 WHERE category_id = :categoryId AND is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')
                 ORDER BY created_at DESC";
+
+        if ($limit !== null) {
+            $sql .= " LIMIT :limit OFFSET :offset";
+        }
+
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->bindValue(':categoryId', (int) $categoryId, PDO::PARAM_INT);
+
+        if ($limit !== null) {
+            $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countPostsByCategoryId($categoryId)
+    {
+        $sql = "SELECT COUNT(*) FROM contents
+                WHERE category_id = :categoryId AND is_active = 1 AND content_type_id = (SELECT id FROM content_types WHERE name = 'post')";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':categoryId', (int) $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
     }
 
     public function getCategorySlugByPostId($postId)

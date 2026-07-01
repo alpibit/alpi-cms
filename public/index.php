@@ -24,6 +24,20 @@ try {
     $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $route = $router->getRoute($requestUri);
 
+    $isLoggedInAdmin = isset($_SESSION['loggedIn']) && $_SESSION['loggedIn'] === true;
+    if ($route['type'] !== 'admin' && !$isLoggedInAdmin && (new Settings($conn))->getSetting('maintenance_mode') === 'true') {
+        alpiExitWithPublicErrorPage([
+            'statusCode' => 503,
+            'pageTitle' => 'Maintenance',
+            'eyebrow' => 'Maintenance',
+            'title' => 'The site is under maintenance.',
+            'message' => 'We are making some improvements and will be back shortly. Please check back soon.',
+            'actions' => [
+                ['label' => 'Try again', 'variant' => 'primary', 'isButton' => true],
+            ],
+        ]);
+    }
+
     switch ($route['type']) {
         case 'home':
             require __DIR__ . '/home.php';

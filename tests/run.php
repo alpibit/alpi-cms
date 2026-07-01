@@ -10,6 +10,7 @@ define('BASE_URL', 'http://localhost');
 require_once __DIR__ . '/../classes/BlockData.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Upload.php';
+require_once __DIR__ . '/../utils/helpers.php';
 
 class TestPDO extends PDO
 {
@@ -97,6 +98,23 @@ $isAllowed->setAccessible(true);
 check($isAllowed->invoke($upload, 'jpg', 'image/jpeg') === true, 'jpg with image/jpeg is allowed');
 check($isAllowed->invoke($upload, 'php', 'text/html') === false, 'php is not allowed');
 check($isAllowed->invoke($upload, 'jpg', 'text/html') === false, 'jpg with a mismatched mime is rejected');
+
+echo "Pagination math\n";
+
+$emptyPage = alpiCalculatePagination(0, 10, 1);
+check($emptyPage['totalPages'] === 1 && $emptyPage['offset'] === 0, 'an empty set yields one page at offset 0');
+
+$secondPage = alpiCalculatePagination(25, 10, 2);
+check($secondPage['totalPages'] === 3 && $secondPage['offset'] === 10, 'page 2 of 25 items at 10/page offsets by 10');
+
+$beyondLast = alpiCalculatePagination(25, 10, 99);
+check($beyondLast['currentPage'] === 3 && $beyondLast['offset'] === 20, 'an out-of-range page clamps to the last page');
+
+$belowFirst = alpiCalculatePagination(25, 10, 0);
+check($belowFirst['currentPage'] === 1 && $belowFirst['offset'] === 0, 'a page below 1 clamps to the first page');
+
+$badPerPage = alpiCalculatePagination(25, 0, 1);
+check($badPerPage['perPage'] === 10, 'a non-positive per-page falls back to 10');
 
 echo "\n{$tests} checks run, {$failures} failure(s)\n";
 

@@ -200,3 +200,35 @@ if (!function_exists('alpiIsHttpsRequest')) {
 			|| ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443);
 	}
 }
+
+if (!function_exists('alpiCalculatePagination')) {
+	function alpiCalculatePagination($totalItems, $perPage, $currentPage)
+	{
+		$totalItems = max(0, (int) $totalItems);
+		$perPage = (int) $perPage;
+		if ($perPage < 1) {
+			$perPage = 10;
+		}
+
+		$totalPages = (int) ceil($totalItems / $perPage);
+		if ($totalPages < 1) {
+			$totalPages = 1;
+		}
+
+		$currentPage = (int) $currentPage;
+		if ($currentPage < 1) {
+			$currentPage = 1;
+		}
+		if ($currentPage > $totalPages) {
+			$currentPage = $totalPages;
+		}
+
+		return [
+			'perPage' => $perPage,
+			'totalItems' => $totalItems,
+			'totalPages' => $totalPages,
+			'currentPage' => $currentPage,
+			'offset' => ($currentPage - 1) * $perPage,
+		];
+	}
+}

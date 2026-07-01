@@ -34,8 +34,12 @@ try {
         exit;
     }
 
-    // Fetch posts in this category
-    $posts = $postObj->getPostsByCategoryId($category['id']);
+    $settings = new Settings($conn);
+    $requestedPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+    $totalPosts = $postObj->countPostsByCategoryId($category['id']);
+    $pagination = alpiCalculatePagination($totalPosts, $settings->getSetting('posts_per_page'), $requestedPage);
+
+    $posts = $postObj->getPostsByCategoryId($category['id'], $pagination['perPage'], $pagination['offset']);
 
     $router = new Router($conn);
 
@@ -47,7 +51,6 @@ try {
 
     <h1>Posts in Category: <?= htmlspecialchars($category['name'] ?? "") ?></h1>
     <?php foreach ($posts as $post) :
-        // Generate URL for the post
         $postUrl = $router->generateUrl('post', $post['slug'], $categorySlug);
     ?>
         <div>
@@ -55,6 +58,18 @@ try {
             <p><?= htmlspecialchars($post['content'] ?? "") ?></p>
         </div>
     <?php endforeach; ?>
+
+    <?php if ($pagination['totalPages'] > 1) : ?>
+        <nav class="pagination" aria-label="Category pagination">
+            <?php for ($pageNum = 1; $pageNum <= $pagination['totalPages']; $pageNum++) : ?>
+                <?php if ($pageNum === $pagination['currentPage']) : ?>
+                    <span class="pagination-current" aria-current="page"><?= $pageNum ?></span>
+                <?php else : ?>
+                    <a href="?page=<?= $pageNum ?>"><?= $pageNum ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+        </nav>
+    <?php endif; ?>
 
     <?php include __DIR__ . '/../templates/footer.php'; ?>
 
